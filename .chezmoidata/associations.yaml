@@ -1,0 +1,12 @@
+associations:
+  "com.aone.keka":
+    - "public.archive"
+  "com.colliderli.iina":
+    - "public.audiovisual-content"
+  "dev.zed.Zed":
+    - "public.plain-text"
+    - "public.script"
+    - "public.source-code"
+  "org.qbittorrent.qBittorrent":
+    - ".torrent"
+    - "magnet"

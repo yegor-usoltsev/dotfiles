@@ -1,0 +1,34 @@
+[user]
+	name = Yegor Usoltsev
+	email = yegor@usoltsev.xyz
+	useConfigOnly = true
+
+[core]
+	autocrlf = input
+	editor = micro
+	excludesfile = ~/.gitignore
+	ignorecase = false
+	pager = delta
+	trustctime = false
+	untrackedCache = true
+
+[delta]
+	hyperlinks = true
+	line-numbers = true
+	navigate = true
+
+[diff]
+	algorithm = histogram
+	colorMoved = default
+
+[init]
+	defaultBranch = main
+
+[interactive]
+	diffFilter = delta --color-only
+
+[merge]
+	conflictStyle = zdiff3
+
+[push]
+	autoSetupRemote = true

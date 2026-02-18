@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "log" . -}}
+
+info "Installing ffmpeg static builds"
+
+ff_base="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release"
+local_bin="$HOME/.local/bin"
+mkdir -p "$local_bin"
+
+tmp_dir="$(mktemp -d)"
+for tool in ffmpeg ffprobe ffplay; do
+	if curl -fsSL -o "$tmp_dir/${tool}.zip" "${ff_base}/${tool}.zip" &&
+		unzip -oq "$tmp_dir/${tool}.zip" -d "$tmp_dir" &&
+		mv "$tmp_dir/${tool}" "$local_bin/${tool}" &&
+		chmod +x "$local_bin/${tool}"; then
+		:
+	else
+		warn "Failed to install $tool"
+	fi
+done
+rm -rf "$tmp_dir"
+
+success "ffmpeg tools installed to ~/.local/bin"

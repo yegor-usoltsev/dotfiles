@@ -1,0 +1,11 @@
+Include ~/.orbstack/ssh/config
+
+Host *
+    ControlMaster auto
+    ControlPath ~/.ssh/sockets/%r@%h-%p
+    ControlPersist 10m
+
+    ServerAliveCountMax 3
+    ServerAliveInterval 60
+
+    StrictHostKeyChecking accept-new
