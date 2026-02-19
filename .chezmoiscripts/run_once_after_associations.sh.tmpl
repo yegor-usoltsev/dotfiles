@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{ template "log" . -}}
+{{ template "log" . }}
 
 info "Setting default app associations"
 
-{{ range $app, $targets := .associations -}}
-{{ range $targets -}}
-duti -s {{ $app }} {{ . }} all
-{{ end -}}
-{{ end -}}
+{{ range $app, $targets := .associations }}
+{{ range $target := $targets }}
+duti -s {{ $app }} {{ $target }} all
+{{ end }}
+{{ end }}
 
 success "Default app associations set"

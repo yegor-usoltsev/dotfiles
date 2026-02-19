@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{ template "log" . -}}
+{{ template "log" . }}
 # config.toml hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
 
 info "Installing mise runtimes"
+
 mise install --yes
+
 success "Mise runtimes installed"

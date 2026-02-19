@@ -1,18 +1,70 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{ template "log" . -}}
+{{ template "log" . }}
 
-info "Applying macOS settings"
+info "Applying macOS defaults" # https://macos-defaults.com
 
+# Deactivate Apple Intelligence.
+defaults write com.apple.CloudSubscriptionFeatures.optIn "545129924" -bool "false"
+# Prevent creation of .DS_Store files on network volumes.
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+# Prevent creation of .DS_Store files on USB volumes.
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+# Automatically hide the Dock.
+defaults write com.apple.dock autohide -bool true
+# Remove Dock autohide show delay.
+defaults write com.apple.dock autohide-delay -float 0
+# Show all windows per app in Mission Control, not grouped.
+defaults write com.apple.dock expose-group-apps -bool true
+# Use scale effect when minimizing windows.
+defaults write com.apple.dock mineffect -string "scale"
+# Disable automatic Spaces rearrangement by recent use.
+defaults write com.apple.dock mru-spaces -bool false
+# Hide recent applications from the Dock.
+defaults write com.apple.dock show-recents -bool false
+# Only show opened apps in Dock.
+defaults write com.apple.dock static-only -bool true
+# Set the icon size of Dock items in pixels
+defaults write com.apple.dock tilesize -int 64
+# Keep folders grouped before files in Finder lists.
+defaults write com.apple.finder _FXSortFoldersFirst -bool true
+# Keep folders grouped before files on Desktop.
+defaults write com.apple.finder _FXSortFoldersFirstOnDesktop -bool true
+# Use current folder as default Finder search scope.
+defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+# Disable warning when changing file extensions.
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+# Use list view as the default Finder view style.
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+# Automatically remove old items from Trash.
+defaults write com.apple.finder FXRemoveOldTrashItems -bool true
+# Show the path bar in Finder windows.
+defaults write com.apple.finder ShowPathbar -bool true
+# Show the status bar in Finder windows.
+defaults write com.apple.finder ShowStatusBar -bool true
+# Set the current keyboard layout to U.S.
+defaults write com.apple.HIToolbox AppleCurrentKeyboardLayoutInputSourceID -string "com.apple.keylayout.US"
+# Disable app quarantine prompt for newly downloaded apps.
+defaults write com.apple.LaunchServices LSQuarantine -bool false
+# Disable drop shadows in screenshots.
+defaults write com.apple.screencapture disable-shadow -bool true
+# Save screenshots to a dedicated folder.
+defaults write com.apple.screencapture location "$HOME/Pictures/Screenshots" && mkdir -p "$HOME/Pictures/Screenshots"
+# Do not show floating thumbnail preview after capture.
+defaults write com.apple.screencapture show-thumbnail -bool false
+# Save screenshots as JPG files.
+defaults write com.apple.screencapture type -string "jpg"
+# Disable "Click wallpaper to reveal desktop"
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
 # Enable full keyboard access for all controls.
-defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+defaults write NSGlobalDomain AppleKeyboardUIMode -int 2
 # Disable press-and-hold accents in favor of key repeat.
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 # Always show file extensions in Finder and dialogs.
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
-# Use F1-F12 as standard function keys by default.
-defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true
+# Do not switch to a Space with open windows for the application.
+defaults write NSGlobalDomain AppleSpacesSwitchOnActivate -bool false
 # Set a faster initial key repeat delay.
 defaults write NSGlobalDomain InitialKeyRepeat -int 15
 # Set a fast key repeat rate.
@@ -27,82 +79,13 @@ defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
 # Disable automatic spell correction.
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
-# Disable window open/close animation effects.
-defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
-# Save new documents locally instead of iCloud by default.
-defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
-# Expand save panel by default (legacy key).
-defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
-# Expand save panel by default (modern key).
-defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
-# Expand print panel by default (legacy key).
-defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
-# Expand print panel by default (modern key).
-defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
-# Do not restore app windows after quitting and reopening apps.
-defaults write NSGlobalDomain NSQuitAlwaysKeepsWindows -bool false
 # Do not ask to keep changes when closing documents.
 defaults write NSGlobalDomain NSCloseAlwaysConfirmsChanges -bool false
+# Save new documents locally instead of iCloud by default.
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+# Do not restore app windows after quitting and reopening apps.
+defaults write NSGlobalDomain NSQuitAlwaysKeepsWindows -bool false
 
-# Prevent creation of .DS_Store files on network volumes.
-defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-# Prevent creation of .DS_Store files on USB volumes.
-defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
-# Keep folders grouped before files in Finder lists.
-defaults write com.apple.finder _FXSortFoldersFirst -bool true
-# Keep folders grouped before files on Desktop.
-defaults write com.apple.finder _FXSortFoldersFirstOnDesktop -bool true
-# Keep hidden files hidden in Finder.
-defaults write com.apple.finder AppleShowAllFiles -bool false
-# Use list view as the default Finder view style.
-defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
-# Use current folder as default Finder search scope.
-defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
-# Disable warning when changing file extensions.
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
-# Automatically remove old items from Trash.
-defaults write com.apple.finder FXRemoveOldTrashItems -bool true
-# Show the path bar in Finder windows.
-defaults write com.apple.finder ShowPathbar -bool true
-# Show the status bar in Finder windows.
-defaults write com.apple.finder ShowStatusBar -bool true
-
-# Automatically hide the Dock.
-defaults write com.apple.dock autohide -bool true
-# Use scale effect when minimizing windows.
-defaults write com.apple.dock mineffect -string "scale"
-# Remove Dock autohide show delay.
-defaults write com.apple.dock autohide-delay -float 0
-# Speed up Dock autohide animation.
-defaults write com.apple.dock autohide-time-modifier -float 0.5
-# Disable automatic Spaces rearrangement by recent use.
-defaults write com.apple.dock mru-spaces -bool false
-# Show all windows per app in Mission Control, not grouped.
-defaults write com.apple.dock expose-group-apps -bool false
-# Hide recent applications from the Dock.
-defaults write com.apple.dock show-recents -bool false
-# Make hidden app icons translucent in the Dock.
-defaults write com.apple.dock showhidden -bool true
-
-# Ensure the screenshots directory exists.
-mkdir -p "$HOME/Pictures/Screenshots"
-# Disable drop shadows in screenshots.
-defaults write com.apple.screencapture disable-shadow -bool true
-# Do not show floating thumbnail preview after capture.
-defaults write com.apple.screencapture show-thumbnail -bool false
-# Save screenshots to a dedicated folder.
-defaults write com.apple.screencapture location "$HOME/Pictures/Screenshots"
-# Save screenshots as JPG files.
-defaults write com.apple.screencapture type -string "jpg"
-
-# Disable "Click wallpaper to reveal desktop"
-defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
-
-# Disable app quarantine prompt for newly downloaded apps.
-defaults write com.apple.LaunchServices LSQuarantine -bool false
-
-# Set the current keyboard layout to U.S.
-defaults write com.apple.HIToolbox AppleCurrentKeyboardLayoutInputSourceID -string "com.apple.keylayout.US"
 # Define enabled input sources (U.S., RussianWin, Character Viewer, PressAndHold).
 defaults write com.apple.HIToolbox AppleEnabledInputSources -array \
 	'<dict>
@@ -123,6 +106,7 @@ defaults write com.apple.HIToolbox AppleEnabledInputSources -array \
 		<key>Bundle ID</key><string>com.apple.PressAndHold</string>
 		<key>InputSourceKind</key><string>Non Keyboard Input Method</string>
 	</dict>'
+
 # Define selected input sources order (U.S. and PressAndHold).
 defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
 	'<dict>
@@ -135,8 +119,8 @@ defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
 		<key>InputSourceKind</key><string>Non Keyboard Input Method</string>
 	</dict>'
 
-killall Finder >/dev/null 2>&1 || true
 killall Dock >/dev/null 2>&1 || true
+killall Finder >/dev/null 2>&1 || true
 killall SystemUIServer >/dev/null 2>&1 || true
 
-success "macOS settings configured"
+success "macOS defaults configured"

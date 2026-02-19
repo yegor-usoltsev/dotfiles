@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{ template "log" . -}}
+{{ template "log" . }}
 
 info "Setting up agent-browser"
+
 agent-browser install
+
 success "agent-browser set up"

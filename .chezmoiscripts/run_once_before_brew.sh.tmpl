@@ -1,36 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{ template "log" . -}}
+{{ template "log" . }}
 
+{{ if .packages.taps }}
 info "Adding taps"
-{{ range .packages.taps -}}
+{{ range .packages.taps }}
 brew tap {{ . | quote }}
-{{ end -}}
+{{ end }}
 success "Taps added"
+{{ end }}
 
+{{ if .packages.brews }}
 info "Installing formulae"
 brew bundle --file=/dev/stdin <<EOF
-{{ range .packages.brews -}}
+{{ range .packages.brews }}
 brew {{ . | quote }}
-{{ end -}}
+{{ end }}
 EOF
 success "Formulae installed"
+{{ end }}
 
+{{ if .packages.casks }}
 info "Installing casks"
 brew bundle --file=/dev/stdin <<EOF
-{{ range .packages.casks -}}
+{{ range .packages.casks }}
 cask {{ . | quote }}
-{{ end -}}
+{{ end }}
 EOF
 success "Casks installed"
+{{ end }}
 
-{{ if .installAppsFromAppStore -}}
+{{ if and .packages.mas .installAppsFromAppStore }}
 info "Installing MAS apps"
 brew bundle --file=/dev/stdin <<EOF
-{{ range $name, $id := .packages.mas -}}
+{{ range $name, $id := .packages.mas }}
 mas {{ $name | quote }}, id: {{ $id }}
-{{ end -}}
+{{ end }}
 EOF
 success "MAS apps installed"
-{{ end -}}
+{{ end }}
