@@ -25,6 +25,7 @@ cask {{ . | quote }}
 EOF
 success "Casks installed"
 
+{{ if .installAppsFromAppStore -}}
 info "Installing MAS apps"
 brew bundle --file=/dev/stdin <<EOF
 {{ range $name, $id := .packages.mas -}}
@@ -32,3 +33,4 @@ mas {{ $name | quote }}, id: {{ $id }}
 {{ end -}}
 EOF
 success "MAS apps installed"
+{{ end -}}

@@ -74,7 +74,7 @@ defaults write com.apple.dock mineffect -string "scale"
 # Remove Dock autohide show delay.
 defaults write com.apple.dock autohide-delay -float 0
 # Speed up Dock autohide animation.
-defaults write com.apple.dock autohide-time-modifier -float 0.12
+defaults write com.apple.dock autohide-time-modifier -float 0.5
 # Disable automatic Spaces rearrangement by recent use.
 defaults write com.apple.dock mru-spaces -bool false
 # Show all windows per app in Mission Control, not grouped.
@@ -95,11 +95,11 @@ defaults write com.apple.screencapture location "$HOME/Pictures/Screenshots"
 # Save screenshots as JPG files.
 defaults write com.apple.screencapture type -string "jpg"
 
+# Disable "Click wallpaper to reveal desktop"
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+
 # Disable app quarantine prompt for newly downloaded apps.
 defaults write com.apple.LaunchServices LSQuarantine -bool false
-
-# Show full URL in Safari's address bar.
-defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
 
 # Set the current keyboard layout to U.S.
 defaults write com.apple.HIToolbox AppleCurrentKeyboardLayoutInputSourceID -string "com.apple.keylayout.US"

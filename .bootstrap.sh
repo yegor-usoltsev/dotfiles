@@ -62,27 +62,6 @@ ensure_bitwarden() {
 	success "Bitwarden authenticated and unlocked"
 }
 
-ensure_appstore() {
-	local state_file="/tmp/.bootstrap-appstore-signedin"
-	if [[ -f $state_file ]]; then
-		info "App Store sign-in already confirmed"
-		return
-	fi
-	local signed_in
-	prompt "Are you signed in to the App Store? [Y/n] " signed_in
-	if [[ ! $signed_in =~ ^[Nn]$ ]]; then
-		info "App Store already signed in"
-		touch "$state_file"
-		return
-	fi
-	info "Opening App Store for sign-in..."
-	mas open
-	prompt "Press Enter once you have signed in to the App Store..." _
-	touch "$state_file"
-	success "App Store sign-in confirmed"
-}
-
 ensure_homebrew
 ensure_tools
 ensure_bitwarden
-ensure_appstore

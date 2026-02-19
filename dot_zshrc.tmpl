@@ -15,11 +15,6 @@ FPATH="$(brew --prefix)/share/zsh/site-functions:$ZSH_CACHE_DIR:$FPATH"
 
 if [[ ! -f "/tmp/.completions_generated" ]]; then
 	chezmoi completion zsh >"$ZSH_CACHE_DIR/_chezmoi" 2>/dev/null || true
-	codex completion zsh >"$ZSH_CACHE_DIR/_codex" 2>/dev/null || true
-	goreleaser completion zsh >"$ZSH_CACHE_DIR/_goreleaser" 2>/dev/null || true
-	opencode completion zsh >"$ZSH_CACHE_DIR/_opencode" 2>/dev/null || true
-	tailscale completion zsh >"$ZSH_CACHE_DIR/_tailscale" 2>/dev/null || true
-	task --completion zsh >"$ZSH_CACHE_DIR/_task" 2>/dev/null || true
 	touch "/tmp/.completions_generated"
 fi
 
