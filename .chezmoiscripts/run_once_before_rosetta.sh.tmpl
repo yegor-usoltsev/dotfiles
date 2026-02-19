@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "log" . }}
+
+info "Installing Rosetta"
+
+softwareupdate --install-rosetta --agree-to-license
+
+success "Rosetta installed"
