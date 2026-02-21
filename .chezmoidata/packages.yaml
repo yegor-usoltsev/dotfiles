@@ -72,7 +72,6 @@ packages:
     - "spotify"
     - "tailscale-app"
     - "telegram"
-    - "ticktick" # TODO: manually migrate to fsnotes
     - "visual-studio-code"
     - "zed"
     - "zoom"
