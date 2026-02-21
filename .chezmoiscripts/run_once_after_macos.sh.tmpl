@@ -49,8 +49,6 @@ defaults write com.apple.LaunchServices LSQuarantine -bool false
 defaults write com.apple.screencapture disable-shadow -bool true
 # Save screenshots to a dedicated folder.
 defaults write com.apple.screencapture location "$HOME/Pictures/Screenshots" && mkdir -p "$HOME/Pictures/Screenshots"
-# Do not show floating thumbnail preview after capture.
-defaults write com.apple.screencapture show-thumbnail -bool false
 # Save screenshots as JPG files.
 defaults write com.apple.screencapture type -string "jpg"
 # Disable "Click wallpaper to reveal desktop"
