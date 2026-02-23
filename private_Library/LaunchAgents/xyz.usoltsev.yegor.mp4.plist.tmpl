@@ -8,7 +8,7 @@
 	<array>
 		<string>/bin/zsh</string>
 		<string>-c</string>
-		<string>for f in {{ .chezmoi.homeDir }}/Pictures/Screenshots/*.mov(.N); do {{ .chezmoi.homeDir }}/.local/bin/mp4 "$f"; done</string>
+		<string>for f in {{ .screenshotsPath }}/*.mov(.N); do {{ .chezmoi.homeDir }}/.local/bin/mp4 "$f"; done</string>
 	</array>
 	<key>EnvironmentVariables</key>
 	<dict>
@@ -21,7 +21,7 @@
 	</dict>
 	<key>WatchPaths</key>
 	<array>
-		<string>{{ .chezmoi.homeDir }}/Pictures/Screenshots</string>
+		<string>{{ .screenshotsPath }}</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>

@@ -47,8 +47,10 @@ defaults write com.apple.HIToolbox AppleCurrentKeyboardLayoutInputSourceID -stri
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 # Disable drop shadows in screenshots.
 defaults write com.apple.screencapture disable-shadow -bool true
-# Save screenshots to a dedicated folder.
-defaults write com.apple.screencapture location "$HOME/Pictures/Screenshots" && mkdir -p "$HOME/Pictures/Screenshots"
+# Save screenshots under Pictures and keep a Desktop symlink for convenience.
+mkdir -p "{{ .screenshotsPath }}"
+ln -sfn "{{ .screenshotsPath }}" "{{ .chezmoi.homeDir }}/Desktop/Screenshots"
+defaults write com.apple.screencapture location "{{ .screenshotsPath }}"
 # Save screenshots as JPG files.
 defaults write com.apple.screencapture type -string "jpg"
 # Disable "Click wallpaper to reveal desktop"

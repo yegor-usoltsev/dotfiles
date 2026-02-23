@@ -3,3 +3,4 @@ command = ".local/share/chezmoi/.bootstrap.sh"
 
 [data]
 installAppsFromAppStore = {{ promptBoolOnce . "installAppsFromAppStore" "Do you want to install apps from the App Store" }}
+screenshotsPath = "{{ .chezmoi.homeDir }}/Pictures/Screenshots"
