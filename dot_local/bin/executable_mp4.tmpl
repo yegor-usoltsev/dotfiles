@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "log" . }}
+
+if [[ $# -ne 1 ]]; then
+	error "usage: mp4 /path/to/video-file"
+fi
+
+input="$1"
+if [[ ! -f $input ]]; then
+	error "file not found: $input"
+fi
+
+input_hash="$(printf '%s' "$input" | sha256sum | awk '{print $1}')"
+
+lock_dir="${TMPDIR:-/tmp}/mp4-convert-${input_hash}.lock"
+if ! mkdir "$lock_dir" 2>/dev/null; then
+	info "skip (conversion already running for file): $input"
+	exit 0
+fi
+trap 'rmdir "$lock_dir" >/dev/null 2>&1 || true' EXIT
+
+file_size() {
+	local path="$1"
+	if stat -f%z "$path" >/dev/null 2>&1; then
+		stat -f%z "$path"
+	else
+		stat -c%s "$path"
+	fi
+}
+
+wait_for_stable_file() {
+	local path="$1"
+	local prev_size current_size
+	local attempts=0
+	local max_attempts=5
+
+	prev_size="$(file_size "$path")"
+	while ((attempts < max_attempts)); do
+		sleep 1
+		current_size="$(file_size "$path")"
+		if [[ $current_size == "$prev_size" ]]; then
+			return 0
+		fi
+		prev_size="$current_size"
+		((attempts += 1))
+	done
+
+	return 1
+}
+
+if ! wait_for_stable_file "$input"; then
+	warn "skip (file still being written): $input"
+	exit 0
+fi
+
+ext="${input##*.}"
+ext_lc="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
+if [[ $ext_lc == "mp4" ]]; then
+	info "already mp4: $input"
+	exit 0
+fi
+
+output="${input%.*}.mp4"
+if [[ -e $output && $output -nt $input ]]; then
+	info "skip (output is up-to-date): $output"
+	exit 0
+fi
+
+info "input: $input"
+info "output: $output"
+
+notify() {
+	local title="$1"
+	local message="$2"
+	if [[ ${MP4_NOTIFY:-0} == "1" ]]; then
+		osascript -e "display notification \"${message//\"/\\\"}\" with title \"${title//\"/\\\"}\"" >/dev/null 2>&1 || true
+	fi
+}
+
+if ! ffprobe -v error -select_streams v:0 -show_entries stream=codec_type -of default=nk=1:nw=1 "$input" >/dev/null 2>&1; then
+	warn "skip (not a video file): $input"
+	exit 0
+fi
+
+if ffmpeg -y -i "$input" "$output"; then
+	success "converted: $output"
+	if [[ ${MP4_TRASH_ORIGINAL:-0} == "1" ]]; then
+		if trash -- "$input"; then
+			info "trashed original: $input"
+		else
+			warn "failed to trash original: $input"
+		fi
+	fi
+	notify "mp4" "Converted $(basename "$input")"
+else
+	error "conversion failed: $input"
+	notify "mp4" "Failed to convert $(basename "$input")"
+fi

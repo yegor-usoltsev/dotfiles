@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>xyz.usoltsev.yegor.mp4</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/zsh</string>
+		<string>-c</string>
+		<string>for f in {{ .chezmoi.homeDir }}/Pictures/Screenshots/*.mov(.N); do {{ .chezmoi.homeDir }}/.local/bin/mp4 "$f"; done</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>MP4_TRASH_ORIGINAL</key>
+		<string>1</string>
+		<key>MP4_NOTIFY</key>
+		<string>1</string>
+		<key>PATH</key>
+		<string>{{ .chezmoi.homeDir }}/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/sbin</string>
+	</dict>
+	<key>WatchPaths</key>
+	<array>
+		<string>{{ .chezmoi.homeDir }}/Pictures/Screenshots</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+</dict>
+</plist>

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "log" . }}
+# mp4 script hash: {{ include "dot_local/bin/executable_mp4.tmpl" | sha256sum }}
+# launch agent hash: {{ include "private_Library/LaunchAgents/xyz.usoltsev.yegor.mp4.plist.tmpl" | sha256sum }}
+
+info "Loading mp4 launch agent"
+
+agent="$HOME/Library/LaunchAgents/xyz.usoltsev.yegor.mp4.plist"
+launchctl unload "$agent" >/dev/null 2>&1 || true
+launchctl load "$agent"
+
+success "mp4 launch agent loaded"
