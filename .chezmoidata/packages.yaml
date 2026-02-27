@@ -82,3 +82,7 @@ packages:
     Happ: 6504287215
     SponsorBlock: 1573461917
     wBlock: 6746388723
+  vscode:
+    - "dbaeumer.vscode-eslint"
+    - "esbenp.prettier-vscode"
+    - "redhat.vscode-yaml"

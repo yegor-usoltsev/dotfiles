@@ -40,3 +40,13 @@ mas {{ $name | quote }}, id: {{ $id }}
 EOF
 success "MAS apps installed"
 {{ end }}
+
+{{ if .packages.vscode }}
+info "Installing VSCode extensions"
+brew bundle --file=/dev/stdin <<EOF
+{{ range .packages.vscode }}
+vscode {{ . | quote }}
+{{ end }}
+EOF
+success "VSCode extensions installed"
+{{ end }}
