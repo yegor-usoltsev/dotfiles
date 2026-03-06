@@ -1,4 +1,13 @@
 {
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "sh {{ .chezmoi.homeDir }}/.claude/statusline.sh"
+  },
+  "autoMemoryEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
   "mcpServers": {
     "context7": {
       "type": "http",
@@ -7,13 +16,5 @@
         "CONTEXT7_API_KEY": "{{ (index (rbwFields "context7.com") "API key").value }}"
       }
     }
-  },
-  "permissions": {
-    "defaultMode": "bypassPermissions"
-  },
-  "skipDangerousModePermissionPrompt": true,
-  "statusLine": {
-    "type": "command",
-    "command": "sh {{ .chezmoi.homeDir }}/.claude/statusline.sh"
   }
 }
