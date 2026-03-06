@@ -53,12 +53,14 @@ setopt SHARE_HISTORY
 autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
-bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search
-bindkey "${terminfo[kcud1]}" down-line-or-beginning-search
+if [[ -n ${terminfo[kcuu1]:-} ]]; then
+	bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search
+fi
+if [[ -n ${terminfo[kcud1]:-} ]]; then
+	bindkey "${terminfo[kcud1]}" down-line-or-beginning-search
+fi
 bindkey "^[[A" up-line-or-beginning-search
 bindkey "^[[B" down-line-or-beginning-search
-
-eval "$(zoxide init zsh --cmd cd)"
 
 alias l='eza -lah --group-directories-first'
 alias ls='eza --group-directories-first'
@@ -85,4 +87,7 @@ alias decompress='ouch decompress'
 
 alias codex='codex --dangerously-bypass-approvals-and-sandbox'
 
-eval "$(starship init zsh)"
+if [[ ${TERM:-} != "dumb" ]]; then
+	eval "$(starship init zsh)"
+fi
+eval "$(zoxide init zsh --cmd cd)"
