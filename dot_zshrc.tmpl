@@ -87,7 +87,11 @@ alias decompress='ouch decompress'
 
 alias codex='codex --dangerously-bypass-approvals-and-sandbox'
 
+source <(fzf --zsh)
+
+export _ZO_DOCTOR=0
+eval "$(zoxide init zsh --cmd cd)"
+
 if [[ ${TERM:-} != "dumb" ]]; then
 	eval "$(starship init zsh)"
 fi
-eval "$(zoxide init zsh --cmd cd)"
