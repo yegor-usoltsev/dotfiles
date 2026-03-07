@@ -1,4 +1,28 @@
-"$schema" = 'https://starship.rs/config-schema.json'
+"$schema" = "https://starship.rs/config-schema.json"
+
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_commit\
+$git_state\
+$git_metrics\
+$git_status\
+$memory_usage\
+$custom\
+$sudo\
+$cmd_duration\
+$line_break\
+$jobs\
+$battery\
+$time\
+$status\
+$os\
+$container\
+$netns\
+$shell\
+$character"""
 
 [aws]
 symbol = " "
@@ -31,8 +55,10 @@ symbol = " "
 symbol = " "
 
 [directory]
-truncate_to_repo = false
 read_only = " 󰌾"
+truncate_to_repo = false
+truncation_length = 4
+truncation_symbol = "../"
 
 [docker_context]
 symbol = " "
@@ -59,7 +85,7 @@ symbol = " "
 symbol = " "
 
 [git_commit]
-tag_symbol = '  '
+tag_symbol = "  "
 
 [golang]
 symbol = " "
