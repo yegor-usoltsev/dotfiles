@@ -18,24 +18,12 @@ ensure_homebrew() {
 	success "Homebrew installed"
 }
 
-ensure_tools() {
-	local tools=(rbw mas)
-	local to_install=()
-	for tool in "${tools[@]}"; do
-		if ! brew list "$tool" >/dev/null; then
-			to_install+=("$tool")
-		fi
-	done
-	if [ "${#to_install[@]}" -eq 0 ]; then
-		info "Bootstrap tools already installed"
-		return
-	fi
-	info "Installing bootstrap tools: ${to_install[*]}..."
-	brew install "${to_install[@]}"
-	success "Bootstrap tools installed"
-}
-
 ensure_bitwarden() {
+	if ! command -v rbw >/dev/null; then
+		info "Installing rbw..."
+		brew install rbw
+		success "rbw installed"
+	fi
 	if rbw unlocked >/dev/null; then
 		info "Bitwarden already unlocked"
 		return
@@ -63,5 +51,4 @@ ensure_bitwarden() {
 }
 
 ensure_homebrew
-ensure_tools
 ensure_bitwarden
