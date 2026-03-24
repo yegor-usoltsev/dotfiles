@@ -67,12 +67,6 @@ alias ls='eza --group-directories-first'
 alias lt='eza --tree --level=2 --group-directories-first'
 
 alias cat='bat --paging=never --style=plain'
-alias find='fd'
-alias grep='rg'
-
-alias df='duf'
-alias du='dust'
-alias ps='procs'
 
 alias htop='btop'
 alias top='btop'
@@ -82,10 +76,51 @@ alias lg='lazygit'
 
 alias nano='micro'
 
-alias compress='ouch compress'
-alias decompress='ouch decompress'
-
 alias codex='codex --dangerously-bypass-approvals-and-sandbox'
+
+h() {
+	print -P "%F{yellow}%Bmodern replacements%b%f"
+	print -P "  %F{green}fd%f     find files/dirs by name (replaces find)"
+	print -P "  %F{green}rg%f     search file contents with regex (replaces grep)"
+	print -P "  %F{green}duf%f    disk usage overview by mountpoint (replaces df)"
+	print -P "  %F{green}dust%f   visual disk usage by directory tree (replaces du)"
+	print -P "  %F{green}procs%f  interactive process viewer (replaces ps)"
+	print -P ""
+	print -P "%F{yellow}%Bouch%b%f"
+	print -P "  %F{green}ouch c%f   compress files into an archive"
+	print -P "  %F{green}ouch d%f   decompress an archive (optionally into a folder)"
+	print -P "  %F{green}ouch ls%f  list contents of an archive"
+	print -P ""
+	print -P "%F{yellow}%Bmise%b%f"
+	print -P "  %F{green}mise use <tool>@<ver>%f     install and pin in current dir"
+	print -P "  %F{green}mise use -g <tool>@<ver>%f  install globally"
+	print -P "  %F{green}mise ls%f                   list installed tools and versions"
+	print -P "  %F{green}mise run <task>%f           run a task defined in mise.toml"
+	print -P ""
+	print -P "%F{yellow}%Bhttpie%b%f"
+	print -P "  %F{green}http GET <url>%f           basic GET request"
+	print -P "  %F{green}http POST <url> key=val%f  POST with JSON body"
+	print -P "  %F{green}http -a user:pass <url>%f  basic auth"
+	print -P "  %F{green}https%f                    same but forces HTTPS"
+	print -P ""
+	print -P "%F{yellow}%Btealdeer%b%f"
+	print -P "  %F{green}tldr <command>%f  show practical examples for a command"
+	print -P ""
+	print -P "%F{yellow}%Bzoxide%b%f"
+	print -P "  %F{green}cd <dir>%f  smart jump (learns from frecency)"
+	print -P "  %F{green}cdi%f       interactive selection with fzf"
+	print -P ""
+	print -P "%F{yellow}%Bfzf%b%f"
+	print -P "  %F{green}ctrl+T%f  paste file path into command line"
+	print -P "  %F{green}ctrl+R%f  fuzzy search command history"
+	print -P "  %F{green}opt+C%f   cd into a subdirectory interactively"
+	print -P ""
+	print -P "%F{yellow}%Bghostty%b%f"
+	print -P "  %F{green}cmd+D%f / %F{green}cmd+shift+D%f  split right / down"
+	print -P "  %F{green}cmd+[%f / %F{green}cmd+]%f        navigate splits"
+	print -P "  %F{green}cmd+shift+enter%f      zoom current split"
+}
+alias '?'=h
 
 source <(fzf --zsh)
 
