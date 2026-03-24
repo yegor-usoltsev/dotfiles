@@ -6,7 +6,14 @@
     "type": "command",
     "command": "sh {{ .chezmoi.homeDir }}/.claude/statusline.sh"
   },
+  "env": {
+    "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
+  },
   "autoMemoryEnabled": false,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "skipDangerousModePermissionPrompt": true,
   "mcpServers": {
     "context7": {
