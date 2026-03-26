@@ -77,12 +77,12 @@ packages:
     - "zed"
     - "zoom"
   mas:
-    # TODO: "Things 3": 904280696
     Amphetamine: 937984704
     Bitwarden: 1352778147
     Dashlane: 517914548
     Happ: 6504287215
     SponsorBlock: 1573461917
+    Things: 904280696
     wBlock: 6746388723
   vscode:
     - "dbaeumer.vscode-eslint"
