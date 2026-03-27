@@ -36,6 +36,7 @@ packages:
     - "rbw"
     - "ripgrep"
     - "rsync"
+    - "scc"
     - "shfmt"
     - "starship"
     - "tealdeer"
