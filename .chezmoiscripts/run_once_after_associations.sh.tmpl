@@ -7,7 +7,7 @@ info "Setting default app associations"
 
 {{ range $app, $targets := .associations }}
 {{ range $target := $targets }}
-duti -s {{ $app }} {{ $target }} all
+duti -s {{ $app }} {{ $target }} all || warn "Failed to set {{ $app }} as handler for {{ $target }}"
 {{ end }}
 {{ end }}
 
