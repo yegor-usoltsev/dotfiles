@@ -1,27 +1,27 @@
 {
-  "permissions": {
-    "defaultMode": "bypassPermissions"
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "sh {{ .chezmoi.homeDir }}/.claude/statusline.sh"
-  },
-  "env": {
-    "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
-  },
-  "autoMemoryEnabled": false,
   "attribution": {
     "commit": "",
     "pr": ""
   },
-  "skipDangerousModePermissionPrompt": true,
+  "autoMemoryEnabled": false,
+  "env": {
+    "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
+  },
   "mcpServers": {
     "context7": {
-      "type": "http",
-      "url": "https://mcp.context7.com/mcp",
       "headers": {
         "CONTEXT7_API_KEY": "{{ (index (rbwFields "context7.com") "API key").value }}"
-      }
+      },
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
     }
+  },
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "command": "sh {{ .chezmoi.homeDir }}/.claude/statusline.sh",
+    "type": "command"
   }
 }
