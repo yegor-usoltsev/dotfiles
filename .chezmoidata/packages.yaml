@@ -70,6 +70,7 @@ packages:
     - "raycast"
     - "slack"
     - "spotify"
+    - "steipete/tap/codexbar"
     - "t3-code"
     - "tailscale-app"
     - "telegram"
