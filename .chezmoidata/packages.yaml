@@ -55,6 +55,7 @@ packages:
     - "font-jetbrains-mono-nerd-font"
     - "ghostty"
     - "helium-browser"
+    - "http-toolkit"
     - "iina"
     - "intellij-idea"
     - "keka"
@@ -75,6 +76,7 @@ packages:
     - "tailscale-app"
     - "telegram"
     - "visual-studio-code"
+    - "xcodes-app"
     - "zed"
     - "zoom"
   mas:
