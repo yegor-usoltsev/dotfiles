@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "log" . }}
+
+target="${HOME}/.claude.json"
+
+if [[ -e ${target} ]]; then
+	[[ -f ${target} && ! -L ${target} ]] || error "${target} is not a regular file"
+	[[ "$(stat -f '%Su' "${target}")" == "${USER}" ]] || error "${target} is not owned by ${USER}"
+	(((8#$(stat -f '%Lp' "${target}") & 8#022) == 0)) || error "${target} is group/world writable"
+else
+	(
+		umask 077
+		printf '{}\n' >"${target}"
+	)
+fi
+
+tmp="$(mktemp "${target}.tmp.XXXXXX")"
+trap 'rm -f "${tmp}"' EXIT
+
+jq '. + {"autoInstallIdeExtension": false}' "${target}" >"${tmp}"
+chmod 600 "${tmp}"
+mv "${tmp}" "${target}"
