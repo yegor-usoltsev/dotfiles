@@ -29,7 +29,6 @@ packages:
     - "mas"
     - "micro"
     - "mise"
-    - "opencode"
     - "ouch"
     - "oven-sh/bun/bun"
     - "procs"
@@ -50,6 +49,7 @@ packages:
   casks:
     - "betterdisplay"
     - "claude-code@latest"
+    - "codex-app"
     - "codex"
     - "firefox"
     - "font-jetbrains-mono-nerd-font"
@@ -62,7 +62,6 @@ packages:
     - "keka"
     - "ledger-wallet"
     - "obsidian"
-    - "opencode-desktop"
     - "openlens"
     - "orbstack"
     - "pearcleaner"
