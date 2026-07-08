@@ -4,6 +4,7 @@ packages:
     - "agent-browser"
     - "awscli"
     - "bat"
+    - "blueutil"
     - "btop"
     - "caddy"
     - "delve"
@@ -37,6 +38,7 @@ packages:
     - "rsync"
     - "scc"
     - "shfmt"
+    - "sqlc"
     - "starship"
     - "tealdeer"
     - "uv"
@@ -45,6 +47,7 @@ packages:
     - "wget"
     - "yq"
     - "yt-dlp"
+    - "zellij"
     - "zoxide"
   casks:
     - "betterdisplay"
