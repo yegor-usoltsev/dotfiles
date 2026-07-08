@@ -79,12 +79,25 @@ notify() {
 	fi
 }
 
-if ! ffprobe -v error -select_streams v:0 -show_entries stream=codec_type -of default=nk=1:nw=1 "$input" >/dev/null 2>&1; then
+ffmpeg_tool() {
+	local tool="$1"
+	shift
+
+	if command -v "$tool" >/dev/null 2>&1; then
+		"$tool" "$@"
+	elif command -v mise >/dev/null 2>&1; then
+		mise exec "aqua:Tyrrrz/FFmpegBin@latest" -- "$tool" "$@"
+	else
+		error "$tool not found"
+	fi
+}
+
+if ! ffmpeg_tool ffprobe -v error -select_streams v:0 -show_entries stream=codec_type -of default=nk=1:nw=1 "$input" >/dev/null 2>&1; then
 	warn "skip (not a video file): $input"
 	exit 0
 fi
 
-if ffmpeg -y -i "$input" "$output"; then
+if ffmpeg_tool ffmpeg -y -i "$input" "$output"; then
 	success "converted: $output"
 	if [[ ${MP4_TRASH_ORIGINAL:-0} == "1" ]]; then
 		if trash -- "$input"; then
