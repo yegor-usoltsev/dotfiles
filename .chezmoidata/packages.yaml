@@ -8,6 +8,7 @@ packages:
     - "btop"
     - "caddy"
     - "delve"
+    - "drone-cli"
     - "duf"
     - "dufs"
     - "dust"
@@ -15,9 +16,10 @@ packages:
     - "eza"
     - "fd"
     - "fzf"
+    - "gh"
     - "git-delta"
-    - "go"
     - "go-task"
+    - "go"
     - "golangci-lint"
     - "gopls"
     - "goreleaser"
@@ -40,19 +42,20 @@ packages:
     - "shfmt"
     - "sqlc"
     - "starship"
+    - "tea"
     - "tealdeer"
+    - "tmux"
     - "uv"
     - "vivid"
     - "watch"
     - "wget"
     - "yq"
     - "yt-dlp"
-    - "zellij"
     - "zoxide"
   casks:
     - "betterdisplay"
+    - "chatgpt"
     - "claude-code@latest"
-    - "codex-app"
     - "codex"
     - "firefox"
     - "font-jetbrains-mono-nerd-font"
@@ -82,13 +85,14 @@ packages:
     - "zed"
     - "zoom"
   mas:
-    Amphetamine: 937984704
-    Bitwarden: 1352778147
-    Dashlane: 517914548
-    Happ: 6504287215
-    SponsorBlock: 1573461917
-    Things: 904280696
-    wBlock: 6746388723
+    "Amphetamine": 937984704
+    "Bitwarden": 1352778147
+    "Dashlane": 517914548
+    "Happ": 6504287215
+    "SponsorBlock": 1573461917
+    "Things": 904280696
+    "wBlock": 6746388723
+    "Windows App": 1295203466
   vscode:
     - "dbaeumer.vscode-eslint"
     - "esbenp.prettier-vscode"
