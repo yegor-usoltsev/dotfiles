@@ -56,10 +56,10 @@ packages:
     - "slack"
     - "spotify"
     - "steipete/tap/codexbar"
-    - "t3-code"
     - "tailscale-app"
     - "telegram"
     - "transmission"
+    - "utm"
     - "visual-studio-code"
     - "xcodes-app"
     - "zed"
@@ -74,6 +74,10 @@ packages:
     "wBlock": 6746388723
     "Windows App": 1295203466
   vscode:
+    - "astro-build.astro-vscode"
+    - "biomejs.biome"
+    - "bradlc.vscode-tailwindcss"
     - "dbaeumer.vscode-eslint"
     - "esbenp.prettier-vscode"
     - "redhat.vscode-yaml"
+    - "svelte.svelte-vscode"
