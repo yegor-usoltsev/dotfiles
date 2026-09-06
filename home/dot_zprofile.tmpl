@@ -1,0 +1,24 @@
+{{- if eq .chezmoi.os "darwin" -}}
+export HOMEBREW_AUTOREMOVE=1
+export HOMEBREW_BAT=1
+export HOMEBREW_NO_ANALYTICS=1
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_ENV_HINTS=1
+export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+export PATH="$HOMEBREW_PREFIX/opt/libpq/bin:$HOMEBREW_PREFIX/opt/mysql-client/bin:$PATH"
+
+if [[ -f "$HOME/.orbstack/shell/init.zsh" ]]; then
+	source "$HOME/.orbstack/shell/init.zsh"
+fi
+
+# brew shellenv runs path_helper, which pushes the mise paths that .zshenv put
+# first behind Homebrew and /usr/bin. Interactive shells are repaired by `mise
+# activate` in .zshrc; a non-interactive login shell (zsh -lc) never gets there.
+export PATH="$HOME/.local/bin:$PATH"
+eval "$("$HOME/.local/bin/mise" activate zsh --shims)"
+{{- else -}}
+# Login-shell setup is handled by .zshenv on Linux.
+{{- end }}

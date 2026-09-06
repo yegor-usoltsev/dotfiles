@@ -1,0 +1,31 @@
+{{- if not (dig "githubToken" "" .secrets) }}
+.config/mise/github_tokens.toml
+{{- end }}
+{{- if eq .chezmoi.os "darwin" }}
+.bash_profile
+.bashrc
+.local/share/mise-completions-sync
+{{- else }}
+Library
+Library/**
+.local/bin/mp4
+.chezmoiscripts/darwin/**
+{{- end }}
+{{- if not (and (eq .chezmoi.os "linux") (eq .chezmoi.arch "arm64") (ne .profile "server")) }}
+.agent-browser/config.json
+{{- end }}
+{{- if eq .profile "server" }}
+.ssh/id_ed25519
+.ssh/id_ed25519.pub
+.agents
+.agents/**
+.claude
+.claude/**
+.codex
+.codex/**
+.chezmoiscripts/20-agent-browser.sh
+.local/bin/update-browser
+.claude.json
+.config/zed
+.config/zed/**
+{{- end }}

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+info "Setting default app associations"
+
+failed=()
+current_handler() {
+	if [[ "$1" == .* ]]; then
+		duti -x "${1#.}" 2>/dev/null | tail -1
+	else
+		duti -d "$1" 2>/dev/null
+	fi
+}
+
+set_handler() {
+	local app="$1" target="$2" current
+	current=$(current_handler "$target") || current=
+	[[ "$current" != "$app" ]] || return 0
+	if [[ "$target" == *.* ]]; then
+		duti -s "$app" "$target" all >/dev/null 2>&1 || true
+	else
+		duti -s "$app" "$target" >/dev/null 2>&1 || true
+	fi
+	# LaunchServices can report success while leaving the handler unchanged.
+	current=$(current_handler "$target") || current=
+	if [[ "$current" != "$app" ]]; then
+		failed+=("$target")
+	fi
+}
+
+{{ range $app, $targets := .associations -}}
+{{ range $target := $targets -}}
+set_handler {{ $app | quote }} {{ $target | quote }}
+{{ end -}}
+{{ end -}}
+
+if [[ ${#failed[@]} -gt 0 ]]; then
+	warn "macOS did not apply these associations: ${failed[*]}"
+	warn "Review default apps in Finder; macOS may require confirmation or a registered file type"
+else
+	success "Default app associations set"
+fi

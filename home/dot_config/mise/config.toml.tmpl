@@ -1,0 +1,136 @@
+# Required for npm dependency build scripts.
+min_version = "2026.9.1"
+
+[tools]
+# Runtimes
+bun = "latest"
+{{- if ne .profile "server" }}
+go = "latest"
+java = "zulu-25"
+node = "lts"
+python = "latest"
+rust = "stable"
+{{- end }}
+
+# Shell and terminal UX
+bat = "latest"
+eza = "latest"
+fd = "latest"
+fzf = "latest"
+jq = "latest"
+micro = "latest"
+ripgrep = "latest"
+starship = "latest"
+tealdeer = "latest"
+"aqua:tmux/tmux-builds" = "latest"
+vivid = "latest"
+zoxide = "latest"
+
+# Ad hoc web serving; production services run in containers.
+caddy = "latest"
+
+# Persistent sessions
+zmx = "latest"
+
+# UDP SSH client and server
+tssh = "latest"
+"github:trzsz/tsshd" = "latest"
+
+# Process, system, and resource monitoring
+{{- if ne .chezmoi.os "darwin" }}
+# aqua:aristocratos/btop ships Linux builds only, so macOS takes it from brew.
+btop = "latest"
+{{- end }}
+duf = "latest"
+dust = "latest"
+"github:dalance/procs" = "latest"
+
+# Git and source hosting
+delta = "latest"
+gh = "latest"
+lazygit = "latest"
+{{- if ne .profile "server" }}
+git-lfs = "latest"
+"pipx:git-filter-repo" = "latest"
+"go:code.gitea.io/tea" = "latest"
+{{- end }}
+
+# Development tools
+{{- if ne .profile "server" }}
+"go:github.com/go-delve/delve/cmd/dlv" = "latest"
+drone = "latest"
+golangci-lint = "latest"
+"go:golang.org/x/tools/gopls" = "latest"
+goreleaser = "latest"
+gradle = "latest"
+lazydocker = "latest"
+"aqua:ouch-org/ouch" = "latest"
+"aqua:boyter/scc" = "latest"
+sqlc = "latest"
+task = "latest"
+uv = "latest"
+yq = "latest"
+{{- end }}
+
+# Code quality, linting, formatting, and benchmarking
+{{- if ne .profile "server" }}
+hyperfine = "latest"
+pre-commit = "latest"
+shellcheck = "latest"
+shfmt = "latest"
+watchexec = "latest"
+"pipx:yamllint" = "latest"
+{{- end }}
+
+# Infrastructure
+{{- if ne .profile "server" }}
+awscli = "latest"
+helm = "latest"
+kubectl = "latest"
+terraform = "latest"
+{{- end }}
+
+# Networking and remote storage
+"github:sigoden/dufs" = "latest"
+# Upstream's arm64v8 asset needs an explicit platform and binary name.
+"github:userdocs/iperf3-static" = { version = "latest", platforms = { "linux-arm64" = { asset_pattern = "iperf3-arm64v8", bin = "iperf3" } } }
+rclone = "latest"
+"aqua:showwin/speedtest-go" = "latest"
+
+{{- if ne .profile "server" }}
+"pipx:httpie" = "latest"
+{{- end }}
+
+# Media (native libraries come from Homebrew or apt)
+{{- if ne .profile "server" }}
+yt-dlp = "latest"
+{{- end }}
+
+# Coding tools; allow dependency builds needed by native binaries.
+{{- if ne .profile "server" }}
+"npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = true }
+"npm:@openai/codex" = { version = "latest", allow_builds = true }
+"npm:@xai-official/grok" = { version = "latest", allow_builds = true }
+"npm:@moonshot-ai/kimi-code" = { version = "latest", allow_builds = true }
+"npm:@earendil-works/pi-coding-agent" = { version = "latest", allow_builds = true }
+"npm:agent-browser" = { version = "latest", allow_builds = true }
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.arch "arm64") }}
+"npm:playwright" = { version = "latest", allow_builds = true }
+{{- end }}
+{{- end }}
+
+# Shell and mise integration
+"aqua:alltuner/mise-completions-sync" = "latest"
+
+[hooks]
+postinstall = "misecompsync"
+
+[settings]
+minimum_release_age = "0s"
+# Missing tools must fail instead of installing or falling back implicitly.
+not_found_auto_install = false
+not_found_system_fallback = false
+
+[settings.upgrade]
+# Drop the replaced version immediately instead of keeping it for a day.
+prune_after = "0s"

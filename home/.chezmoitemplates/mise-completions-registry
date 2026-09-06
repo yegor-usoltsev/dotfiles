@@ -1,0 +1,14 @@
+# Overlay merged onto misecompsync's built-in registry. Keys are bare tool
+# names, not mise backend identifiers.
+schema_version = 1
+
+[tools]
+caddy = { zsh = "caddy completion zsh" }
+codex = { zsh = "codex completion zsh" }
+dlv = { zsh = "dlv completion zsh" }
+dufs = { zsh = "dufs --completions zsh" }
+git-lfs = { zsh = "git-lfs completion zsh" }
+grok = { zsh = "grok completions zsh" }
+procs = { zsh = "procs --gen-completion-out zsh" }
+sqlc = { zsh = "sqlc completion zsh" }
+zmx = { zsh = "zmx completions zsh" }

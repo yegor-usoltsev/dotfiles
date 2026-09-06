@@ -1,0 +1,13 @@
+typeset -U path PATH
+
+{{ if eq .chezmoi.os "darwin" -}}
+export PATH="/opt/homebrew/opt/libpq/bin:/opt/homebrew/opt/mysql-client/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+{{ end -}}
+case ":$PATH:" in
+*":$HOME/.local/bin:"*) ;;
+*) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+
+if command -v mise >/dev/null 2>&1; then
+	eval "$(mise activate zsh --shims)"
+fi

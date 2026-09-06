@@ -1,0 +1,79 @@
+packages:
+  taps: []
+  brews:
+    - "blueutil"
+    # mise only has a Linux build of btop (aqua:aristocratos/btop).
+    - "btop"
+    - "duti"
+    - "entr"
+    # Native on both platforms: the only mise option publishes macOS builds
+    # only, which would mean a different source per platform.
+    - "ffmpeg"
+    - "fswatch"
+    - "graphviz"
+    - "imagemagick"
+    - "libpq"
+    - "mas"
+    - "mc"
+    # Provides its own `parallel`, which conflicts with GNU parallel on macOS.
+    # Ubuntu can host both via update-alternatives; Homebrew cannot. moreutils
+    # wins here because it ships 15 unique tools (sponge, ts, vipe, chronic...).
+    - "moreutils"
+    - "mysql-client"
+    - "nmap"
+    - "pigz"
+    - "pkgconf"
+    - "pv"
+    - "rbw"
+    - "redis"
+    - "rename"
+    - "rsync"
+    - "sevenzip"
+    - "socat"
+    - "tree"
+    - "vips"
+    - "watch"
+    - "wget"
+  casks:
+    - "betterdisplay"
+    - "chatgpt"
+    - "firefox"
+    - "font-jetbrains-mono-nerd-font"
+    - "ghostty"
+    - "handy"
+    - "helium-browser"
+    - "http-toolkit"
+    - "iina"
+    - "intellij-idea"
+    - "keka"
+    - "ledger-wallet"
+    - "obsidian"
+    - "openlens"
+    - "orbstack"
+    - "pearcleaner"
+    - "proxyman"
+    - "raycast"
+    - "slack"
+    - "spotify"
+    - "steipete/tap/codexbar"
+    - "t3-code"
+    - "tailscale-app"
+    - "telegram"
+    - "transmission"
+    - "visual-studio-code"
+    - "xcodes-app"
+    - "zed"
+    - "zoom"
+  mas:
+    "Amphetamine": 937984704
+    "Bitwarden": 1352778147
+    "Dashlane": 517914548
+    "Happ": 6504287215
+    "SponsorBlock": 1573461917
+    "Things": 904280696
+    "wBlock": 6746388723
+    "Windows App": 1295203466
+  vscode:
+    - "dbaeumer.vscode-eslint"
+    - "esbenp.prettier-vscode"
+    - "redhat.vscode-yaml"

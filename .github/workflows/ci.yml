@@ -1,0 +1,130 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }}, ${{ matrix.profile }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            profile: workstation
+            secrets: filled
+          - os: ubuntu-24.04
+            profile: devbox
+            secrets: filled
+          - os: ubuntu-26.04-arm
+            profile: devbox
+            secrets: filled
+          # Exercise optional secrets and the minimal server profile.
+          - os: ubuntu-latest
+            profile: server
+            secrets: empty
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install validation tools
+        run: |
+          if [ "$RUNNER_OS" = macOS ]; then
+            brew install shellcheck shfmt
+          else
+            sudo apt-get update
+            sudo apt-get install --yes shellcheck shfmt zsh
+          fi
+          # jq comes from mise, exactly as the bootstrap installs it.
+          curl -fsSL https://mise.run | sh
+          "$HOME/.local/bin/mise" use --global --yes jq@latest
+          sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b "$HOME/.local/bin"
+          echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          mkdir -p "$HOME/.config/chezmoi"
+          touch "$HOME/.config/chezmoi/secrets.toml"
+          chmod 600 "$HOME/.config/chezmoi/secrets.toml"
+
+      - name: Write isolated config
+        env:
+          SECRETS: ${{ matrix.secrets }}
+          PROFILE: ${{ matrix.profile }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/home" "$RUNNER_TEMP/cache" "$RUNNER_TEMP/state"
+          secret=placeholder
+          if [ "$SECRETS" = empty ]; then
+            secret=
+          fi
+          cat > "$RUNNER_TEMP/chezmoi.toml" <<EOF
+          [hooks.read-source-state.pre]
+          command = "$GITHUB_WORKSPACE/home/.chezmoihooks/ensure-prerequisites.sh"
+
+          [data]
+          installAppsFromAppStore = false
+          profile = "$PROFILE"
+          screenshotsPath = "/tmp/Screenshots"
+
+          [data.secrets]
+          context7ApiKey = "$secret"
+          sshPrivateKey = "$secret"
+          sshPublicKey = "$secret"
+          githubToken = "$secret"
+          EOF
+
+      - name: Apply, verify and lint source state
+        shell: bash
+        env:
+          PROFILE: ${{ matrix.profile }}
+          SECRETS: ${{ matrix.secrets }}
+        run: |
+          set -euo pipefail
+          cm=(
+            chezmoi
+            --source "$GITHUB_WORKSPACE"
+            --destination "$RUNNER_TEMP/home"
+            --cache "$RUNNER_TEMP/cache"
+            --config "$RUNNER_TEMP/chezmoi.toml"
+            --persistent-state "$RUNNER_TEMP/state/s.boltdb"
+            --no-tty --force
+          )
+          "${cm[@]}" apply --exclude=scripts,externals
+          "${cm[@]}" verify --exclude=scripts,externals
+
+          if [ "$PROFILE" = server ]; then
+            for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .agent-browser/config.json .local/bin/update-browser; do
+              test ! -e "$RUNNER_TEMP/home/$target"
+            done
+          fi
+          if [ "$SECRETS" = empty ]; then
+            test ! -e "$RUNNER_TEMP/home/.config/mise/github_tokens.toml"
+          fi
+
+          rendered_dir="$RUNNER_TEMP/rendered-shell"
+          mkdir -p "$rendered_dir"
+          while IFS= read -r script; do
+            case "$script" in
+              .bootstrap.sh|home/.chezmoiscripts/*|home/.chezmoihooks/*.sh|home/dot_local/bin/executable_*|home/dot_claude/*.sh|home/dot_claude/modify_*.tmpl|home/dot_bash*|home/dot_z*|home/dot_config/shell/*) ;;
+              *) continue ;;
+            esac
+            rendered="$rendered_dir/${script//\//-}"
+            case "$script" in
+              *.tmpl) "${cm[@]}" execute-template < "$script" > "$rendered" ;;
+              *) cp "$script" "$rendered" ;;
+            esac
+            case "$script" in
+              home/dot_z*) zsh -n "$rendered"; continue ;;
+            esac
+            bash -n "$rendered"
+            # Shared shell files source optional, machine-local configuration.
+            shellcheck -s bash -e SC1090,SC1091 "$rendered"
+
+            # Normalize template whitespace before checking shell formatting.
+            sed -e 's/[[:space:]]*$//' "$rendered" | cat -s > "$rendered.normalized"
+            printf '%s\n' "$(cat "$rendered.normalized")" > "$rendered.normalized"
+            shfmt -d -i 0 "$rendered.normalized"
+          done < <(git ls-files --cached --others --exclude-standard)

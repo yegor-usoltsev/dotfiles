@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+
+info "Setting up agent-browser"
+
+"$HOME/.local/bin/update-browser"
+
+success "agent-browser set up"

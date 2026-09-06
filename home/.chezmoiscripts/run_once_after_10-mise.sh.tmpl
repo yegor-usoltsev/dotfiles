@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+# config.toml hash: {{ includeTemplate "dot_config/mise/config.toml.tmpl" . | sha256sum }}
+# completion registry hash: {{ includeTemplate "mise-completions-registry" . | sha256sum }}
+
+mise_bin="$HOME/.local/bin/mise"
+
+# Install the replacement before removing Homebrew's copy.
+if [[ ! -x "$mise_bin" ]]; then
+	info "Installing mise"
+	curl -fsSL https://mise.run | sh
+	success "Mise installed"
+fi
+"$mise_bin" self-update --yes
+{{ if eq .chezmoi.os "darwin" -}}
+if command -v brew >/dev/null 2>&1 && brew list --formula mise >/dev/null 2>&1; then
+	info "Removing Homebrew mise"
+	brew uninstall mise
+	success "Homebrew mise removed"
+fi
+{{ end -}}
+info "Installing mise runtimes"
+
+"$mise_bin" install --yes
+"$mise_bin" upgrade
+
+# The postinstall hook only fires for tools it actually touched.
+misecompsync --shell zsh
+
+success "Mise runtimes installed"

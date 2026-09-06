@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "log" . }}
+
+# Native ffmpeg and the system tools, without an interactive shell.
+export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH:/usr/bin:/bin:/usr/sbin:/sbin"
+
+notify() {
+	if [[ ${MP4_NOTIFY:-0} == "1" ]]; then
+		osascript -e "display notification \"${1//\"/\\\"}\" with title \"mp4\"" >/dev/null 2>&1 || true
+	fi
+}
+
+# error exits, so notify first.
+fail() {
+	notify "$1"
+	error "$1"
+}
+
+if [[ $# -ne 1 ]]; then
+	error "usage: mp4 /path/to/video-file"
+fi
+
+for tool in ffmpeg ffprobe; do
+	command -v "$tool" >/dev/null 2>&1 ||
+		fail "$tool is missing; run: brew install ffmpeg"
+done
+
+input="$1"
+if [[ ! -f $input ]]; then
+	fail "file not found: $input"
+fi
+
+input_hash="$(printf '%s' "$input" | sha256sum | awk '{print $1}')"
+
+lock_dir="${TMPDIR:-/tmp}/mp4-convert-${input_hash}.lock"
+if ! mkdir "$lock_dir" 2>/dev/null; then
+	info "skip (conversion already running for file): $input"
+	exit 0
+fi
+
+tmp_output=""
+cleanup() {
+	if [[ -n $tmp_output ]]; then
+		rm -f "$tmp_output" || true
+	fi
+	rmdir "$lock_dir" >/dev/null 2>&1 || true
+}
+# A signal trap alone would resume the interrupted statement.
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+file_size() {
+	local path="$1"
+	if stat -f%z "$path" >/dev/null 2>&1; then
+		stat -f%z "$path"
+	else
+		stat -c%s "$path"
+	fi
+}
+
+wait_for_stable_file() {
+	local path="$1"
+	local prev_size current_size
+	local attempts=0
+	local max_attempts=5
+
+	prev_size="$(file_size "$path")"
+	while ((attempts < max_attempts)); do
+		sleep 1
+		current_size="$(file_size "$path")"
+		if [[ $current_size == "$prev_size" ]]; then
+			return 0
+		fi
+		prev_size="$current_size"
+		((attempts += 1))
+	done
+
+	return 1
+}
+
+if ! wait_for_stable_file "$input"; then
+	warn "skip (file still being written): $input"
+	exit 0
+fi
+
+ext="${input##*.}"
+ext_lc="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
+if [[ $ext_lc == "mp4" ]]; then
+	info "already mp4: $input"
+	exit 0
+fi
+
+output="${input%.*}.mp4"
+if [[ -e $output && $output -nt $input ]]; then
+	info "skip (output is up-to-date): $output"
+	exit 0
+fi
+
+info "input: $input"
+info "output: $output"
+
+# ffprobe also succeeds with no output for audio-only input.
+streams="$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_type -of default=nk=1:nw=1 "$input" 2>/dev/null || true)"
+if [[ $streams != *video* ]]; then
+	warn "skip (not a video file): $input"
+	exit 0
+fi
+
+# Publish only on success. The temporary name has no extension, hence -f mp4.
+if ! tmp_output="$(mktemp "${output%.*}.XXXXXXXX")"; then
+	fail "could not create a temporary file next to: $output"
+fi
+# mktemp creates 0600; ffmpeg used to create the output under the umask.
+chmod "$(printf '%03o' "$((0666 & ~8#$(umask)))")" "$tmp_output"
+if ! ffmpeg -y -i "$input" -f mp4 "$tmp_output"; then
+	fail "conversion failed: $input"
+fi
+if ! mv -f "$tmp_output" "$output"; then
+	fail "could not publish: $output"
+fi
+tmp_output=""
+
+success "converted: $output"
+notify "Converted $(basename "$input")"
+
+if [[ ${MP4_TRASH_ORIGINAL:-0} == "1" ]]; then
+	if trash -- "$input"; then
+		info "trashed original: $input"
+	else
+		warn "failed to trash original: $input"
+	fi
+fi

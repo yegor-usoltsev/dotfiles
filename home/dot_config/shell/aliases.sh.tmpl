@@ -1,0 +1,25 @@
+alias l='eza -lah --group-directories-first'
+alias ls='eza --group-directories-first'
+alias lt='eza --tree --level=2 --group-directories-first'
+
+alias cat='bat --paging=never --style=plain'
+
+alias htop='btop'
+alias top='btop'
+
+alias lg='lazygit'
+
+alias z='zmx'
+
+alias nano='micro'
+
+{{ if ne .profile "server" -}}
+alias ld='lazydocker'
+
+alias cloc='scc'
+alias sloc='scc'
+alias loc='scc'
+
+alias codex='codex --dangerously-bypass-approvals-and-sandbox'
+alias claude='claude --dangerously-skip-permissions'
+{{- end }}

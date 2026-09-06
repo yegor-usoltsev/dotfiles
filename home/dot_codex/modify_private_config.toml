@@ -1,0 +1,17 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $config := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $config = fromToml .chezmoi.stdin -}}
+{{- end -}}
+{{ $config |
+     setValueAtPath "approval_policy" "never" |
+     setValueAtPath "mcp_servers.context7.url" "https://mcp.context7.com/mcp" |
+     setValueAtPath "mcp_servers.context7.http_headers.CONTEXT7_API_KEY" .secrets.context7ApiKey |
+     setValueAtPath "personality" "pragmatic" |
+     setValueAtPath "sandbox_mode" "danger-full-access" |
+     setValueAtPath "service_tier" "default" |
+     setValueAtPath "tui.status_line" (list
+       "model-with-reasoning" "current-dir" "project-root" "git-branch"
+       "context-used" "five-hour-limit" "weekly-limit") |
+     setValueAtPath "tui.terminal_title" (list "spinner" "thread-title") |
+     toToml }}

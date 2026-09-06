@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+# Claude Code owns the rest of this file, and writes it without a trailing
+# newline; patch only the managed keys and match that.
+CHEZMOI_CONTEXT7_API_KEY={{ .secrets.context7ApiKey | shellQuote }}
+export CHEZMOI_CONTEXT7_API_KEY
+
+jq -sj '
+    (.[0] // {})
+    | .autoInstallIdeExtension = false
+    | .mcpServers.context7 = {
+        "type": "http",
+        "url": "https://mcp.context7.com/mcp",
+        "headers": { "CONTEXT7_API_KEY": env.CHEZMOI_CONTEXT7_API_KEY }
+      }
+    '

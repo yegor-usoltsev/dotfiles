@@ -1,0 +1,3 @@
+# Avoid unauthenticated API limits during installation; no scopes are needed.
+[tokens."github.com"]
+token = {{ .secrets.githubToken | quote }}

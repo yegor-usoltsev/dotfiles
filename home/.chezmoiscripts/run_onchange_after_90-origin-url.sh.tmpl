@@ -1,0 +1,20 @@
+{{- if ne .profile "server" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+	exit 0
+fi
+
+https_origin="https://github.com/yegor-usoltsev/dotfiles.git"
+ssh_origin="git@github.com:yegor-usoltsev/dotfiles.git"
+current_origin=$(git -C "${CHEZMOI_WORKING_TREE}" remote get-url origin)
+
+# Preserve forks and custom mirrors.
+if [ "$current_origin" = "$https_origin" ]; then
+	info "Switching the dotfiles origin to SSH"
+	git -C "${CHEZMOI_WORKING_TREE}" remote set-url origin "$ssh_origin"
+	success "Dotfiles origin switched to SSH"
+fi
+{{- end }}

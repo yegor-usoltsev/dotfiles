@@ -1,0 +1,150 @@
+if command -v mise >/dev/null 2>&1; then
+	eval "$(mise activate zsh)"
+fi
+
+if [[ -r "$HOME/.config/shell/env.sh" ]]; then
+	source "$HOME/.config/shell/env.sh"
+fi
+if [[ -r "$HOME/.config/shell/aliases.sh" ]]; then
+	source "$HOME/.config/shell/aliases.sh"
+fi
+
+if command -v vivid >/dev/null 2>&1; then
+	export LS_COLORS="$(vivid generate tokyonight-night)"
+fi
+
+ZSH_CACHE_DIR="$HOME/.cache/zsh"
+mkdir -p "$ZSH_CACHE_DIR"
+
+MISE_COMPLETIONS_DIR="$HOME/.local/share/mise-completions/zsh"
+ZSH_COMPLETIONS_DIR="$HOME/.local/share/zsh/site-functions"
+{{- if eq .chezmoi.os "darwin" }}
+FPATH="$MISE_COMPLETIONS_DIR:$ZSH_COMPLETIONS_DIR:/opt/homebrew/share/zsh/site-functions:$ZSH_CACHE_DIR:$FPATH"
+{{- else }}
+FPATH="$MISE_COMPLETIONS_DIR:$ZSH_COMPLETIONS_DIR:/usr/share/zsh/site-functions:/usr/share/zsh/vendor-completions:$ZSH_CACHE_DIR:$FPATH"
+{{- end }}
+
+# These install themselves, so misecompsync cannot discover them.
+typeset -i completion_written=0
+for tool in chezmoi mise; do
+	[[ -s "$ZSH_CACHE_DIR/_$tool" ]] && continue
+	command -v "$tool" >/dev/null 2>&1 || continue
+	if "$tool" completion zsh >"$ZSH_CACHE_DIR/$tool.completion" 2>/dev/null &&
+		[[ -s "$ZSH_CACHE_DIR/$tool.completion" ]]; then
+		mv "$ZSH_CACHE_DIR/$tool.completion" "$ZSH_CACHE_DIR/_$tool"
+		completion_written=1
+	else
+		rm -f "$ZSH_CACHE_DIR/$tool.completion"
+	fi
+done
+
+autoload -Uz compinit
+# Rebuild daily, when a managed directory changes, or when a completion was
+# just written. The age test needs an array: [[ ]] does not glob, and the
+# (#q) form there would need EXTENDED_GLOB.
+typeset -a fresh_dump
+fresh_dump=("$ZSH_CACHE_DIR"/.zcompdump(N.mh-24))
+if ((!completion_written && $#fresh_dump)) &&
+	[[ ! "$MISE_COMPLETIONS_DIR" -nt "$ZSH_CACHE_DIR/.zcompdump" && ! "$ZSH_COMPLETIONS_DIR" -nt "$ZSH_CACHE_DIR/.zcompdump" ]]; then
+	compinit -C -d "$ZSH_CACHE_DIR/.zcompdump"
+else
+	compinit -d "$ZSH_CACHE_DIR/.zcompdump"
+fi
+
+zstyle ':completion:*' cache-path "$ZSH_CACHE_DIR"
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' list-colors "${LS_COLORS:-}"
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' menu select
+zstyle ':completion:*' squeeze-slashes true
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
+zstyle ':completion:*:warnings' format '%F{red}-- no matches found --%f'
+
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
+
+setopt AUTO_CD
+setopt CORRECT
+setopt EXTENDED_HISTORY
+setopt GLOB_DOTS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_VERIFY
+setopt INC_APPEND_HISTORY
+setopt INTERACTIVE_COMMENTS
+setopt NO_BEEP
+setopt SHARE_HISTORY
+
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+if [[ -n ${terminfo[kcuu1]:-} ]]; then
+	bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search
+fi
+if [[ -n ${terminfo[kcud1]:-} ]]; then
+	bindkey "${terminfo[kcud1]}" down-line-or-beginning-search
+fi
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
+
+h() {
+	print -P "%F{yellow}%Bmodern replacements%b%f"
+	print -P "  %F{green}fd%f     find files/dirs by name (replaces find)"
+	print -P "  %F{green}rg%f     search file contents with regex (replaces grep)"
+	print -P "  %F{green}duf%f    disk usage overview by mountpoint (replaces df)"
+	print -P "  %F{green}dust%f   visual disk usage by directory tree (replaces du)"
+	print -P "  %F{green}procs%f  interactive process viewer (replaces ps)"
+	print -P ""
+	print -P "%F{yellow}%Bouch%b%f"
+	print -P "  %F{green}ouch c%f   compress files into an archive"
+	print -P "  %F{green}ouch d%f   decompress an archive (optionally into a folder)"
+	print -P "  %F{green}ouch ls%f  list contents of an archive"
+	print -P ""
+	print -P "%F{yellow}%Bmise%b%f"
+	print -P "  %F{green}mise use <tool>@<ver>%f     install and pin in current dir"
+	print -P "  %F{green}mise use -g <tool>@<ver>%f  install globally"
+	print -P "  %F{green}mise ls%f                   list installed tools and versions"
+	print -P "  %F{green}mise run <task>%f           run a task defined in mise.toml"
+	print -P ""
+	print -P "%F{yellow}%Bhttpie%b%f"
+	print -P "  %F{green}http GET <url>%f           basic GET request"
+	print -P "  %F{green}http POST <url> key=val%f  POST with JSON body"
+	print -P "  %F{green}http -a user:pass <url>%f  basic auth"
+	print -P "  %F{green}https%f                    same but forces HTTPS"
+	print -P ""
+	print -P "%F{yellow}%Btealdeer%b%f"
+	print -P "  %F{green}tldr <command>%f  show practical examples for a command"
+	print -P ""
+	print -P "%F{yellow}%Bzoxide%b%f"
+	print -P "  %F{green}cd <dir>%f  smart jump (learns from frecency)"
+	print -P "  %F{green}cdi%f       interactive selection with fzf"
+	print -P ""
+	print -P "%F{yellow}%Bfzf%b%f"
+	print -P "  %F{green}ctrl+T%f  paste file path into command line"
+	print -P "  %F{green}ctrl+R%f  fuzzy search command history"
+	print -P "  %F{green}opt+C%f   cd into a subdirectory interactively"
+	print -P ""
+	print -P "%F{yellow}%Bghostty%b%f"
+	print -P "  %F{green}cmd+D%f / %F{green}cmd+shift+D%f  split right / down"
+	print -P "  %F{green}cmd+[%f / %F{green}cmd+]%f        navigate splits"
+	print -P "  %F{green}cmd+shift+enter%f      zoom current split"
+}
+alias '?'=h
+
+if command -v fzf >/dev/null 2>&1; then
+	source <(fzf --zsh)
+fi
+
+if command -v zoxide >/dev/null 2>&1; then
+	export _ZO_DOCTOR=0
+	eval "$(zoxide init zsh --cmd cd)"
+fi
+
+if [[ ${TERM:-} != "dumb" ]] && command -v starship >/dev/null 2>&1; then
+	eval "$(starship init zsh)"
+fi

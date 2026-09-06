@@ -1,0 +1,12 @@
+{{ template "log" . }}
+{{- if eq .chezmoi.os "darwin" }}
+export PATH="/opt/homebrew/bin:$PATH"
+{{- end }}
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+
+# Reapply platform setup after an operating system upgrade.
+{{ if eq .chezmoi.os "darwin" -}}
+# macOS build: {{ output "sw_vers" "--buildVersion" | trim }}
+{{- else -}}
+# Distribution: {{ .chezmoi.osRelease.id }} {{ .chezmoi.osRelease.versionID }}
+{{- end }}

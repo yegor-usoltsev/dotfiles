@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "log" . }}
+{{ if eq .chezmoi.os "darwin" -}}
+info "Updating Homebrew packages"
+brew update
+brew upgrade
+brew cleanup
+success "Homebrew packages updated"
+{{ else -}}
+info "Updating system packages"
+sudo apt-get update
+sudo apt-get --yes full-upgrade
+sudo apt-get --yes autoremove
+sudo apt-get --yes autoclean
+success "System packages updated"
+
+{{ end -}}
+info "Updating chezmoi"
+github_token=$("$HOME/.local/bin/chezmoi" dump-config --format=json | jq -r '.data.secrets.githubToken // ""')
+CHEZMOI_GITHUB_TOKEN="$github_token" "$HOME/.local/bin/chezmoi" upgrade
+success "chezmoi updated"
+
+info "Updating mise"
+"$HOME/.local/bin/mise" self-update --yes
+success "Mise updated"
+
+# Rewriting this script mid-run is safe: chezmoi renames a temporary copy over
+# the target, so the running shell keeps reading the inode it opened.
+info "Updating dotfiles"
+"$HOME/.local/bin/chezmoi" update
+success "Dotfiles updated"
+
+info "Updating mise tools"
+"$HOME/.local/bin/mise" upgrade
+success "Mise tools updated"
+{{- if ne .profile "server" }}
+
+info "Updating browser"
+"$HOME/.local/bin/update-browser"
+success "Browser updated"
+{{- end }}
+{{- if ne .chezmoi.os "darwin" }}
+
+# The Ansible role reboots on its own; a command someone typed should say so and
+# let them pick the moment.
+if [[ -f /var/run/reboot-required ]]; then
+	warn "Reboot required"
+fi
+{{- end }}

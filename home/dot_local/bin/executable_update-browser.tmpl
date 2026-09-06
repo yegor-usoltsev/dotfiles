@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+{{ if and (eq .chezmoi.os "linux") (eq .chezmoi.arch "arm64") -}}
+playwright install chromium --no-shell
+playwright_dir="$(mise where npm:playwright)/node_modules/playwright"
+chromium_path=$(node -e 'process.stdout.write(require(process.argv[1]).chromium.executablePath())' "$playwright_dir")
+ln -sfn "$chromium_path" "$HOME/.local/bin/chromium"
+{{ else -}}
+agent-browser install
+{{ end -}}

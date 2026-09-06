@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+
+info "Applying macOS defaults" # https://macos-defaults.com
+
+# Deactivate Apple Intelligence.
+defaults write com.apple.CloudSubscriptionFeatures.optIn "545129924" -bool "false"
+# Prevent creation of .DS_Store files on network volumes.
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+# Prevent creation of .DS_Store files on USB volumes.
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+# Automatically hide the Dock.
+defaults write com.apple.dock autohide -bool true
+# Remove Dock autohide show delay.
+defaults write com.apple.dock autohide-delay -float 0
+# Show all windows per app in Mission Control, not grouped.
+defaults write com.apple.dock expose-group-apps -bool true
+# Use scale effect when minimizing windows.
+defaults write com.apple.dock mineffect -string "scale"
+# Disable automatic Spaces rearrangement by recent use.
+defaults write com.apple.dock mru-spaces -bool false
+# Hide recent applications from the Dock.
+defaults write com.apple.dock show-recents -bool false
+# Set the icon size of Dock items in pixels
+defaults write com.apple.dock tilesize -int 64
+# Keep folders grouped before files in Finder lists.
+defaults write com.apple.finder _FXSortFoldersFirst -bool true
+# Keep folders grouped before files on Desktop.
+defaults write com.apple.finder _FXSortFoldersFirstOnDesktop -bool true
+# Use current folder as default Finder search scope.
+defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+# Disable warning when changing file extensions.
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+# Use list view as the default Finder view style.
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+# Automatically remove old items from Trash.
+defaults write com.apple.finder FXRemoveOldTrashItems -bool true
+# Show the path bar in Finder windows.
+defaults write com.apple.finder ShowPathbar -bool true
+# Show the status bar in Finder windows.
+defaults write com.apple.finder ShowStatusBar -bool true
+# Set the current keyboard layout to U.S.
+defaults write com.apple.HIToolbox AppleCurrentKeyboardLayoutInputSourceID -string "com.apple.keylayout.US"
+# Disable app quarantine prompt for newly downloaded apps.
+defaults write com.apple.LaunchServices LSQuarantine -bool false
+# Disable drop shadows in screenshots.
+defaults write com.apple.screencapture disable-shadow -bool true
+# Save screenshots under Pictures and keep a Desktop symlink for convenience.
+mkdir -p "{{ .screenshotsPath }}"
+ln -sfn "{{ .screenshotsPath }}" "{{ .chezmoi.homeDir }}/Desktop/Screenshots"
+defaults write com.apple.screencapture location "{{ .screenshotsPath }}"
+# Save screenshots as JPG files.
+defaults write com.apple.screencapture type -string "jpg"
+# Disable "Click wallpaper to reveal desktop"
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+# Enable full keyboard access for all controls.
+defaults write NSGlobalDomain AppleKeyboardUIMode -int 2
+# Disable press-and-hold accents in favor of key repeat.
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+# Always show file extensions in Finder and dialogs.
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+# Do not switch to a Space with open windows for the application.
+defaults write NSGlobalDomain AppleSpacesSwitchOnActivate -bool false
+# Set a faster initial key repeat delay.
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
+# Set a fast key repeat rate.
+defaults write NSGlobalDomain KeyRepeat -int 2
+# Disable automatic capitalization while typing.
+defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+# Disable smart dash substitution.
+defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+# Disable automatic period insertion after double space.
+defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+# Disable smart quote substitution.
+defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+# Disable automatic spell correction.
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+# Do not ask to keep changes when closing documents.
+defaults write NSGlobalDomain NSCloseAlwaysConfirmsChanges -bool false
+# Save new documents locally instead of iCloud by default.
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+# Do not restore app windows after quitting and reopening apps.
+defaults write NSGlobalDomain NSQuitAlwaysKeepsWindows -bool false
+
+# Define enabled input sources (U.S., RussianWin, Character Viewer, PressAndHold).
+defaults write com.apple.HIToolbox AppleEnabledInputSources -array \
+	'<dict>
+		<key>InputSourceKind</key><string>Keyboard Layout</string>
+		<key>KeyboardLayout ID</key><integer>0</integer>
+		<key>KeyboardLayout Name</key><string>U.S.</string>
+	</dict>' \
+	'<dict>
+		<key>InputSourceKind</key><string>Keyboard Layout</string>
+		<key>KeyboardLayout ID</key><integer>19458</integer>
+		<key>KeyboardLayout Name</key><string>RussianWin</string>
+	</dict>' \
+	'<dict>
+		<key>Bundle ID</key><string>com.apple.CharacterPaletteIM</string>
+		<key>InputSourceKind</key><string>Non Keyboard Input Method</string>
+	</dict>' \
+	'<dict>
+		<key>Bundle ID</key><string>com.apple.PressAndHold</string>
+		<key>InputSourceKind</key><string>Non Keyboard Input Method</string>
+	</dict>'
+
+# Define selected input sources order (U.S. and PressAndHold).
+defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
+	'<dict>
+		<key>InputSourceKind</key><string>Keyboard Layout</string>
+		<key>KeyboardLayout ID</key><integer>0</integer>
+		<key>KeyboardLayout Name</key><string>U.S.</string>
+	</dict>' \
+	'<dict>
+		<key>Bundle ID</key><string>com.apple.PressAndHold</string>
+		<key>InputSourceKind</key><string>Non Keyboard Input Method</string>
+	</dict>'
+
+killall Dock >/dev/null 2>&1 || true
+killall Finder >/dev/null 2>&1 || true
+killall SystemUIServer >/dev/null 2>&1 || true
+
+success "macOS defaults configured"

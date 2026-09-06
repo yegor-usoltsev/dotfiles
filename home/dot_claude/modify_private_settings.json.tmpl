@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+# Preserve application key order and keep secrets out of process arguments.
+CHEZMOI_STATUSLINE={{ printf "sh %s" (joinPath .chezmoi.homeDir ".claude/statusline.sh" | shellQuote) | shellQuote }}
+export CHEZMOI_STATUSLINE
+
+jq -s '
+    (.[0] // {})
+    | .attribution.commit = ""
+    | .attribution.pr = ""
+    | .autoMemoryEnabled = false
+    | .awaySummaryEnabled = false
+    | .env.CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR = "1"
+    | .outputStyle = "Concise"
+    | .permissions.defaultMode = "bypassPermissions"
+    | .skipDangerousModePermissionPrompt = true
+    | .statusLine = { "type": "command", "command": env.CHEZMOI_STATUSLINE }
+    | .tui = "fullscreen"
+    '

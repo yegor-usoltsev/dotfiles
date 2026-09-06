@@ -1,0 +1,51 @@
+{{- $osid := .chezmoi.os -}}
+{{- if and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id") -}}
+{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+{{- $profile := "workstation" -}}
+{{- if ne .chezmoi.os "darwin" -}}
+{{-   $profile = promptStringOnce . "profile" "profile" "server" -}}
+{{-   if not (has $profile (list "server" "devbox")) -}}
+{{-     fail "Linux profile must be server or devbox" -}}
+{{-   end -}}
+{{- end -}}
+{{- $installAppsFromAppStore := false -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $installAppsFromAppStore = promptBoolOnce . "installAppsFromAppStore" "Do you want to install apps from the App Store" -}}
+{{- end -}}
+{{- $secretsPath := joinPath .chezmoi.homeDir ".config/chezmoi/secrets.toml" -}}
+{{- $secrets := dict -}}
+{{- if stat $secretsPath -}}
+{{-   $secrets = include $secretsPath | fromToml -}}
+{{- else -}}
+{{-   $context7 := rbwFields "context7.com" -}}
+{{-   $sshKey := rbw "SSH key" -}}
+{{-   $secrets = dict
+        "context7ApiKey" (index $context7 "API key").value
+        "githubToken" (rbwFields "github.com (yegor-usoltsev)" | dig "renovate-hydra" "value" "")
+        "sshPublicKey" $sshKey.data.public_key
+        "sshPrivateKey" $sshKey.data.private_key
+-}}
+{{- end -}}
+sourceDir = "{{ .chezmoi.homeDir }}/dev/yegor-usoltsev/dotfiles"
+
+[hooks.read-source-state.pre]
+command = "{{ .chezmoi.sourceDir }}/.chezmoihooks/ensure-prerequisites.sh"
+
+[diff]
+exclude = ["scripts"]
+
+[status]
+exclude = ["scripts"]
+
+[data]
+installAppsFromAppStore = {{ $installAppsFromAppStore }}
+osid = {{ $osid | quote }}
+profile = {{ $profile | quote }}
+screenshotsPath = "{{ .chezmoi.homeDir }}/Pictures/Screenshots"
+
+[data.secrets]
+context7ApiKey = {{ dig "context7ApiKey" "" $secrets | quote }}
+sshPrivateKey = {{ dig "sshPrivateKey" "" $secrets | quote }}
+sshPublicKey = {{ dig "sshPublicKey" "" $secrets | quote }}
+githubToken = {{ dig "githubToken" "" $secrets | quote }}
