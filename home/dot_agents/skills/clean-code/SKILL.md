@@ -33,8 +33,12 @@ Watch for rigidity, fragility, needless complexity, and needless repetition. Wat
 
 Comments do not make up for bad code: explain yourself in code. Comment intent, constraints, edge cases, and invariants that the code cannot express. Keep comments to one or two lines. Delete commented-out code, journal comments, and noise.
 
+Use [writing-for-humans](../writing-for-humans/SKILL.md) when wording comments, commit messages, reviews, or other repository prose.
+
 ## Tests and review
 
 Keep tests fast, independent, repeatable, self-validating, and timely. Test one concept per test, cover the changed behavior and its boundary conditions, and skip tests that repeat the implementation or prove the framework works.
 
 When reviewing, tie each finding to specific code and explain its effect. Separate defects from optional improvements. Report what was verified and what remains uncertain; do not claim tests passed unless they ran successfully.
+
+Fix in-scope defects. Record real work outside the current task through [backlog](../backlog/SKILL.md) so it does not expand the change or disappear.

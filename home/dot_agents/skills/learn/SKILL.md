@@ -18,7 +18,9 @@ Capture verified project-specific knowledge such as:
 - Required build, test, deployment, or debugging commands with non-obvious constraints.
 - Integration behavior, operational invariants, and durable gotchas.
 
-Exclude session history, the change just made, resolved incident details, temporary state, secrets, machine-specific preferences, generic engineering advice, and rules already supplied by a global instruction or skill. Put deferred work under `.backlog/` according to the `backlog` skill instead of adding it to `AGENTS.md`.
+Exclude session history, the change just made, resolved incident details, temporary state, secrets, machine-specific preferences, generic engineering advice, and rules already supplied by a global instruction or skill. Put deferred work under `.backlog/` according to the [backlog](../backlog/SKILL.md) skill instead of adding it to `AGENTS.md`.
+
+Use [writing-for-agents](../writing-for-agents/SKILL.md) for reusable skills. `AGENTS.md` holds project-specific instructions that should apply across tasks without a separate trigger.
 
 A candidate earns space only when evidence supports it and a capable agent is likely to use it months later. Prefer a specific instruction over background narrative.
 

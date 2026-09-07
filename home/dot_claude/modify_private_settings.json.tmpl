@@ -14,6 +14,7 @@ jq -s '
     | .env.CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR = "1"
     | .outputStyle = "Concise"
     | .permissions.defaultMode = "bypassPermissions"
+    | .promptSuggestionEnabled = false
     | .skipDangerousModePermissionPrompt = true
     | .statusLine = { "type": "command", "command": env.CHEZMOI_STATUSLINE }
     | .tui = "fullscreen"

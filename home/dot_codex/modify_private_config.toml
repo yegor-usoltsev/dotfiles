@@ -10,6 +10,7 @@
      setValueAtPath "personality" "pragmatic" |
      setValueAtPath "sandbox_mode" "danger-full-access" |
      setValueAtPath "service_tier" "default" |
+     setValueAtPath "tui.auto_recap" false |
      setValueAtPath "tui.status_line" (list
        "model-with-reasoning" "current-dir" "project-root" "git-branch"
        "context-used" "five-hour-limit" "weekly-limit") |

@@ -48,8 +48,8 @@ Every path below is relative to the repository root, so resolve it once and work
 ```sh
 root=$(git rev-parse --show-toplevel) || exit 1
 if [ ! -d "$root/.backlog" ]; then echo "no backlog"
-elif [ -z "$(find "$root/.backlog" -maxdepth 1 -name '*.md' -print -quit)" ]; then echo "backlog is empty"
-else find "$root/.backlog" -maxdepth 1 -name '*.md' -exec grep -H '^worth:' {} + | sort
+elif [ -z "$(fd --no-ignore -d 1 -e md . "$root/.backlog" --max-results 1)" ]; then echo "backlog is empty"
+else rg --no-ignore --no-messages -H --max-depth 1 -g '*.md' '^worth:' "$root/.backlog" | sort
 fi
 ```
 

@@ -20,6 +20,9 @@ alias cloc='scc'
 alias sloc='scc'
 alias loc='scc'
 
-alias codex='codex --dangerously-bypass-approvals-and-sandbox'
-alias claude='claude --dangerously-skip-permissions'
+# Both CLIs read ~/.agents/RULES.md on every launch and add it to their own
+# instructions rather than replacing them: Claude appends to its system prompt,
+# Codex supplies it as developer instructions alongside its built-ins.
+alias codex='codex --dangerously-bypass-approvals-and-sandbox -c developer_instructions="$(jq -Rs . < "$HOME/.agents/RULES.md")"'
+alias claude='claude --dangerously-skip-permissions --append-system-prompt-file "$HOME/.agents/RULES.md"'
 {{- end }}

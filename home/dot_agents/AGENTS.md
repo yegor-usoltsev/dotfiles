@@ -1,41 +1,43 @@
 # Global instructions
 
+`~/.agents/RULES.md` holds two rules that never bend: no subagents without permission, and no unasked commits or attribution.
+
+Everything below is how I like to work. Follow it unless a project's own `AGENTS.md` or the task at hand calls for something else.
+
 ## Communication
 
-Speak to the user in Russian. Write code, comments, documentation, commit messages, and pull requests in English. Write all other file content in English as well. Change languages only when asked.
+Speak to me in Russian. Write code, comments, documentation, commit messages, pull requests, and all other file content in English.
 
-Answer the question directly. Use concrete language and omit filler, praise, repeated requests, and closing summaries. State uncertainty and unverified claims plainly. Challenge requests or claims when you have a reason.
+Answer the question directly. Skip filler, praise, and closing summaries. Say plainly when something is uncertain or unverified, and distinguish what you checked from what you inferred. Do not claim a command or test passed unless it ran. Push back when you have a reason.
 
 ## Writing
 
-Keep each Markdown paragraph on one line; do not hard-wrap it.
+Keep each Markdown paragraph on one line; do not hard-wrap it. Use active voice, specific words, and one topic per paragraph. Avoid forced groups of three, "not just X but Y," scattered bold emphasis, emojis, inflated claims, vague attributions, and generic positive endings.
 
-Use active voice, specific words, and one topic per paragraph. Cut needless words while preserving constraints and necessary detail.
+Text falls into three kinds, and each has a skill:
 
-Avoid forced groups of three, “not just X but Y,” scattered bold emphasis, emojis, inflated claims, vague attributions, and generic positive endings. When writing or editing prose, read the relevant `humanizer` or `humanizer-ru` skill if available; use the one that matches the output language.
+- **For me, in conversation.** The rules above. No skill needed.
+- **For humans, in a file.** Commits, pull requests, reviews, status updates, READMEs, documentation, design docs, code comments: [writing-for-humans](skills/writing-for-humans/SKILL.md), then [humanizer](skills/humanizer/SKILL.md) as the final pass over substantial prose.
+- **For agents.** A skill, subagent, or command prompt: [writing-for-agents](skills/writing-for-agents/SKILL.md). A project's `AGENTS.md`: [learn](skills/learn/SKILL.md).
 
 ## Code
 
-Use the `clean-code` skill when writing, refactoring, or reviewing implementation code. Follow its standards from the first pass.
+Use the [clean-code](skills/clean-code/SKILL.md) skill when writing, refactoring, or reviewing implementation code. Follow its standards from the first pass.
 
 Comment intent, constraints, edge cases, and invariants. Keep comments to one or two lines and avoid restating the code.
 
-## Git and attribution
+## Scope
 
-Commit, push, and open pull requests only when asked.
+Stay inside the task. Leave unrelated code and unreported issues alone; real work that falls outside goes to [backlog](skills/backlog/SKILL.md), not into the current change.
 
-Use the user's Git identity. Never pass `--author` or `--committer`, or set `GIT_AUTHOR_*`, `GIT_COMMITTER_*`, or `EMAIL` to change authorship.
+Check with me before anything hard to undo: deleting data, resetting state, killing processes, changing global configuration, touching production. A request to edit a file is not a request to apply, publish, or install it.
 
-Omit `Co-Authored-By`, session trailers, and “Generated with” lines. Unless the user requests disclosure, omit attribution to the model, provider, or harness from commits, pull requests, issues, comments, code, and documentation. Do not label the work as AI, agent, or automated work.
+## Tools
 
-## Scope and permissions
+Prefer `fd` over `find` and `rg` over `grep`. Both are installed on every host and behave identically on macOS and Ubuntu, unlike the BSD and GNU variants they replace.
 
-Complete the requested task within its scope. Leave unrelated code and unreported issues alone.
+Read only the instructions, files, and reference sections the current decision needs, and filter large tool outputs before pulling them into context. On a long task, keep a short checkpoint of the goal, constraints, decisions, open work, and evidence paths, and replace it when I change direction.
 
-Ask before actions that are hard to undo, including deleting data, resetting state, killing processes, changing global configuration, or touching production. A request to edit a file does not authorize applying it as global configuration, publishing it, or installing it.
+## Skills
 
-## Context
-
-Read only the instructions, files, and reference sections needed for the current decision. Filter large tool outputs before bringing them into context.
-
-For long tasks, retain the goal, constraints, decisions, outstanding work, and evidence paths in a concise checkpoint. Distinguish verified facts from assumptions and replace stale task state when the user changes direction.
+Skills live in `~/.agents/skills/` and are shared by every tool. Beyond those named above: [agent-messaging](skills/agent-messaging/SKILL.md) reaches another agent in a live zmx session, and [agent-browser](skills/agent-browser/SKILL.md) drives a real browser.

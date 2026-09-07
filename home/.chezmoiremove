@@ -9,3 +9,13 @@ Library/Application Support/tealdeer
 .agents/skills/frontend-design
 .agents/skills/grill-me
 .agents/skills/to-prd
+
+# Skills merged into writing-for-humans, humanizer and writing-for-agents.
+.agents/skills/context-engineering
+.agents/skills/doc-coauthoring
+.agents/skills/humanizer-ru
+.agents/skills/skill-creator
+.agents/skills/skill-creator-anthropic
+.agents/skills/skill-creator-openai
+.agents/skills/write-concisely
+.agents/skills/writing-style
