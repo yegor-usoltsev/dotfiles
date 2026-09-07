@@ -30,7 +30,7 @@ Generated English capitalizes every significant word in a heading. Use sentence 
 
 ## Curly quotation marks
 
-`"..."` where the writer or the target format uses `"..."`. Weak on its own, since macOS, Word, Google Docs, and most CMSes curl quotes automatically. It counts only stacked with other tells.
+Curly `“...”` where the writer or the target format uses straight `"..."`. Weak on its own, since macOS, Word, Google Docs, and most CMSes curl quotes automatically. It counts only stacked with other tells.
 
 This rule is English-only. Russian uses guillemets by norm; see `russian.md`.
 

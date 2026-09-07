@@ -31,7 +31,7 @@ where: internal/queue/retry.go:88
 
 # Retry loop drops the last error
 
-The final attempt's error is overwritten by the loop variable, so a failing job reports the first failure instead of the one that exhausted the budget. Surfaced while adding queue metrics; the fix changes the error type, which is why it was deferred.
+The final attempt's error is overwritten by the loop variable, so a failing job reports the first failure instead of the one that exhausted the budget. Surfaced while adding queue metrics. The fix changes the error type, and nobody has checked whether the alerting rules match on it; if they do not, it is an afternoon's work and worth doing.
 ```
 
 Two frontmatter fields:

@@ -21,7 +21,7 @@ Use lists only when several items are easier to scan than a sentence. Use senten
 
 ## Precision
 
-Name exact files, lines, commits, commands, errors, and observed behavior when they matter. Distinguish a verified fact from an inference. Never claim a test passed unless it ran successfully.
+Name exact files, lines, commits, commands, errors, and observed behavior when they matter. Distinguish a verified fact from an inference.
 
 Assume the reader knows the project's ordinary technical vocabulary. Explain a term only when the audience or a real ambiguity requires it.
 
@@ -39,7 +39,7 @@ When editing someone else's text, preserve every fact, constraint, citation, ide
 
 **README and public documentation.** Organize around the reader's task. Describe current behavior, not the history of edits, except in release notes and migration guides.
 
-**Code comments.** Comment intent, constraints, edge cases, and invariants that the code cannot express. One or two lines. Do not restate the code.
+**Code comments.** [clean-code](../clean-code/SKILL.md) sets what a comment must carry and how long it may be. This skill governs only its wording.
 
 ## Co-authoring a substantial document
 
@@ -55,6 +55,6 @@ Use this when the user is writing a design doc, proposal, spec, or decision doc 
 
 Remove every sentence that adds no fact, decision, instruction, or necessary transition. Read the result once for rhythm and once to confirm no fact was lost or added.
 
-Run substantial prose through [humanizer](../humanizer/SKILL.md) to strip AI tells. Keep technical terms and the writer's deliberate voice; a stylistic quirk the author chose is not a defect.
+Run substantial prose through [humanizer](../humanizer/SKILL.md) to strip AI tells. That call rewrites the draft in place, which is level 2 in the humanizer's terms, and needs no separate request from the user. Keep technical terms and the writer's deliberate voice; a stylistic quirk the author chose is not a defect.
 
 Project and user instructions win over this skill when they conflict.

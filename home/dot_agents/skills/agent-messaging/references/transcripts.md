@@ -18,7 +18,20 @@ dir="$HOME/.codex/sessions"
 [ -d "$dir" ] && fd -e jsonl -t f . "$dir" -X jq -rn 'inputs | select(.type=="session_meta" and .payload.cwd == $cwd) | input_filename' --arg cwd "$PWD" | sort -u
 ```
 
-Put the path you picked in a variable, because the filters below read one transcript at a time:
+Both lookups match on cwd alone, so a directory with any history returns several paths. Never assume the newest one is the session you mean.
+
+To confirm delivery, search every match for the marker rather than picking a file:
+
+```sh
+dir="$HOME/.codex/sessions"
+[ -d "$dir" ] && fd -e jsonl -t f . "$dir" -X rg -l --fixed-strings 'msg:7f3a'
+```
+
+A hit names the transcript to run the filter on; the filter is what proves the marker reached a recorded turn rather than a tool result. Nothing printed means no log holds the message.
+
+To read a conversation instead, confirm the candidate's recorded cwd and its agent before quoting anything, because a stale rollout from the same directory looks exactly like a live one.
+
+Put the path you settled on in a variable, because the filters below read one transcript at a time:
 
 ```sh
 transcript=/absolute/path/to/session.jsonl

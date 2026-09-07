@@ -7,7 +7,7 @@ description: Capture verified, reusable project knowledge in AGENTS.md and keep 
 
 Save durable instructions that will help Codex, Claude Code, and other agents make better decisions in this repository. `AGENTS.md` is canonical. A sibling `CLAUDE.md` should be a relative symlink to it so Claude reads the same instructions.
 
-Do not edit global files under `~/.agents`, `~/.claude`, or `~/.codex` unless the user explicitly asks for a global change.
+Do not edit global files under `~/.agents`, `~/.claude`, or `~/.codex` unless the user explicitly asks for a global change. A repository that manages those files as source state is the exception: inside it they are ordinary project files, while the applied copies under `$HOME` stay off limits.
 
 ## What belongs
 

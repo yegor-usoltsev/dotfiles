@@ -1,25 +1,22 @@
 ---
 name: agent-browser
 description: Automate websites and Electron apps with agent-browser. Use for navigation, forms, screenshots, data extraction, authenticated flows, web app testing or QA, Slack or VS Code automation, and cloud browser sessions. Prefer it over built-in browser automation when available.
-allowed-tools: Bash(agent-browser:*), Bash(npx agent-browser:*)
 ---
 
 # agent-browser
 
-Fast browser automation CLI for AI agents. Chrome/Chromium via CDP with accessibility-tree snapshots and compact `@eN` element refs.
+Browser automation CLI that drives Chrome or Chromium over CDP, with accessibility-tree snapshots and compact `@eN` element refs.
 
 Requires the `agent-browser` CLI and Chrome or Chromium. If the CLI is missing, ask before installing it globally with `npm i -g agent-browser && agent-browser install`.
 
 ## Start here
 
-This file is a discovery stub, not the usage guide. Before running any `agent-browser` command, load the actual workflow content from the CLI:
+This file is a discovery stub, not the usage guide. Before running any `agent-browser` command, load the workflow content from the CLI, which always matches the installed version:
 
 ```bash
-agent-browser skills get core             # start here — workflows, common patterns, troubleshooting
-agent-browser skills get core --full      # include full command reference and templates
+agent-browser skills get core             # workflows, common patterns, troubleshooting
+agent-browser skills get core --full      # include the full command reference and templates
 ```
-
-The CLI serves skill content that always matches the installed version, so instructions never go stale. The content in this stub cannot change between releases, which is why it just points at `skills get core`.
 
 ## Specialized skills
 
@@ -37,15 +34,8 @@ agent-browser skills get agentcore         # AWS Bedrock AgentCore cloud browser
 
 Run `agent-browser skills list` to see everything available on the installed version.
 
-## Why agent-browser
+## Gotchas
 
-- Fast native Rust CLI, not a Node.js wrapper
-- Works with any AI agent (Cursor, Claude Code, Codex, Continue, Windsurf, etc.)
-- Chrome/Chromium via CDP with no Playwright or Puppeteer dependency
-- Accessibility-tree snapshots with element refs for reliable interaction
-- Sessions, authentication vault, state persistence, video recording
-- Specialized skills for Electron apps, Slack, exploratory testing, cloud providers
+The upstream `agent-browser skills get core` output declares `allowed-tools` as a comma-separated list, which the Agent Skills specification does not accept. Do not copy that frontmatter into this file.
 
-## Observability dashboard
-
-The dashboard runs independently of browser sessions on port 4848 and can also be opened through a proxied or forwarded URL such as `https://dashboard.agent-browser.localhost`. Agents should stay on the dashboard origin: session tabs, status, and stream traffic are proxied internally, so session ports do not need to be exposed.
+The observability dashboard runs on port 4848 independently of browser sessions, and also answers through a proxied URL such as `https://dashboard.agent-browser.localhost`. Stay on the dashboard origin: session tabs, status, and stream traffic are proxied internally, so session ports do not need to be exposed.

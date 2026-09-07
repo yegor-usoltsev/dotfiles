@@ -19,6 +19,7 @@ Before every send, inspect `zmx history <name> | tail -12`. Read the lines above
 
 - Send when the agent is working or its empty composer is ready.
 - Stop if the composer contains a draft or the pane shows an approval dialog, picker, diff viewer, prompt, or unclear state. Raw input could merge with existing text or answer the prompt.
+- Read the remaining usage in the status bar before sending real work. An agent near its limit accepts the message and stops partway, which reads as an acknowledged request that never lands.
 
 ## Prepare the handoff
 
@@ -45,7 +46,7 @@ A message left sitting in the recipient's composer is the most common failure he
 
 `zmx send` writes raw bytes into a shared PTY line buffer. It adds no Enter, completion marker, or exit status. Long input can remain pasted or arrive truncated, and concurrent input can concatenate with it. Use a shared file for detail and never use `zmx send` as a command launcher.
 
-Then confirm delivery in the recipient's transcript, not in `zmx history`. A marker visible in the pane only proves that bytes reached the composer; a marker in a recorded turn proves the agent received it. Locate the recipient's log for its cwd with [references/transcripts.md](references/transcripts.md), put its path in `transcript`, then search for the fresh marker.
+Then confirm delivery in the recipient's transcript, not in `zmx history`. A marker visible in the pane only proves that bytes reached the composer; a marker in a recorded turn proves the agent received it. The cwd lookup in [references/transcripts.md](references/transcripts.md) returns every log a directory ever had, so search all of them for the fresh marker instead of guessing which one is live, then put the file that hit in `transcript`.
 
 A message that arrives while the agent is working is recorded as a queued or steering event rather than an ordinary turn, so match those shapes too. For a Claude Code recipient:
 

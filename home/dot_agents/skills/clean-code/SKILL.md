@@ -1,6 +1,6 @@
 ---
 name: clean-code
-description: Write, refactor, or review implementation code for readability, structure, maintainability, and technical debt.
+description: Write, refactor, or review implementation code for readability, structure, maintainability, and technical debt. Use when producing or changing code, and when reading a diff for defects or design problems. This skill decides what a finding is; writing-for-humans decides how the review, commit message, or comment is worded.
 ---
 
 # Clean code
@@ -39,6 +39,6 @@ Use [writing-for-humans](../writing-for-humans/SKILL.md) when wording comments, 
 
 Keep tests fast, independent, repeatable, self-validating, and timely. Test one concept per test, cover the changed behavior and its boundary conditions, and skip tests that repeat the implementation or prove the framework works.
 
-When reviewing, tie each finding to specific code and explain its effect. Separate defects from optional improvements. Report what was verified and what remains uncertain; do not claim tests passed unless they ran successfully.
+When reviewing, tie each finding to specific code and explain its effect. Separate defects from optional improvements. Report what was verified and what remains uncertain.
 
-Fix in-scope defects. Record real work outside the current task through [backlog](../backlog/SKILL.md) so it does not expand the change or disappear.
+A review reports and does not edit. When the task is to write or change code, fix the defects inside its scope; when the task is to review, put them in the findings and leave the change to the user. Either way, real work outside the current task goes to [backlog](../backlog/SKILL.md).
