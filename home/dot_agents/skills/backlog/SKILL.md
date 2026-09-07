@@ -13,13 +13,20 @@ Two modes cover the work. Read [Capture](#capture) when something worth keeping 
 
 ## Item format
 
-An item lives at `.backlog/<slug>.md`. The slug names the work, not the file it touches, so `retry-loop-drops-the-last-error.md` reads correctly from a commit message and duplicates are a filename check away.
+An item lives at `.backlog/<YYYYMMDDhhmmss>-<slug>.md`. The timestamp is when the item was filed, so the directory sorts oldest first and a year-old item is visible as one. The slug names the work, not the file it touches, so `20260907004512-retry-loop-drops-the-last-error.md` reads correctly from a commit message and duplicates are a filename check away.
+
+Take the timestamp from `date`, never by hand:
+
+```sh
+stamp=$(date +%Y%m%d%H%M%S)
+```
+
+`%Y%m%d%H%M%S` is a POSIX strftime format, so it behaves the same on macOS and on Ubuntu. Do not reach for `date -d` or `date -v`; each exists on only one of them.
 
 ```markdown
 ---
 worth: later
 where: internal/queue/retry.go:88
-added: 2026-09-07
 ---
 
 # Retry loop drops the last error
@@ -27,11 +34,10 @@ added: 2026-09-07
 The final attempt's error is overwritten by the loop variable, so a failing job reports the first failure instead of the one that exhausted the budget. Surfaced while adding queue metrics; the fix changes the error type, which is why it was deferred.
 ```
 
-Three frontmatter fields:
+Two frontmatter fields:
 
 - `worth: yes | later | no` orders the list. `yes` means the value is agreed and the work should happen; it says nothing about schedule. `later` means the value decision itself is open, and the body must name the unknown that would settle it. `no` records a decision not to fix, kept only while it still stops the next review from rediscovering the same thing.
 - `where: path:line` anchors the item when it has one place. Omit it otherwise. The line drifts, so treat it as a hint and verify it before acting.
-- `added: YYYY-MM-DD` is never updated, so the value reads as age. Zero-pad it so the files sort lexically.
 
 The H1 is the title. The body has no required sections: give the reproduction, the constraint, the rejected approach, or a link, in whatever shape fits. A two-line item stays two lines. A `later` owes the unknown it waits on, and a `no` owes the rationale it exists to preserve.
 
@@ -43,13 +49,13 @@ Every path below is relative to the repository root, so resolve it once and work
 root=$(git rev-parse --show-toplevel) || exit 1
 if [ ! -d "$root/.backlog" ]; then echo "no backlog"
 elif [ -z "$(find "$root/.backlog" -maxdepth 1 -name '*.md' -print -quit)" ]; then echo "backlog is empty"
-else find "$root/.backlog" -maxdepth 1 -name '*.md' -exec grep -H '^worth:\|^added:' {} + | sort
+else find "$root/.backlog" -maxdepth 1 -name '*.md' -exec grep -H '^worth:' {} + | sort
 fi
 ```
 
 An empty `.backlog/` is not the same as a missing one. Report a missing directory as missing and offer to start it, without creating it empty; report an existing but empty one as an empty backlog, and do not offer to start what is already there.
 
-Report every item in one line each, `yes` first, then `later`, then `no`, oldest `added` first inside each group. Verify each `where` before reporting: if the file moved or the line no longer says what the item claims, report the item as stale rather than as ready work. Do not restate the item's reasoning; it is already in the file.
+Report every item in one line each, `yes` first, then `later`, then `no`, oldest first inside each group, which is filename order. Verify each `where` before reporting: if the file moved or the line no longer says what the item claims, report the item as stale rather than as ready work. Do not restate the item's reasoning; it is already in the file.
 
 ## Capture
 
@@ -68,10 +74,10 @@ Write in place when `current` equals `default`. Anywhere else, name the current 
 
 Dedupe before writing. The slug and the `where` path find the candidates, but the defect each item claims decides it. A shared file is not a duplicate. When the item already exists, say so and leave it alone; when the new sighting sharpens the description or changes the `worth` call, edit that file instead of adding a second one.
 
-Create `.backlog/` when it does not exist, after the branch check and never before it. Write the file yourself once the item has passed those checks; capture is the one part of this skill that does not wait for an instruction, because an item nobody records is an item lost. Say which file you wrote. Committing is a separate decision: never commit without being asked, and when the user does ask, stage the exact paths this run created and commit them alone.
+Create `.backlog/` when it does not exist, after the branch check and never before it, and name the file with a fresh `stamp`. Write the file yourself once the item has passed those checks; capture is the one part of this skill that does not wait for an instruction, because an item nobody records is an item lost. Say which file you wrote. Committing is a separate decision: never commit without being asked, and when the user does ask, stage the exact paths this run created and commit them alone.
 
 ```sh
-git add .backlog/retry-loop-drops-the-last-error.md
+git add ".backlog/${stamp}-retry-loop-drops-the-last-error.md"
 git commit -m "Add backlog item for the retry error loss [CI SKIP]"
 ```
 
@@ -89,10 +95,10 @@ Implement the item under the repository's usual gates: tests, formatter, linter.
 
 ```sh
 mkdir -p .backlog/archive
-git mv .backlog/retry-loop-drops-the-last-error.md .backlog/archive/
+git mv .backlog/20260907004512-retry-loop-drops-the-last-error.md .backlog/archive/
 ```
 
-Add `done: YYYY-MM-DD` to the archived item's frontmatter, leaving the other fields as they were. That commit carries real code, so it takes no `[CI SKIP]` suffix.
+Add `done: YYYY-MM-DD` from `date +%F` to the archived item's frontmatter, leaving the other fields and the filename as they were; the prefix keeps saying when the item was filed. That commit carries real code, so it takes no `[CI SKIP]` suffix.
 
 Dropping an item is the same move with a different reason: archive it with `done` and a closing line in the body saying why it will not be done. When nobody needs the reasoning either, `git rm` the file instead and let the history hold it. A pure drop touches only `.backlog/`, so its commit takes the `[CI SKIP]` suffix.
 
