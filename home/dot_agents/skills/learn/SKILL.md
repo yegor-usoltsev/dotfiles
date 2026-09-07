@@ -18,7 +18,7 @@ Capture verified project-specific knowledge such as:
 - Required build, test, deployment, or debugging commands with non-obvious constraints.
 - Integration behavior, operational invariants, and durable gotchas.
 
-Exclude session history, the change just made, resolved incident details, temporary state, secrets, machine-specific preferences, generic engineering advice, and rules already supplied by a global instruction or skill. Put deferred work in the repository backlog instead of `AGENTS.md`.
+Exclude session history, the change just made, resolved incident details, temporary state, secrets, machine-specific preferences, generic engineering advice, and rules already supplied by a global instruction or skill. Put deferred work under `.backlog/` according to the `backlog` skill instead of adding it to `AGENTS.md`.
 
 A candidate earns space only when evidence supports it and a capable agent is likely to use it months later. Prefer a specific instruction over background narrative.
 
@@ -26,16 +26,17 @@ A candidate earns space only when evidence supports it and a capable agent is li
 
 Find the repository root and read the relevant `AGENTS.md`, `CLAUDE.md`, nested instruction files, README, and code that supports each candidate. Follow any existing memory-placement convention unless it conflicts with the user's current request.
 
-Check symlinks with `test -L` and `readlink`, and inspect `git status` before changing files. Do not overwrite uncommitted instruction changes.
+Check symlinks with `test -L` and `readlink`, and inspect `git status` before changing files. Treat any uncommitted change to an instruction path as conflicting and do not replace it.
 
-Use the nearest existing `AGENTS.md` whose scope fits the knowledge. Keep repository-wide rules at the root. Create a nested `AGENTS.md` and matching `CLAUDE.md` symlink only when the rule applies clearly to one subtree.
+Use the nearest existing `AGENTS.md` whose scope fits the knowledge, or the repository root when none exists. Keep repository-wide rules at the root. Create a nested `AGENTS.md` and matching `CLAUDE.md` symlink only when the rule applies clearly to one subtree.
 
 ## Keep AGENTS.md canonical
 
 When normalization is in scope:
 
 - If `AGENTS.md` is a regular file and `CLAUDE.md` is absent, create `CLAUDE.md` as `ln -s AGENTS.md CLAUDE.md`.
-- If only a regular `CLAUDE.md` exists, preserve its content in `AGENTS.md`, verify the copy, then replace `CLAUDE.md` with the relative symlink.
+- If only a regular `CLAUDE.md` exists, move it to `AGENTS.md` with `git mv` when tracked or `mv` otherwise, then create the relative symlink and inspect the diff to confirm the move and preserved content.
+- If neither file exists, create a concise root `AGENTS.md` with the new knowledge and link `CLAUDE.md` to it.
 - If both are regular files, compare them, merge unique valid instructions into `AGENTS.md`, verify that no instruction was lost, then replace `CLAUDE.md` with the symlink.
 - If either path is a broken link, points outside its directory, or contains conflicting uncommitted work, stop and ask before replacing it.
 

@@ -17,7 +17,7 @@ Cut greetings, praise, sign-offs, repeated requests, generic conclusions, dramat
 
 Keep each Markdown paragraph on one source line. Use lists only when they make multiple items easier to scan. Use sentence case for headings and minimal emphasis.
 
-Preserve every fact, constraint, citation, identifier, and link when editing. Never invent support for a claim. Apply the `humanizer` skill to English prose when available, while keeping technical terms and the writer's deliberate voice.
+Preserve every fact, constraint, citation, identifier, and link when editing. Never invent support for a claim. For substantial English prose, follow the `humanizer` skill while keeping technical terms and the writer's deliberate voice. Project and user instructions take priority if rules conflict.
 
 ## Precision
 
@@ -27,7 +27,7 @@ Assume the reader understands the project's ordinary technical vocabulary. Expla
 
 ## Artifact conventions
 
-For a commit subject, match the repository's history. Prefer a short sentence-case imperative that says what changed. Do not force a Conventional Commit prefix into a repository that does not use one. Add a body only for rationale, constraints, or consequences that the subject cannot carry. Omit authorship and generator attribution.
+For a commit subject, inspect recent subjects with `git log -12 --format=%s` and follow any consistent repository convention. If no convention is clear, use a short sentence-case imperative that says what changed. Do not force a Conventional Commit prefix into a repository that does not use one. Add a body only for rationale, constraints, or consequences that the subject cannot carry. Omit authorship and generator attribution.
 
 For a pull request or issue, title the concrete outcome or defect. In the body, cover the problem, the chosen change, verification, and material risk when each is relevant; do not force empty template sections.
 
@@ -37,4 +37,4 @@ For a status update, state the result first, then the evidence, blocker, or next
 
 For README files and public documentation, use polished complete English and organize around the reader's task. Describe current behavior instead of the history of edits, except in release notes and migration guides.
 
-Before finalizing, remove any sentence that adds no fact, decision, instruction, or useful connective tissue. Read the result once for rhythm and once for factual preservation.
+Before finalizing, remove any sentence that adds no fact, decision, instruction, or necessary transition. Read the result once for rhythm and once for factual preservation.
