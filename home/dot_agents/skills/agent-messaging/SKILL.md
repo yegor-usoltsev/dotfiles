@@ -7,6 +7,8 @@ description: Talk to another AI coding agent (Claude Code, Codex) running in a z
 
 zmx keeps each agent in a named PTY session on one machine. A message is typed into the other agent's TUI, so delivery is best-effort: check the target before sending and check the transcript afterwards.
 
+The exchange is asynchronous. A message joins the other agent's input queue and is read when its current turn ends, which may be minutes later, and never if that session is out of usage limits or waiting on a dialog nobody answers. Plan around a reply that may not come.
+
 Everything here is chatty by nature, so spend context deliberately. What costs tokens is what lands in your context, not what the shell reads: filter inside the pipe.
 
 ## Find sessions
@@ -18,6 +20,8 @@ Everything here is chatty by nature, so spend context deliberately. What costs t
 Preflight with `zmx history <name> | tail -8` and send only when the pane sits at an idle prompt. The composer line is always at the bottom, so a narrower window hides the busy indicator above it and a working agent looks idle. Stop and tell the user when it shows an approval dialog, a picker, a diff viewer or a state you cannot read: input typed there answers that dialog.
 
 Prefix every message so the human can tell who wrote it: `[Message from Claude]`, `[Message from Codex]`.
+
+In the first message of a conversation, name this skill and your own `$ZMX_SESSION`: the other agent may not know the channel exists, and without your session name it has no address to answer. `read the agent-messaging skill and reply to <zmx_session>` is enough, and it belongs in the opening message only, not in every one.
 
 End every message with a short unique marker, and send the text and the carriage return as two calls:
 
@@ -43,6 +47,8 @@ zmx history codex | tail -40 | grep -c "msg:7f3a"
 The marker is last, so finding it means the whole line reached the pane, and it cannot match an earlier message. Run it right after the carriage return, before a working agent scrolls the line away.
 
 That is transport only: it does not distinguish text still sitting in the composer from a submitted turn, and a busy pane proves nothing about what was received. Preflight again before any retry, because a dialog can appear in the moment after the first carriage return and a second one would answer it; never send into a state you cannot read. A busy agent queues the message and renders it elided, so the marker will not match until the turn ends; that is queued, not lost. Do not resend the task on a zero count alone, because a resend landing mid-turn duplicates work; report what you see instead. Completion proof for substantive work is an acknowledgment naming the file you pointed at.
+
+Never block on the answer. Deliver the message, tell the human what went where, then continue with work that does not depend on the reply; the reply arrives as user input whenever it arrives. Silence carries no information from your side, so say that the answer is outstanding instead of waiting for it or sending it again.
 
 ## Status without messages
 
