@@ -2,6 +2,7 @@
 set -euo pipefail
 
 {{ template "script-header" . }}
+# update-browser hash: {{ includeTemplate "dot_local/bin/executable_update-browser.tmpl" . | sha256sum }}
 
 info "Setting up agent-browser"
 

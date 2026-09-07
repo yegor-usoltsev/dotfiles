@@ -116,9 +116,9 @@ yt-dlp = "latest"
 {{- end }}
 {{- end }}
 
-# Shell and mise integration. misecompsync's registry is built into the binary,
-# so a tool it does not know needs an entry in the chezmoi-managed overlay at
-# ~/{{ if eq .chezmoi.os "darwin" }}Library/Application Support{{ else }}.local/share{{ end }}/mise-completions-sync/registry.toml.
+# Shell and mise integration. A tool misecompsync does not already know gets no
+# zsh completions until it is listed in .chezmoitemplates/mise-completions-registry;
+# AGENTS.md explains the overlay.
 "aqua:alltuner/mise-completions-sync" = "latest"
 
 [hooks]
