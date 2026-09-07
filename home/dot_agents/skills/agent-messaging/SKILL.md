@@ -29,18 +29,18 @@ For substantial work, put the details in a shared file and send its absolute pat
 
 If the handoff surfaces repository work that nobody will do now, record it through the [backlog](../backlog/SKILL.md) skill instead of burying it in the temporary file.
 
-Prefix each message with `[Message from Codex]` or `[Message from Claude]`. In the first message, name `agent-messaging` and include the actual return session. End every message with a fresh short marker such as `[msg:7f3a]`.
+Prefix each message with `[msg:<id> from <session>]`, where `<id>` is a fresh four hex character marker and `<session>` is `$ZMX_SESSION`. The marker identifies the message in the transcript check below, and the session tells the recipient where to reply. In the first message, name `agent-messaging` so the recipient loads it.
 
 ## Send and verify transport
 
 Send the text and the carriage return as one chain, with a short pause between them:
 
 ```sh
-printf '%s' '[Message from Claude] Use agent-messaging; reply to claude-main. Review /project/task.md and record findings there. [msg:7f3a]' | zmx send codex &&
+printf '%s' "[msg:7f3a from $ZMX_SESSION] Use agent-messaging. Review /project/task.md and record findings there." | zmx send codex &&
 	sleep 0.3 && printf '\r' | zmx send codex
 ```
 
-The `&&` keeps the Enter from being forgotten and skips it when the text failed to send. The pause matters just as much: a long line arrives as a bracketed paste, and a carriage return that lands inside that paste is swallowed rather than submitting the turn. `sleep` accepts a fractional argument on both macOS and Ubuntu. Raise it to a second or two for a very long message.
+Double quotes matter here: `$ZMX_SESSION` has to expand before the text leaves your shell. The `&&` keeps the Enter from being forgotten and skips it when the text failed to send. The pause matters just as much: a long line arrives as a bracketed paste, and a carriage return that lands inside that paste is swallowed rather than submitting the turn. `sleep` accepts a fractional argument on both macOS and Ubuntu. Raise it to a second or two for a very long message.
 
 A message left sitting in the recipient's composer is the most common failure here. Never send the text on its own, and never treat the chain as proof that it was submitted; the transcript check below is what settles that.
 

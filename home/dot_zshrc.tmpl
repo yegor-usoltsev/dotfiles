@@ -61,6 +61,11 @@ zstyle ':completion:*' use-cache on
 zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
 zstyle ':completion:*:warnings' format '%F{red}-- no matches found --%f'
 
+# `z` takes a command and its arguments, the way nohup and time do.
+if (( $+functions[compdef] )); then
+	compdef _precommand z 2>/dev/null
+fi
+
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=50000
 SAVEHIST=50000

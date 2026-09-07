@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Run a command with the machine held awake for as long as it lasts. Wrap any
+# long-running foreground process with it: keep-awake claude, keep-awake make.
+set -euo pipefail
+
+if [ "$#" -eq 0 ]; then
+	printf 'usage: keep-awake <command> [argument...]\n' >&2
+	exit 64
+fi
+
+# The display is left alone on purpose: -d and -u would keep the panel lit for
+# the whole run, and -i already stops the machine from sleeping under it.
+if command -v caffeinate >/dev/null 2>&1; then
+	exec caffeinate -ims -- "$@"
+fi
+
+if command -v systemd-inhibit >/dev/null 2>&1; then
+	# Blocking sleep needs a polkit approval that only an active local session
+	# gets, so an SSH session falls back to the idle inhibitor, which any user
+	# may take. The probe is the only way to find out: after exec it is too late.
+	for what in idle:sleep idle; do
+		if systemd-inhibit --what="$what" --who=keep-awake --why=probe --mode=block true 2>/dev/null; then
+			exec systemd-inhibit --what="$what" --who=keep-awake --why="$1 is running" --mode=block -- "$@"
+		fi
+	done
+fi
+
+# Nothing to hold the machine with, so just run the command.
+exec "$@"
