@@ -38,8 +38,8 @@ The H1 is the title. The body has no required sections: give the reproduction, t
 ## List the backlog
 
 ```sh
-find .backlog -maxdepth 1 -name '*.md' | sort
-find .backlog -maxdepth 1 -name '*.md' -exec grep -H '^worth:\|^added:' {} +
+[ -d .backlog ] || echo "no backlog"
+[ -d .backlog ] && find .backlog -maxdepth 1 -name '*.md' -exec grep -H '^worth:\|^added:' {} + | sort
 ```
 
 Report every item in one line each, `yes` first, then `later`, then `no`, oldest `added` first inside each group. Verify each `where` before reporting: if the file moved or the line no longer says what the item claims, report the item as stale rather than as ready work. Do not restate the item's reasoning; it is already in the file.
@@ -53,11 +53,13 @@ Record an item without being asked when work surfaces that is real, outside the 
 Check the branch before writing. An item dropped into someone else's feature branch either joins that diff or disappears with it.
 
 ```sh
-git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || git symbolic-ref -q --short refs/remotes/origin/HEAD
-git branch --show-current
+default=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null)
+default=${default#origin/}   # the probe answers origin/main, not main
+current=$(git branch --show-current)
+echo "default=${default:-unknown} current=${current:-detached}"
 ```
 
-On the repository's default branch, write in place. Anywhere else, name the current branch and ask whether to write here anyway; on refusal, change nothing rather than switching branches or inventing a destination.
+Write in place when `current` equals `default`. Anywhere else, name the current branch and ask whether to write here anyway; on refusal, change nothing rather than switching branches or inventing a destination. An empty `default` means the probe failed rather than that you are on the default branch, so ask in that case too.
 
 Dedupe before writing. The slug and the `where` path find the candidates, but the defect each item claims decides it. A shared file is not a duplicate. When the item already exists, say so and leave it alone; when the new sighting sharpens the description or changes the `worth` call, edit that file instead of adding a second one.
 
