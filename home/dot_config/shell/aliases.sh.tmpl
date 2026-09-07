@@ -9,29 +9,6 @@ alias top='btop'
 
 alias lg='lazygit'
 
-# A throwaway zmx session per command: `z claude` creates claude-7f3a and runs
-# claude there, `z ./build.sh --fast` creates build.sh-91c2. Everything else
-# about zmx is zmx itself.
-z() {
-	if [ "$#" -eq 0 ]; then
-		printf 'usage: z <command> [argument...]\n' >&2
-		return 64
-	fi
-
-	local cmd=$1
-	shift
-	# Only an interactive shell expands the claude and codex aliases that carry
-	# their flags, so the command word goes into the script literally, single
-	# quoted to survive a path or a name with shell characters in it. That shell
-	# stays behind, so quitting the command leaves the session instead of
-	# ending it.
-	local quoted
-	quoted="'$(printf '%s' "$cmd" | sed "s/'/'\\\\''/g")'"
-	local name=${cmd##*/}
-	zmx attach "${name//[^A-Za-z0-9._-]/-}-$(od -An -N2 -tx1 /dev/urandom | tr -d ' ')" \
-		"$SHELL" -ic "$quoted \"\$@\"; exec \"\$SHELL\" -l" "$cmd" "$@"
-}
-
 alias nano='micro'
 
 {{ if ne .profile "server" -}}

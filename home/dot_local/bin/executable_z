@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+# Run a command in a new throwaway zmx session, either attached for a person or
+# detached for another agent to coordinate through zmx.
+set -euo pipefail
+
+usage() {
+	cat <<'EOF'
+usage: z [-d|--detach] [--name NAME] [--label KEY=VALUE]... [--copy] [--] command [argument...]
+
+  -d, --detach       leave the new session running and print its name
+      --name NAME    use an explicit session name instead of command-xxxx
+      --label K=V    add a zmx label; may be repeated
+      --copy         copy the session name when a clipboard command exists
+  -h, --help         show this help
+
+An attached session clears earlier terminal output. Use --name or --copy when
+you need its address later.
+EOF
+}
+
+fail() {
+	printf 'z: %s\n' "$1" >&2
+	exit "${2:-1}"
+}
+
+sanitize() {
+	printf '%s' "$1" | sed 's/[^A-Za-z0-9._-]/-/g'
+}
+
+validate_label() {
+	local pair=$1
+	local key=${pair%%=*}
+	local value=${pair#*=}
+
+	# Keep this in sync with zmx src/label.zig.
+	[[ $key =~ ^[A-Za-z0-9._-]+$ ]] || fail "invalid label key: $key" 64
+	case $key in
+	name | start_dir | cmd) fail "reserved label key: $key" 64 ;;
+	esac
+	[[ $value =~ ^[A-Za-z0-9._-]*$ ]] || fail "invalid value for label: $key" 64
+}
+
+session_exists() {
+	local candidate=$1
+	local existing
+	local sessions
+
+	if ! sessions=$(zmx list --short); then
+		return 2
+	fi
+	while IFS= read -r existing; do
+		[[ $existing == "$candidate" ]] && return 0
+	done <<<"$sessions"
+	return 1
+}
+
+copy_session_name() {
+	local name=$1
+
+	if command -v pbcopy >/dev/null 2>&1; then
+		printf '%s' "$name" | pbcopy
+	elif command -v wl-copy >/dev/null 2>&1; then
+		printf '%s' "$name" | wl-copy
+	elif command -v xclip >/dev/null 2>&1; then
+		printf '%s' "$name" | xclip -selection clipboard
+	fi
+}
+
+detach=0
+copy_name=0
+requested_name=
+labels=()
+
+while (($#)); do
+	case $1 in
+	-d | --detach)
+		detach=1
+		shift
+		;;
+	--name)
+		(($# >= 2)) || fail '--name requires a value' 64
+		[[ -n $2 ]] || fail '--name requires a value' 64
+		requested_name=$2
+		shift 2
+		;;
+	--name=*)
+		requested_name=${1#*=}
+		[[ -n $requested_name ]] || fail '--name requires a value' 64
+		shift
+		;;
+	--label)
+		(($# >= 2)) || fail '--label requires KEY=VALUE' 64
+		[[ $2 == *=* ]] || fail '--label requires KEY=VALUE' 64
+		validate_label "$2"
+		labels+=("$2")
+		shift 2
+		;;
+	--label=*)
+		label=${1#*=}
+		[[ $label == *=* ]] || fail '--label requires KEY=VALUE' 64
+		validate_label "$label"
+		labels+=("$label")
+		shift
+		;;
+	--copy)
+		copy_name=1
+		shift
+		;;
+	-h | --help)
+		usage
+		exit 0
+		;;
+	--)
+		shift
+		break
+		;;
+	-*)
+		fail "unknown option: $1" 64
+		;;
+	*)
+		break
+		;;
+	esac
+done
+
+(($#)) || fail 'command required; run z --help for usage' 64
+command_name=$1
+shift
+
+command -v zmx >/dev/null 2>&1 || fail 'zmx is not installed' 127
+
+shell=${SHELL:-/bin/sh}
+# shellcheck disable=SC2016 # $1 belongs to the child interactive shell.
+if ! "$shell" -ic 'command -v "$1" >/dev/null 2>&1' z "$command_name" >/dev/null 2>&1; then
+	fail "command not found in the interactive shell: $command_name" 127
+fi
+
+command_base=${command_name##*/}
+name_base=$(sanitize "$command_base")
+[[ -n $name_base ]] || name_base=session
+
+if [[ -n $requested_name ]]; then
+	[[ $requested_name =~ ^[A-Za-z0-9._-]+$ ]] || fail 'session name may contain only letters, digits, dots, underscores, and hyphens' 64
+	[[ $requested_name != . && $requested_name != .. ]] || fail "invalid session name: $requested_name" 64
+	session_name=$requested_name
+else
+	while :; do
+		suffix=$(od -An -N2 -tx1 /dev/urandom | tr -d ' ')
+		session_name=$name_base-$suffix
+		full_session_name=${ZMX_SESSION_PREFIX:-}$session_name
+		if session_exists "$full_session_name"; then
+			continue
+		else
+			status=$?
+			((status == 1)) && break
+			fail 'could not list zmx sessions'
+		fi
+	done
+fi
+
+full_session_name=${ZMX_SESSION_PREFIX:-}$session_name
+if session_exists "$full_session_name"; then
+	fail "session already exists: $full_session_name" 73
+else
+	status=$?
+	((status == 1)) || fail 'could not list zmx sessions'
+fi
+
+launcher=$(sanitize "${ZMX_SESSION:-${USER:-user}}")
+program=$(sanitize "$command_base")
+labels+=("launcher=$launcher" "program=$program")
+label_string=$(
+	IFS=' '
+	printf '%s' "${labels[*]}"
+)
+
+# Leave a shell-safe command word unquoted so interactive aliases can expand.
+if [[ $command_name =~ ^[A-Za-z0-9_./-]+$ ]]; then
+	command_word=$command_name
+else
+	command_word="'$(printf '%s' "$command_name" | sed "s/'/'\\\\''/g")'"
+fi
+session_command="$command_word \"\$@\"; exec \"\$SHELL\" -l"
+attach=(zmx attach --labels "$label_string" "$session_name" "$shell" -ic "$session_command" "$command_name" "$@")
+
+if ((detach)); then
+	if env -u ZMX_SESSION "${attach[@]}" </dev/null >/dev/null; then
+		:
+	else
+		status=$?
+		fail "launch failed; intended session name: $full_session_name" "$status"
+	fi
+	if session_exists "$full_session_name"; then
+		:
+	else
+		status=$?
+		((status == 1)) && fail "session did not start: $full_session_name"
+		fail "could not confirm session: $full_session_name"
+	fi
+	if ((copy_name)); then
+		copy_session_name "$full_session_name" >/dev/null 2>&1 || true
+	fi
+	printf '%s\n' "$full_session_name"
+	exit 0
+fi
+
+if ((copy_name)); then
+	copy_session_name "$full_session_name" >/dev/null 2>&1 || true
+fi
+
+if env -u ZMX_SESSION "${attach[@]}"; then
+	exit 0
+else
+	status=$?
+	fail "launch failed; intended session name: $full_session_name" "$status"
+fi

@@ -81,6 +81,8 @@ Cases that look wrong until you know why:
 
 `~/.agents` is the source of truth: `home/dot_agents/AGENTS.md` and `home/dot_agents/skills/`. Each tool reaches it through a symlink target in the source state. Claude reads `~/.claude/CLAUDE.md` and `~/.claude/skills`, from `home/dot_claude/symlink_CLAUDE.md.tmpl` and `home/dot_claude/symlink_skills.tmpl`. Codex reads `$CODEX_HOME/AGENTS.md`, and `$CODEX_HOME` defaults to `~/.codex`, so `home/dot_codex/symlink_AGENTS.md.tmpl` covers it; `~/.codex/skills` is left alone because it holds Codex's own `.system` tree. Kimi has no symlink here and reads `~/.agents` directly.
 
+`home/dot_local/bin/executable_z` owns creation of interactive zmx sessions, including detached agent helpers. Keep the attach and detach lifecycle there, and make `agent-messaging` reference the executable instead of duplicating shell or PTY wrappers. Test lifecycle changes on both macOS and Ubuntu.
+
 Application-owned JSON and TOML is patched, not replaced. `home/dot_claude/modify_private_settings.json.tmpl` and `home/modify_private_dot_claude.json.tmpl` pipe the existing file through `jq` and set only the managed keys; `.claude.json` uses `jq -sj` because Claude Code writes it without a trailing newline. `home/dot_codex/modify_private_config.toml` uses chezmoi's `setValueAtPath` on parsed TOML. Keep the secret in an environment variable rather than a `jq` argument so it stays out of the process list.
 
 ## Verify a change

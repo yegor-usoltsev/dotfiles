@@ -1,6 +1,6 @@
 # Global instructions
 
-Two rules never bend, and they hold even when nothing else reaches you: do not spawn subagents, background agents, or parallel workers without my permission, and do not commit, push, or open a pull request unless I asked, never under another identity and never with model attribution. `~/.agents/RULES.md` states both in full. My shell aliases inject that file into Claude Code and Codex at system level, so a run started any other way, such as `claude -p` in a script, a scheduled job, or an editor extension, sees only this paragraph.
+Do not spawn subagents, background agents, or parallel workers without my permission, and do not modify any external system or rewrite Git history unless I explicitly asked. Once I set a task for several agents, they may hand each other scoped work inside it. Local commits are ordinary local work, but never push or open a pull request without my permission, never use another identity, and never add model attribution. `~/.agents/RULES.md` states these rules in full. My shell aliases inject that file into Claude Code and Codex at system level, so a run started any other way, such as `claude -p` in a script, a scheduled job, or an editor extension, sees only this paragraph.
 
 Everything below is how I like to work. Follow it unless a project's own `AGENTS.md` or the task at hand calls for something else.
 
@@ -28,7 +28,7 @@ Use the [clean-code](~/.agents/skills/clean-code/SKILL.md) skill when writing, r
 
 Stay inside the task. Leave unrelated code and unreported issues alone; real work that falls outside goes to [backlog](~/.agents/skills/backlog/SKILL.md), not into the current change.
 
-Check with me before anything hard to undo: deleting data, resetting state, killing processes, changing global configuration, touching production. A request to edit a file is not a request to apply, publish, or install it.
+Do not add approval gates to local or offline work inside the task. You may edit or delete local files, reset local state, kill local processes, change local configuration, install local tools, apply local changes, and create local commits when the task needs it. Treat every system outside this computer as read-only unless I explicitly authorize a mutation. The history-rewrite, push, pull request, and agent-launch rules above still apply.
 
 ## Tools
 
