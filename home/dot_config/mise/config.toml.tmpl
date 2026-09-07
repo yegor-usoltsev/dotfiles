@@ -4,11 +4,11 @@ min_version = "2026.9.1"
 [tools]
 # Runtimes
 bun = "latest"
+python = "latest"
 {{- if ne .profile "server" }}
 go = "latest"
 java = "zulu-25"
 node = "lts"
-python = "latest"
 rust = "stable"
 {{- end }}
 
@@ -47,15 +47,18 @@ dust = "latest"
 
 # Git and source hosting
 delta = "latest"
-gh = "latest"
 lazygit = "latest"
 {{- if ne .profile "server" }}
+gh = "latest"
 git-lfs = "latest"
 "pipx:git-filter-repo" = "latest"
 "go:code.gitea.io/tea" = "latest"
 {{- end }}
 
 # Development tools
+lazydocker = "latest"
+"aqua:ouch-org/ouch" = "latest"
+uv = "latest"
 {{- if ne .profile "server" }}
 "go:github.com/go-delve/delve/cmd/dlv" = "latest"
 drone = "latest"
@@ -63,12 +66,9 @@ golangci-lint = "latest"
 "go:golang.org/x/tools/gopls" = "latest"
 goreleaser = "latest"
 gradle = "latest"
-lazydocker = "latest"
-"aqua:ouch-org/ouch" = "latest"
 "aqua:boyter/scc" = "latest"
 sqlc = "latest"
 task = "latest"
-uv = "latest"
 yq = "latest"
 {{- end }}
 
@@ -94,12 +94,9 @@ terraform = "latest"
 "github:sigoden/dufs" = "latest"
 # Upstream's arm64v8 asset needs an explicit platform and binary name.
 "github:userdocs/iperf3-static" = { version = "latest", platforms = { "linux-arm64" = { asset_pattern = "iperf3-arm64v8", bin = "iperf3" } } }
+"pipx:httpie" = "latest"
 rclone = "latest"
 "aqua:showwin/speedtest-go" = "latest"
-
-{{- if ne .profile "server" }}
-"pipx:httpie" = "latest"
-{{- end }}
 
 # Media (native libraries come from Homebrew or apt)
 {{- if ne .profile "server" }}
@@ -119,7 +116,9 @@ yt-dlp = "latest"
 {{- end }}
 {{- end }}
 
-# Shell and mise integration
+# Shell and mise integration. misecompsync's registry is built into the binary,
+# so a tool it does not know needs an entry in the chezmoi-managed overlay at
+# ~/{{ if eq .chezmoi.os "darwin" }}Library/Application Support{{ else }}.local/share{{ end }}/mise-completions-sync/registry.toml.
 "aqua:alltuner/mise-completions-sync" = "latest"
 
 [hooks]

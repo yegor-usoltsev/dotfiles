@@ -1,6 +1,9 @@
 # Retired managed configuration.
 .config/opencode/opencode.json
 
+# tealdeer reads its config from the XDG config directory on both platforms.
+Library/Application Support/tealdeer
+
 # Retired skills; a deleted external declaration leaves its directory behind.
 .agents/skills/caveman
 .agents/skills/frontend-design

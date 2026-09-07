@@ -9,10 +9,12 @@ packages and applications. Linux system packages belong to Ansible's
 | --- | --- | --- |
 | `workstation` | macOS | Full development environment and desktop applications |
 | `devbox` | Ubuntu development hosts | Same development CLI tools, without macOS applications |
-| `server` | Small Ubuntu hosts | Shell, editor, Git, monitoring, file transfer and networking tools |
+| `server` | Small Ubuntu hosts | Shell, editor, Git, monitoring, file transfer, networking and container tools, plus Python and uv |
 
-Servers do not install development toolchains, coding assistants, browser
-downloads, media libraries, database clients or personal SSH private keys.
+Servers do not install compiled-language toolchains, coding assistants, browser
+downloads, media libraries, database clients, `gh` or personal SSH private keys.
+They do carry Python and uv, because operational scripting and `pipx:` tools
+need both.
 The common shell uses zsh, mise, starship, fzf and zoxide. Bash is a supported
 fallback on Linux. Tool versions use `latest`, except Node LTS, Java Zulu 25
 and stable Rust. The mise release delay is explicitly disabled.
@@ -42,7 +44,7 @@ a suitable portable release. In particular:
 | --- | --- |
 | Registry aliases, `aqua:`, `github:` | Release binaries selected by mise |
 | `npm:` | mise's embedded package manager; dependency builds enabled per tool |
-| `pipx:` | uv, included in development profiles |
+| `pipx:` | uv, included in every profile |
 | `go:` | Go, included in development profiles |
 
 The npm tools need current mise support for `allow_builds`; otherwise native
@@ -53,7 +55,9 @@ Chrome for Testing has no build for that architecture. `update-browser`
 refreshes the browser after tool upgrades. Ansible installs browser libraries
 and grants its executable paths AppArmor user namespace access for sandboxing.
 
-Zsh completions come from `misecompsync`, run by mise's `postinstall` hook. Its registry is built into the binary, so tools it does not know are added through a user registry merged over it. That file is at `~/Library/Application Support/mise-completions-sync/registry.toml` on macOS and `~/.local/share/mise-completions-sync/registry.toml` on Linux: the tool resolves it with the platform data directory, not with `XDG_DATA_HOME`. Keys are bare tool names, not mise backend identifiers. chezmoi and mise install themselves rather than through mise, so `.zshrc` generates their two completions into the zsh cache directory.
+Zsh completions come from `misecompsync`, run by mise's `postinstall` hook. Its registry is built into the binary, so tools it does not know are added through a user registry merged over it. Adding a tool to the mise config that misecompsync does not know also means adding an entry there; the mise config repeats this reminder. That file is at `~/Library/Application Support/mise-completions-sync/registry.toml` on macOS and `~/.local/share/mise-completions-sync/registry.toml` on Linux: the tool resolves it with the platform data directory, not with `XDG_DATA_HOME`. Keys are bare tool names, not mise backend identifiers. chezmoi and mise install themselves rather than through mise, so `.zshrc` generates their two completions into the zsh cache directory.
+
+tealdeer is the opposite case: only its cache follows the platform convention, while its config stays at `~/.config/tealdeer/config.toml` on both platforms, so `auto_update` is managed there rather than under `~/Library`.
 
 `~/.agents` is the source of truth for agent configuration: `AGENTS.md` and `skills` live there. Codex and Kimi read both paths natively, so only Claude needs symlinks, `~/.claude/CLAUDE.md` and `~/.claude/skills`. Codex additionally reads `$CODEX_HOME/AGENTS.md` when that variable is set, which nothing here sets, so `~/.codex/AGENTS.md` stays a symlink; `~/.codex/skills` holds only its own `.system` tree.
 
