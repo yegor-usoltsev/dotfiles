@@ -19,7 +19,7 @@
 {{- if eq .chezmoi.os "darwin" }}
 	helper = osxkeychain
 {{- else }}
-	helper = cache --timeout=3600
+	helper = store
 {{- end }}
 
 [delta]
