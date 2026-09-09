@@ -107,9 +107,6 @@ yt-dlp = "latest"
 {{- if ne .profile "server" }}
 "npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = true }
 "npm:@openai/codex" = { version = "latest", allow_builds = true }
-"npm:@xai-official/grok" = { version = "latest", allow_builds = true }
-"npm:@moonshot-ai/kimi-code" = { version = "latest", allow_builds = true }
-"npm:@earendil-works/pi-coding-agent" = { version = "latest", allow_builds = true }
 "npm:agent-browser" = { version = "latest", allow_builds = true }
 {{- if eq .profile "devbox" }}
 "npm:@getpaseo/cli" = "latest"
