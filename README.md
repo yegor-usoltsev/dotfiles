@@ -53,6 +53,88 @@ Run `update` on any machine. It upgrades native packages, chezmoi and mise, pull
 
 `mise ls` shows installed versions and `mise registry <tool>` shows which backend an alias resolves to.
 
+## Sign-in and first-run setup
+
+chezmoi and Ansible install and configure tools, but they cannot authenticate them. The tools below need credentials, a license or a manual first launch before they reach an external service. Sessions expire, so several of these repeat rather than happening once per machine.
+
+The generated chezmoi configuration does supply two credentials from `~/.config/chezmoi/secrets.toml` or Bitwarden: the Context7 API key and the GitHub token that mise uses for release downloads. The token only lifts the unauthenticated API rate limit and does not authenticate `gh`.
+
+### Command-line tools
+
+| Tool | Profiles | Setup |
+| --- | --- | --- |
+| `rbw` | all | `rbw login`, then `rbw unlock` before every chezmoi run that reads secrets from Bitwarden. Skipped when `~/.config/chezmoi/secrets.toml` exists. |
+| `rclone` | all | `rclone config` per remote; local paths work without it |
+| `dufs` | all | serves anonymously unless you pass `--auth`; credentials are yours to choose |
+| `caddy` | all | needs an ACME-reachable domain or an internal CA before it serves TLS |
+| `tssh`, `tsshd` | all | reuses `~/.ssh/config`; UDP mode needs `tsshd` installed on the far side |
+| `git` | all | `git config user.name` and `user.email` if the dotfiles do not already set yours |
+| `gh` | workstation, devbox | `gh auth login`; public read-only commands work without it |
+| `git-lfs` | workstation, devbox | `git lfs install` once per user account to register the Git filters |
+| `tea` | workstation, devbox | `tea login add` per Gitea host |
+| `awscli` | workstation, devbox | `aws configure` for access keys, or `aws configure sso` and then `aws sso login --profile <name>` |
+| `kubectl`, `helm` | workstation, devbox | a kubeconfig; nothing here generates one |
+| `terraform` | workstation, devbox | provider credentials per project; `terraform login` only for HCP Terraform |
+| `drone` | workstation, devbox | `DRONE_SERVER` and `DRONE_TOKEN` in the environment; `drone exec` and `drone lint` run locally without them |
+| `claude` | workstation, devbox | `claude` prompts to sign in on first run, or reads `ANTHROPIC_API_KEY` |
+| `codex` | workstation, devbox | `codex login` |
+| `grok` | workstation, devbox | sign-in or an xAI API key |
+| `kimi` | workstation, devbox | sign-in or a Moonshot API key |
+| `pi` | workstation, devbox | credentials for one supported provider |
+| `agent-browser` | workstation, devbox | works out of the box; point it at a logged-in browser profile only to automate authenticated sites |
+| `yt-dlp` | workstation, devbox | cookies or `--username` for members-only sources |
+| `psql`, `mysql`, `redis-cli` | workstation | per-host credentials, usually `~/.pgpass` or `~/.my.cnf` |
+| `docker`, `lazydocker` | workstation, devbox | needs a running daemon: OrbStack on macOS, the Ansible-installed Docker on Ubuntu |
+
+### macOS applications
+
+Accounts, all signed out on a fresh machine:
+
+| Application | Setup |
+| --- | --- |
+| App Store | sign in with your Apple ID before `mas` can install anything |
+| Bitwarden, Dashlane | account sign-in and vault unlock |
+| Slack, Telegram, Zoom | account sign-in; Zoom can join meetings without one |
+| Spotify, ChatGPT | account sign-in |
+| Windows App | Microsoft account or a workspace URL per remote host |
+| Happ | subscription or configuration URL |
+| Tailscale | sign in through the app, or `tailscale up` from the CLI |
+| Xcodes | Apple ID to download toolchains |
+| Ledger Live | pair and unlock the hardware wallet |
+
+Licenses and paid tiers:
+
+| Application | Setup |
+| --- | --- |
+| IntelliJ IDEA | JetBrains account or a license key |
+| Proxyman | free tier works; paid features need a license |
+| HTTP Toolkit | free tier works; account sign-in unlocks the paid features |
+| BetterDisplay | free tier works; a license unlocks the rest |
+
+First-launch configuration and system permissions:
+
+| Application | Setup |
+| --- | --- |
+| Proxyman, HTTP Toolkit | install and trust the root certificate, then pick the clients to intercept |
+| OpenLens | add a cluster or point it at a kubeconfig |
+| OrbStack | first launch installs its system integration and CLI helpers |
+| Raycast | accessibility and automation permissions for the extensions that need them |
+| Handy | microphone access, accessibility for paste, and a speech model download |
+| Amphetamine | notification and, for some triggers, location or accessibility access |
+| Pearcleaner | Full Disk Access for its deeper cleanup modes |
+| CodexBar | credentials or local session access for the sources it reports on |
+| UTM | create or import a virtual machine; ARM guests need matching images |
+| Ghostty | grant access when a shell command first asks for Documents, Downloads or automation |
+| Keka, IINA, Transmission | set them as the default handler for the file types you want |
+| Safari extensions | SponsorBlock and wBlock install disabled; enable them in Safari settings |
+| Firefox, Helium | sign in for sync, import bookmarks, choose a default browser |
+| Obsidian | open or create a vault; an account is needed only for Sync and Publish |
+| Things | Things Cloud account for sync; local use works without one |
+| Visual Studio Code, Zed | settings and extensions come from this repository; sign in only for account-backed sync and AI features |
+| BetterDisplay, blueutil, duti | configure the displays, Bluetooth devices and file associations you want them to manage |
+
+Entries in the last two tables reflect what each application usually asks for. Verify the details for Happ, Handy, Pearcleaner and CodexBar against their own documentation.
+
 ## Working on this repository
 
 [AGENTS.md](AGENTS.md) documents the source layout, the profile and secret conventions, package ownership between mise and the native package managers, and how to render and verify a change without applying it. `CLAUDE.md` is a symlink to it.
