@@ -108,8 +108,8 @@ yt-dlp = "latest"
 "npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = true }
 "npm:@openai/codex" = { version = "latest", allow_builds = true }
 "npm:agent-browser" = { version = "latest", allow_builds = true }
-{{- if eq .profile "devbox" }}
-"npm:@getpaseo/cli" = "latest"
+{{- if ne .chezmoi.os "darwin" }}
+"npm:@getpaseo/cli" = { version = "latest", allow_builds = true }
 {{- end }}
 {{- if and (eq .chezmoi.os "linux") (eq .chezmoi.arch "arm64") }}
 "npm:playwright" = { version = "latest", allow_builds = true }
