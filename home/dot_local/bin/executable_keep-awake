@@ -17,10 +17,11 @@ fi
 if command -v systemd-inhibit >/dev/null 2>&1; then
 	# Blocking sleep needs a polkit approval that only an active local session
 	# gets, so an SSH session falls back to the idle inhibitor, which any user
-	# may take. The probe is the only way to find out: after exec it is too late.
+	# may take. Disable interactive authorization so the probe can fail quietly;
+	# after exec it is too late to fall back.
 	for what in idle:sleep idle; do
-		if systemd-inhibit --what="$what" --who=keep-awake --why=probe --mode=block true 2>/dev/null; then
-			exec systemd-inhibit --what="$what" --who=keep-awake --why="$1 is running" --mode=block -- "$@"
+		if systemd-inhibit --no-ask-password --what="$what" --who=keep-awake --why=probe --mode=block true 2>/dev/null; then
+			exec systemd-inhibit --no-ask-password --what="$what" --who=keep-awake --why="$1 is running" --mode=block -- "$@"
 		fi
 	done
 fi
