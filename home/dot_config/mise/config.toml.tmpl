@@ -111,6 +111,9 @@ yt-dlp = "latest"
 "npm:@moonshot-ai/kimi-code" = { version = "latest", allow_builds = true }
 "npm:@earendil-works/pi-coding-agent" = { version = "latest", allow_builds = true }
 "npm:agent-browser" = { version = "latest", allow_builds = true }
+{{- if eq .profile "devbox" }}
+"npm:@getpaseo/cli" = "latest"
+{{- end }}
 {{- if and (eq .chezmoi.os "linux") (eq .chezmoi.arch "arm64") }}
 "npm:playwright" = { version = "latest", allow_builds = true }
 {{- end }}

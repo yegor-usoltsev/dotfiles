@@ -50,6 +50,7 @@ packages:
     - "obsidian"
     - "openlens"
     - "orbstack"
+    - "paseo"
     - "pearcleaner"
     - "proxyman"
     - "raycast"
