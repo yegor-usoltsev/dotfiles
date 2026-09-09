@@ -8,23 +8,10 @@ if [ "$#" -eq 0 ]; then
 	exit 64
 fi
 
-# The display is left alone on purpose: -d and -u would keep the panel lit for
-# the whole run, and -i already stops the machine from sleeping under it.
-if command -v caffeinate >/dev/null 2>&1; then
+# macOS caffeinate needs explicit assertion types. The Linux command only
+# accepts a command and inhibits desktop idleness while it runs.
+if [ "$(uname -s)" = Darwin ]; then
 	exec caffeinate -ims -- "$@"
 fi
 
-if command -v systemd-inhibit >/dev/null 2>&1; then
-	# Blocking sleep needs a polkit approval that only an active local session
-	# gets, so an SSH session falls back to the idle inhibitor, which any user
-	# may take. Disable interactive authorization so the probe can fail quietly;
-	# after exec it is too late to fall back.
-	for what in idle:sleep idle; do
-		if systemd-inhibit --no-ask-password --what="$what" --who=keep-awake --why=probe --mode=block true 2>/dev/null; then
-			exec systemd-inhibit --no-ask-password --what="$what" --who=keep-awake --why="$1 is running" --mode=block -- "$@"
-		fi
-	done
-fi
-
-# Nothing to hold the machine with, so just run the command.
-exec "$@"
+exec caffeinate -- "$@"
