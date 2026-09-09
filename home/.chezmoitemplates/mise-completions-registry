@@ -11,4 +11,5 @@ git-lfs = { zsh = "git-lfs completion zsh" }
 grok = { zsh = "grok completions zsh" }
 procs = { zsh = "procs --gen-completion-out zsh" }
 sqlc = { zsh = "sqlc completion zsh" }
+tealdeer = { completion_name = "tldr" }
 zmx = { zsh = "zmx completions zsh" }

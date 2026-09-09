@@ -2,3 +2,8 @@
 type = "file"
 url = "https://raw.githubusercontent.com/eza-community/eza/main/completions/zsh/_eza"
 refreshPeriod = "168h"
+
+[".local/share/zsh/site-functions/_tldr"]
+type = "file"
+url = "https://raw.githubusercontent.com/tealdeer-rs/tealdeer/main/completion/zsh_tealdeer"
+refreshPeriod = "168h"
