@@ -11,11 +11,7 @@ paseo inspect --json <agent-id>
 paseo logs <agent-id> --tail 12
 ```
 
-Do not resend merely because a peer has not replied. When nothing else can progress, wait in bounded intervals:
-
-```sh
-paseo wait <agent-id> --timeout 60
-```
+Do not resend merely because a peer has not replied. When nothing else can progress, end the current turn and let the peer's `p send` message resume the agent. Do not poll `paseo wait`, inspection, or logs. If a reply appears to be missing, inspect the peer once and report or address the observed failure; otherwise stop and wait again.
 
 ## Recover task agents
 

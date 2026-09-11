@@ -77,6 +77,12 @@ The wrapper prefixes the prompt with `[from:<agent-id> task:<task>]`. This is a 
 
 An acknowledgment or idle status is not completion. Verify the claimed file, diff, commit, or test result.
 
+## Wait for a peer
+
+After launching a peer or sending a follow-up, continue only with work that does not depend on its reply. When the reply is the next dependency, end the current turn. The peer's `p send` message will resume the agent with the result.
+
+Do not poll with `paseo wait`, repeated `paseo inspect`, or repeated log reads. Inspect once only when recovering a missing reply or diagnosing a failure, then stop and wait unless the human explicitly asked for active monitoring.
+
 ## Review loop
 
 Commit the implementation before review so the range is stable. The review assignment names the range, builder ID, acceptance criteria, and output file.

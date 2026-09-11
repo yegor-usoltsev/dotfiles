@@ -1,6 +1,6 @@
 # Task files
 
-Use one directory under `${PASEO_PEER_ROOT:-${PASEO_HOME:-$HOME/.paseo}}/<task>/`. `p init <task>` creates `task.md` plus `assignments/`, `reports/`, and `reviews/`.
+Use one directory under `${PASEO_PEER_ROOT:-$HOME/paseo}/<task>/`. `p init <task>` creates `task.md` plus `assignments/`, `reports/`, and `reviews/`.
 
 ## Task contract
 
