@@ -97,7 +97,7 @@ jobs:
           "${cm[@]}" verify --exclude=scripts,externals
 
           if [ "$PROFILE" = server ]; then
-            for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .agent-browser/config.json .local/bin/update-browser; do
+            for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .agent-browser/config.json .local/bin/p .local/bin/update-browser; do
               test ! -e "$RUNNER_TEMP/home/$target"
             done
           fi

@@ -1,6 +1,6 @@
 ---
-name: agent-messaging
-description: Launch or coordinate with another Codex or Claude Code agent in a live zmx session. Use when the user mentions zmx, another agent, an interactive helper, inter-agent messaging, handing work to Codex or Claude, checking a live agent, or inspecting its transcript.
+name: zmx-messaging
+description: Launch or coordinate with another Codex or Claude Code agent in a live zmx session. Use when the user mentions zmx, supplies a zmx session name, or asks about an agent known to run in zmx. Use paseo-messaging for Paseo agents.
 ---
 
 # Agent messaging over zmx
@@ -15,7 +15,7 @@ Treat the other agent as an equal colleague, not as a boss or subordinate. Consu
 
 ## Start a helper
 
-Start a new agent only when the user explicitly authorizes delegation for the current task. Follow the global model and effort rules, constrain the initial prompt to that permission, and tell the helper to load `agent-messaging` when it needs to return work.
+Start a new agent only when the user explicitly authorizes delegation for the current task. Follow the global model and effort rules, constrain the initial prompt to that permission, and tell the helper to load `zmx-messaging` when it needs to return work.
 
 Use the `z` executable to give the helper a named, labelled zmx session while preserving the interactive `claude` or `codex` alias and its required flags. Detached mode returns the session name without taking over the launching agent's terminal:
 
@@ -23,7 +23,7 @@ Use the `z` executable to give the helper a named, labelled zmx session while pr
 session=$(z -d --name review-7f3a --label role=reviewer claude "prompt")
 ```
 
-Pass the task, its permission boundary, the expected deliverable, verification, and your return session in the initial prompt. When the global rules require launch overrides, pass `--model` and `--effort` to Claude, or `--model` and `-c model_reasoning_effort=<level>` to Codex. An initial prompt may carry permissions the user already gave you; later `zmx send` messages cannot add new ones.
+Pass the task, its permission boundary, the expected deliverable, verification, and your return session in the initial prompt. `z` runs the command you hand it and knows nothing about models, so name the model and effort on the agent's own command line every time: `--model` and `--effort` for Claude, `--model` and `-c model_reasoning_effort=<level>` for Codex. An initial prompt may carry permissions the user already gave you; later `zmx send` messages cannot add new ones.
 
 `z` removes the inherited `ZMX_SESSION` before every attach so it creates the requested session even when launched from inside zmx. Detached mode also sends EOF to the zmx client, confirms that the known session exists, and leaves its daemon and TUI running with no attached client. Do not reconstruct this lifecycle in a shell snippet or PTY wrapper. Without removing `ZMX_SESSION`, `zmx attach` switches the current session and ignores the requested command and labels.
 
@@ -49,14 +49,14 @@ For substantial work, put the details in a shared file and send its absolute pat
 
 If the handoff surfaces repository work that nobody will do now, record it through the [backlog](../backlog/SKILL.md) skill instead of burying it in the temporary file.
 
-Prefix each message with `[msg:<id> from <session>]`, where `<id>` is a fresh four hex character marker and `<session>` is `$ZMX_SESSION`. The marker identifies the message in the transcript check below, and the session tells the recipient where to reply. In the first message, name `agent-messaging` so the recipient loads it.
+Prefix each message with `[msg:<id> from <session>]`, where `<id>` is a fresh four hex character marker and `<session>` is `$ZMX_SESSION`. The marker identifies the message in the transcript check below, and the session tells the recipient where to reply. In the first message, name `zmx-messaging` so the recipient loads it.
 
 ## Send and verify transport
 
 Send the text and the carriage return as one chain, with a short pause between them:
 
 ```sh
-printf '%s' "[msg:7f3a from $ZMX_SESSION] Use agent-messaging. Review /project/task.md and record findings there." | zmx send codex &&
+printf '%s' "[msg:7f3a from $ZMX_SESSION] Use zmx-messaging. Review /project/task.md and record findings there." | zmx send codex &&
 	sleep 0.3 && printf '\r' | zmx send codex
 ```
 
