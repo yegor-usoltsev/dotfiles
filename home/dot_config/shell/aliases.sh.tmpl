@@ -11,6 +11,17 @@ alias lg='lazygit'
 
 alias nano='micro'
 
+{{ if eq .chezmoi.os "darwin" -}}
+unquarantine() {
+	if (($# != 1)); then
+		echo "Usage: unquarantine <path>" >&2
+		return 2
+	fi
+
+	/usr/bin/xattr -r -d com.apple.quarantine "$1"
+}
+{{- end }}
+
 {{ if ne .profile "server" -}}
 alias ld='lazydocker'
 
