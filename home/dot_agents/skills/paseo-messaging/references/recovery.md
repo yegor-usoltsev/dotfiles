@@ -35,6 +35,8 @@ If workspace creation succeeds and agent launch fails, `paseo-peer` prints and r
 paseo workspace ls --json
 ```
 
+If Paseo accepts a launch but returns no agent ID, the agent may still be running. The wrapper retains and prints the reserved report path. Recover the agent through `task=<task>` and inspect candidates before reusing or removing that empty report file.
+
 A worker cannot use `paseo-peer spawn` because the owner ID in its environment blocks recursive launches. If the worker needs another specialist, it reports the need to the owner.
 
 ## Cleanup

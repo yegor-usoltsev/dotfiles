@@ -35,7 +35,11 @@ workspace)
 	fi
 	;;
 run)
-	printf '{"agentId":"agent-test","status":"running"}\n'
+	if [[ ${PASEO_PEER_FAKE_RUN_NO_ID:-} ]]; then
+		printf '{"status":"running"}\n'
+	else
+		printf '{"agentId":"agent-test","status":"running"}\n'
+	fi
 	;;
 inspect)
 	if [[ $* == *missing-agent* ]]; then
@@ -194,6 +198,17 @@ fi
 grep -F '"slug":"orphan-test"' "$no_id_error" >/dev/null
 grep -F 'inspect paseo workspace ls for cleanup' "$no_id_error" >/dev/null
 [[ ! -e $task_dir/reports/no-id.md ]]
+
+no_agent_id_error=$test_root/no-agent-id-error.log
+if PASEO_PEER_FAKE_RUN_NO_ID=1 bash "$script" spawn scout \
+	--task demo \
+	--assignment assignments/scout.md \
+	--report reports/no-agent-id.md 2>"$no_agent_id_error"; then
+	printf 'agent response without an ID unexpectedly succeeded\n' >&2
+	exit 1
+fi
+grep -F "retained reserved report file $task_dir/reports/no-agent-id.md" "$no_agent_id_error" >/dev/null
+[[ -f $task_dir/reports/no-agent-id.md ]]
 
 if bash "$script" spawn scout \
 	--task demo \

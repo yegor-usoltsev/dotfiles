@@ -347,6 +347,7 @@ spawn_agent() {
 		if ((created_workspace)); then
 			warn "agent response was invalid; retained workspace $workspace_id"
 		fi
+		warn "agent may be running; retained reserved report file $report_file"
 		fail 'Paseo did not return an agent ID'
 	fi
 
