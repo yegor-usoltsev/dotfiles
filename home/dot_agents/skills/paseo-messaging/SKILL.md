@@ -31,9 +31,9 @@ Read [task files](references/task-files.md) when creating an assignment, prepari
 
 ## Choose a peer
 
-Use the cheapest complete path: the top-level worker implements and one worker from the other model family reviews. Add a scout only when reconnaissance would save substantial worker reading. Choose a role; the wrapper owns the model, thinking level, mode, worktree, report location, and review-family rules.
+Use the cheapest complete path: the top-level worker implements and one worker from the other model family reviews. Add a scout only when reconnaissance would save substantial worker reading. Choose a role; the wrapper owns the model, mode, worktree, report location, and review-family rules, and the thinking level everywhere except a Codex builder.
 
-- `builder` uses GPT-5.6 Sol at high by default. Pass `--family claude` after Codex fails the same assignment twice or when the human asks for Claude.
+- `builder` uses GPT-5.6 Sol at high. Drop it with `--thinking medium` for a narrow, well specified slice, or `--thinking low` for a mechanical one. Pass `--family claude` after Codex fails the same assignment twice or when the human asks for Claude; a Claude builder stays at high.
 - `reviewer --for codex` uses Claude Opus 5 at high; `reviewer --for claude` uses GPT-5.6 Sol at high. The wrapper makes same-family review impossible through its interface.
 - `scout` uses GPT-5.6 Luna at max and receives a read-only reconnaissance prompt.
 

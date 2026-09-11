@@ -15,6 +15,7 @@ Roles:
 
 Spawn options:
   --family FAMILY       builder family: codex (default) or claude
+  --thinking LEVEL      Codex builder effort: low, medium or high (default)
   --for FAMILY          reviewer target family: codex or claude
   --report PATH         override reports/NAME or reviews/NAME inferred from assignment
   --workspace ID        use an existing workspace
@@ -141,6 +142,11 @@ parse_spawn_options() {
 			family=$2
 			shift 2
 			;;
+		--thinking)
+			require_value "$1" "$#"
+			requested_thinking=$2
+			shift 2
+			;;
 		--for)
 			require_value "$1" "$#"
 			reviewed_family=$2
@@ -198,6 +204,7 @@ parse_spawn_options() {
 configure_role() {
 	validate_name role "$role"
 	[[ -z $family || $role == builder ]] || fail '--family applies only to builders' 64
+	[[ -z $requested_thinking || $role == builder ]] || fail '--thinking applies only to builders' 64
 	[[ -z $reviewed_family || $role == reviewer ]] || fail '--for applies only to reviewers' 64
 	[[ -z $worktree_branch || $role == builder ]] || fail 'only a builder may create a worktree' 64
 
@@ -212,6 +219,14 @@ configure_role() {
 	builder)
 		[[ -n $worktree_branch ]] || fail 'a builder requires --worktree and --base' 64
 		select_family "${family:-codex}"
+		if [[ -n $requested_thinking ]]; then
+			# Only Sol holds up below high; Opus and Luna keep the level select_family set.
+			[[ $provider == codex/gpt-5.6-sol ]] || fail '--thinking applies only to a Codex builder' 64
+			case $requested_thinking in
+			low | medium | high) thinking=$requested_thinking ;;
+			*) fail '--thinking must be low, medium or high' 64 ;;
+			esac
+		fi
 		report_directory=reports
 		role_constraints='Edit only the assigned implementation slice in the isolated worktree. Keep the diff focused, commit the finished work, and record the commit and verification in your report.'
 		;;
@@ -263,6 +278,7 @@ spawn_agent() {
 	local role=$1
 	shift
 	local task='' assignment='' report='' family='' reviewed_family='' title=''
+	local requested_thinking=''
 	local provider='' thinking='' mode='' report_directory='' role_constraints=''
 	local workspace_id='' worktree_branch='' base_ref=''
 
