@@ -1,6 +1,6 @@
 ---
 name: agent-messaging
-description: Launch or coordinate with another Codex or Claude Code agent in a live zmx session. Use when the user mentions zmx, another agent, an interactive helper, inter-agent messaging, handing work to Codex or Claude, checking a live agent, or inspecting its transcript.
+description: Launch or coordinate with another Codex or Claude Code agent in a live zmx session. Use when the user mentions zmx, supplies a zmx session name, or asks about an agent known to run in zmx. Use paseo-messaging for Paseo agents.
 ---
 
 # Agent messaging over zmx

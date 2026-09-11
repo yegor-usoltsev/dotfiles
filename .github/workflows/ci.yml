@@ -109,7 +109,7 @@ jobs:
           mkdir -p "$rendered_dir"
           while IFS= read -r script; do
             case "$script" in
-              .bootstrap.sh|home/.chezmoiscripts/*|home/.chezmoihooks/*.sh|home/dot_local/bin/executable_*|home/dot_claude/*.sh|home/dot_claude/modify_*.tmpl|home/dot_bash*|home/dot_z*|home/dot_config/shell/*) ;;
+              .bootstrap.sh|tests/*.sh|home/.chezmoiscripts/*|home/.chezmoihooks/*.sh|home/dot_local/bin/executable_*|home/dot_claude/*.sh|home/dot_claude/modify_*.tmpl|home/dot_paseo/modify_*|home/dot_bash*|home/dot_z*|home/dot_config/shell/*) ;;
               *) continue ;;
             esac
             rendered="$rendered_dir/${script//\//-}"
@@ -129,3 +129,7 @@ jobs:
             printf '%s\n' "$(cat "$rendered.normalized")" > "$rendered.normalized"
             shfmt -d -i 0 "$rendered.normalized"
           done < <(git ls-files --cached --others --exclude-standard)
+
+      - name: Test Paseo peer wrapper
+        shell: bash
+        run: bash tests/paseo-peer.sh home/dot_local/bin/executable_paseo-peer
