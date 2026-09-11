@@ -32,27 +32,6 @@ Second worker. Review changes written by worker-codex. Build after worker-codex 
 Read-only reconnaissance. Trace symbols and callers, inspect relevant tests and conventions, and return concise file:line evidence. Never edit repository files, make design decisions, review a diff, or launch another agent. Use only when reconnaissance saves substantial worker reading. Keep thinking at max.
 ```
 
-## Tool injection and bundled skills
-
-Keep the MCP server available but disable tool injection into agents in `~/.paseo/config.json`:
-
-```json
-{
-  "daemon": {
-    "mcp": {
-      "enabled": true,
-      "injectIntoAgents": false
-    }
-  }
-}
-```
-
-Paseo owns that file, so set those two keys in place, delete `daemon.appendSystemPrompt` when an earlier orchestration block left one, and leave everything else alone. Reload Paseo and start fresh agent sessions afterwards, because a running session keeps the tools and prompt it received at launch.
-
-Disable the bundled `paseo`, `paseo-handoff`, `paseo-advisor`, and `paseo-committee` skills in Paseo settings. Keep `zmx-messaging` for zmx and `paseo-messaging` for Paseo.
-
-The global `AGENTS.md` and this skill replace the removed orchestration prompt.
-
 ## Smoke test
 
 Run this after changing the wrapper, model matrix, or Paseo version:

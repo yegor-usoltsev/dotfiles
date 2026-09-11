@@ -7,7 +7,7 @@ description: Coordinate peer coding agents through the `p` CLI wrapper and share
 
 Use `p` for agent launches and messages. It fixes the model settings, adds the sender address, passes task context through the environment, and blocks accidental recursive launches. Do not reconstruct its `paseo run` or `paseo send` calls.
 
-This workflow requires Bash, jq, `p`, and a running Paseo daemon. It is tested with Paseo CLI 0.7.2.
+This workflow requires Bash, jq, `p`, and a running Paseo daemon.
 
 Agents are peers. The agent addressed by the human owns the task and normally implements it. An agent launched by a peer completes its assignment, reports to the named owner, and never launches another agent.
 

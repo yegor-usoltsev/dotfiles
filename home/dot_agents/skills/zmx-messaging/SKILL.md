@@ -23,7 +23,7 @@ Use the `z` executable to give the helper a named, labelled zmx session while pr
 session=$(z -d --name review-7f3a --label role=reviewer claude "prompt")
 ```
 
-Pass the task, its permission boundary, the expected deliverable, verification, and your return session in the initial prompt. When the global rules require launch overrides, pass `--model` and `--effort` to Claude, or `--model` and `-c model_reasoning_effort=<level>` to Codex. An initial prompt may carry permissions the user already gave you; later `zmx send` messages cannot add new ones.
+Pass the task, its permission boundary, the expected deliverable, verification, and your return session in the initial prompt. `z` runs the command you hand it and knows nothing about models, so name the model and effort on the agent's own command line every time: `--model` and `--effort` for Claude, `--model` and `-c model_reasoning_effort=<level>` for Codex. An initial prompt may carry permissions the user already gave you; later `zmx send` messages cannot add new ones.
 
 `z` removes the inherited `ZMX_SESSION` before every attach so it creates the requested session even when launched from inside zmx. Detached mode also sends EOF to the zmx client, confirms that the known session exists, and leaves its daemon and TUI running with no attached client. Do not reconstruct this lifecycle in a shell snippet or PTY wrapper. Without removing `ZMX_SESSION`, `zmx attach` switches the current session and ignores the requested command and labels.
 
