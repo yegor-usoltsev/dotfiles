@@ -29,7 +29,7 @@ Labels help discovery but do not establish identity, role, status, ownership, or
 
 ## Failed launches
 
-If workspace creation succeeds and agent launch fails, `paseo-peer` prints and retains the workspace ID. Inspect it before reuse or cleanup:
+If workspace creation succeeds and agent launch fails, `p` prints and retains the workspace ID. Inspect it before reuse or cleanup:
 
 ```sh
 paseo workspace ls --json
@@ -37,7 +37,7 @@ paseo workspace ls --json
 
 If Paseo accepts a launch but returns no agent ID, the agent may still be running. The wrapper retains and prints the reserved report path. Recover the agent through `task=<task>` and inspect candidates before reusing or removing that empty report file.
 
-A worker cannot use `paseo-peer spawn` because the owner ID in its environment blocks recursive launches. If the worker needs another specialist, it reports the need to the owner.
+`p spawn` fails by design inside a worker. Report the need for another specialist to the owner instead.
 
 ## Cleanup
 

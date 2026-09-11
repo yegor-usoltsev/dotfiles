@@ -4,7 +4,7 @@ Read this only when installing or changing the workflow.
 
 ## Agent profiles
 
-Keep three profiles in **Settings -> host -> Agents -> Agent profiles**. Profiles configure human-launched sessions; `paseo-peer` contains the settings for peer launches because the Paseo CLI cannot read profile notes.
+Keep three profiles in **Settings -> host -> Agents -> Agent profiles**. Profiles configure human-launched sessions; `p` contains the settings for peer launches because the Paseo CLI cannot read profile notes.
 
 | Name | Provider | Model | Thinking | Mode |
 | --- | --- | --- | --- | --- |
@@ -34,7 +34,7 @@ Read-only reconnaissance. Trace symbols and callers, inspect relevant tests and 
 
 ## Tool injection and bundled skills
 
-Keep the MCP server available but disable tool injection into agents:
+Keep the MCP server available but disable tool injection into agents in `~/.paseo/config.json`:
 
 ```json
 {
@@ -47,9 +47,9 @@ Keep the MCP server available but disable tool injection into agents:
 }
 ```
 
-The dotfiles modifier sets these two keys, removes the obsolete `daemon.appendSystemPrompt` orchestration block, and preserves unrelated configuration. Apply the source state, reload Paseo, and start fresh agent sessions. A running session keeps the tools and prompt it received at launch.
+Paseo owns that file, so set those two keys in place, delete `daemon.appendSystemPrompt` when an earlier orchestration block left one, and leave everything else alone. Reload Paseo and start fresh agent sessions afterwards, because a running session keeps the tools and prompt it received at launch.
 
-Disable the bundled `paseo`, `paseo-handoff`, `paseo-advisor`, and `paseo-committee` skills in Paseo settings. Keep `agent-messaging` for zmx and `paseo-messaging` for Paseo.
+Disable the bundled `paseo`, `paseo-handoff`, `paseo-advisor`, and `paseo-committee` skills in Paseo settings. Keep `zmx-messaging` for zmx and `paseo-messaging` for Paseo.
 
 The global `AGENTS.md` and this skill replace the removed orchestration prompt.
 
@@ -58,9 +58,9 @@ The global `AGENTS.md` and this skill replace the removed orchestration prompt.
 Run this after changing the wrapper, model matrix, or Paseo version:
 
 1. Start a disposable top-level worker and authorize one peer launch.
-2. Run `paseo-peer init` and create a read-only assignment.
+2. Run `p init` and create a read-only assignment.
 3. Launch a scout. Confirm the returned ID, `PASEO_PEER_*` environment, report file, and reply to `owner`.
 4. Launch a cross-family reviewer in the owner's workspace. Confirm the first review and a second pass over a fix diff.
 5. Archive the disposable agents by full ID.
 
-The wrapper targets Paseo CLI 0.7.2 or newer. Check `paseo --help` and update the wrapper when a later release changes its interface.
+Check `paseo --help` and update the wrapper when a release changes the interface it calls.

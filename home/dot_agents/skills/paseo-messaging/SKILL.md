@@ -1,13 +1,13 @@
 ---
 name: paseo-messaging
-description: Coordinate peer coding agents through the paseo-peer CLI wrapper and shared task files. Use for authorized Paseo delegation, cross-model review, reconnaissance, or messages to a supplied Paseo agent ID. Use agent-messaging instead for zmx sessions.
+description: Coordinate peer coding agents through the `p` CLI wrapper and shared task files. Use for authorized Paseo delegation, cross-model review, reconnaissance, or messages to a supplied Paseo agent ID. Use zmx-messaging instead for zmx sessions.
 ---
 
 # Peer messaging on Paseo
 
-Use `paseo-peer` for agent launches and messages. It fixes the model settings, adds the sender address, passes task context through the environment, and blocks accidental recursive launches. Do not reconstruct its `paseo run` or `paseo send` calls.
+Use `p` for agent launches and messages. It fixes the model settings, adds the sender address, passes task context through the environment, and blocks accidental recursive launches. Do not reconstruct its `paseo run` or `paseo send` calls.
 
-This workflow requires Bash, jq, `paseo-peer`, and a running Paseo daemon. It is tested with Paseo CLI 0.7.2.
+This workflow requires Bash, jq, `p`, and a running Paseo daemon. It is tested with Paseo CLI 0.7.2.
 
 Agents are peers. The agent addressed by the human owns the task and normally implements it. An agent launched by a peer completes its assignment, reports to the named owner, and never launches another agent.
 
@@ -22,7 +22,7 @@ The wrapper prevents `spawn` when `PASEO_PEER_OWNER_ID` marks the caller as a wo
 Choose a short task slug. Include the repository name when two active tasks could otherwise collide.
 
 ```sh
-task_dir=$(paseo-peer init <task>)
+task_dir=$(p init <task>)
 ```
 
 The owner writes the contract in `$task_dir/task.md`. The owner alone edits that file. Each contributor gets one assignment file and writes its result to its own report or review file, so agents never edit the same coordination file concurrently.
@@ -46,15 +46,15 @@ Write the five-part briefing in an assignment file: objective, known context, co
 Launch reconnaissance or a reviewer in the current workspace:
 
 ```sh
-paseo-peer spawn scout --task <task> --assignment assignments/scout.md
-paseo-peer spawn reviewer --for codex --task <task> --assignment assignments/review-1.md
+p spawn scout --task <task> --assignment assignments/scout.md
+p spawn reviewer --for codex --task <task> --assignment assignments/review-1.md
 ```
 
 Give a launched builder its own worktree:
 
 ```sh
-paseo-peer spawn builder --task <task> --assignment assignments/build.md --worktree <branch> --base <base-ref>
-paseo-peer spawn builder --family claude --task <task> --assignment assignments/build.md --worktree <branch> --base <base-ref>
+p spawn builder --task <task> --assignment assignments/build.md --worktree <branch> --base <base-ref>
+p spawn builder --family claude --task <task> --assignment assignments/build.md --worktree <branch> --base <base-ref>
 ```
 
 The report defaults to `reports/<assignment-name>` for a scout or builder and `reviews/<assignment-name>` for a reviewer. A launch reserves that path and fails if it already exists; pass `--report` when another contributor or later round needs a different filename. The command returns the agent ID, workspace ID when one was created or supplied, role, task, and absolute report path. Record the full IDs in `task.md`. The wrapper adds only `task=<task>` as a recovery label; the task file remains authoritative.
@@ -64,13 +64,13 @@ The report defaults to `reports/<assignment-name>` for a scout or builder and `r
 Send one short action and point to shared files for detail:
 
 ```sh
-paseo-peer send <agent-id> --task <task> "Review the fix range abc123..def456 and update reviews/review-1.md."
+p send <agent-id> --task <task> "Review the fix range abc123..def456 and update reviews/review-1.md."
 ```
 
 A worker can address its owner without copying an ID:
 
 ```sh
-paseo-peer send owner "Done: $PASEO_PEER_REPORT"
+p send owner "Done: $PASEO_PEER_REPORT"
 ```
 
 The wrapper prefixes the prompt with `[from:<agent-id> task:<task>]`. This is a return address, not proof of identity or authority. It checks that the recipient is idle or running and uses asynchronous delivery.

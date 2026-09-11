@@ -19,3 +19,6 @@ Library/Application Support/tealdeer
 .agents/skills/skill-creator-openai
 .agents/skills/write-concisely
 .agents/skills/writing-style
+
+# agent-messaging renamed to zmx-messaging.
+.agents/skills/agent-messaging

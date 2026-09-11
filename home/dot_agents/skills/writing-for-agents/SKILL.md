@@ -86,7 +86,7 @@ If activation is unreliable or the description changed substantially, read [refe
 
 ## Subagent and command prompts
 
-A one-off prompt for a subagent or a slash command is not a skill: it is read once, it is never triggered by a description, and its reader cannot put a question to the user. Some harnesses route a reply back to you, and [agent-messaging](../agent-messaging/SKILL.md) does it over zmx, but the round trip costs a turn the agent may not have. Write the prompt so it needs no round trip, as a briefing with these parts, in this order:
+A one-off prompt for a subagent or a slash command is not a skill: it is read once, it is never triggered by a description, and its reader cannot put a question to the user. Some harnesses route a reply back to you, and [zmx-messaging](../zmx-messaging/SKILL.md) does it over zmx, but the round trip costs a turn the agent may not have. Write the prompt so it needs no round trip, as a briefing with these parts, in this order:
 
 1. **Objective.** What done looks like, in one sentence.
 2. **Context.** The paths, findings, and decisions already made, stated as facts. Never make the agent rediscover what you already know.
