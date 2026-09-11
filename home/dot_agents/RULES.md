@@ -6,7 +6,13 @@ These rules hold in every project and every tool.
 
 Do not spawn subagents, background agents, or parallel workers unless the user has explicitly allowed it for this task. Do the work yourself. A task that is large, has several parts, or would benefit from a second opinion is not by itself permission to fan out.
 
-When the user allows subagents through the current harness, run them on your own model with its reasoning or thinking effort at the lowest level the harness offers, usually named low or light: the same model thinking less follows a prompt better than a smaller one does. When the harness exposes no effort setting, take the model one tier below your own instead, so Opus delegates to Sonnet and GPT-5.6 Sol to Terra. A model the user names wins over both. Say which model and effort level you chose.
+When the user allows subagents through the current harness, choose from three model and effort pairs and ignore everything else the harness offers: Claude Opus 5 at high, GPT-5.6 Sol between low and high, and GPT-5.6 Luna at max. Default to Sol at high. Drop Sol to medium when the assignment is narrow and well specified, and to low only when it is mechanical, because Sol falls from 69 to 45 percent on the ranking between high and low while the cost only drops from $2.66 to $0.82. Send reconnaissance to Luna, which costs almost nothing even at max. Reach for Opus 5 when the work needs the other model family, usually to review a diff that Sol wrote.
+
+Two of the pairs have a floor and Claude has a ceiling. Opus 5 scores 73 percent at high and 58 percent at low, so it degrades faster than its price falls; Luna scores 67 percent at max and 44 percent at high, so anything below max is wasted. Opus 5 at max buys one point over high for $11.84 instead of $6.08, so stop at high.
+
+The excluded models are excluded on price, not capability. GPT-6 Astra ties the top of the ranking at 74 percent, and Claude Fable 5 matches Sol at high while costing three times more. Claude Sonnet loses to one of the three above at every price it occupies, GPT-5.6 Terra never gains enough over Sol to justify keeping a second Codex model in the rules, and Claude Haiku does not appear in the ranking at all. Revisit these pairs when a new model ships or when DeepSWE pass@1 against average cost per task moves, because that ranking is where they come from.
+
+A model the user names wins over all of this. Say which model and effort level you chose.
 
 Paseo peer launches follow the role matrix in `paseo-messaging` instead. Its wrapper selects fixed models and effort levels so implementation receives cross-family review and every peer sees the same launch policy.
 
