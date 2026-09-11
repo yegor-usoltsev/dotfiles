@@ -1,11 +1,11 @@
 #!/bin/sh
 set -eu
 
-# Paseo owns the rest of this file; keep the server available without adding
-# its tool catalog to every agent session.
+# Preserve Paseo's generated IDs, credentials, providers, and unrelated settings.
 jq -s '
     (.[0] // {})
     | .version //= 1
     | .daemon.mcp.enabled = true
     | .daemon.mcp.injectIntoAgents = false
+    | del(.daemon.appendSystemPrompt)
     '

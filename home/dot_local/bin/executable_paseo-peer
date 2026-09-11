@@ -101,7 +101,7 @@ init_task() {
 	mkdir -p "$task_dir/assignments" "$task_dir/reports" "$task_dir/reviews"
 
 	if [[ ! -e $task_dir/task.md ]]; then
-		printf '# %s\n\n## Objective\n\n## Acceptance criteria\n\n## Constraints\n\n## Agents\n\n## Decisions\n\n## Work\n\n## Open questions\n' "$task" >"$task_dir/task.md"
+		printf '# %s\n\n## Objective\n\n## Acceptance criteria\n\n## Constraints\n\n## Agents\n\n| agent ID | role | model | workspace ID | branch | status |\n| --- | --- | --- | --- | --- | --- |\n\n## Decisions\n\n## Work\n\n## Open questions\n' "$task" >"$task_dir/task.md"
 	fi
 
 	if [[ -n ${PASEO_AGENT_ID:-} ]]; then
@@ -142,6 +142,9 @@ spawn_agent() {
 	local report=
 	local family=
 	local reviewed_family=
+	local provider=
+	local thinking=
+	local mode=
 	local workspace_id=
 	local worktree_branch=
 	local base_ref=
@@ -265,15 +268,25 @@ spawn_agent() {
 	report_file=$task_dir/$report
 	[[ -f $task_file ]] || fail "task file does not exist: $task_file" 66
 	[[ -f $assignment_file ]] || fail "assignment file does not exist: $assignment_file" 66
-	mkdir -p "$(dirname "$report_file")"
 
-	local created_workspace=0
+	local repository_root=
 	if [[ -n $worktree_branch ]]; then
 		require_command git
-		local repository_root
 		if ! repository_root=$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null); then
 			fail 'run builder launch from inside the source Git repository' 64
 		fi
+	fi
+
+	mkdir -p "$(dirname "$report_file")"
+	if ! (
+		set -o noclobber
+		: >"$report_file"
+	) 2>/dev/null; then
+		fail "report path already exists; choose another assignment or pass --report: $report_file" 73
+	fi
+
+	local created_workspace=0
+	if [[ -n $worktree_branch ]]; then
 		local workspace_json
 		if workspace_json=$("$paseo_command" workspace create --json \
 			--isolation worktree \
@@ -284,10 +297,13 @@ spawn_agent() {
 			:
 		else
 			local status=$?
+			rm -f "$report_file"
 			fail 'could not create the worktree workspace' "$status"
 		fi
 		if ! workspace_id=$(jq -er '.workspaceId // empty' <<<"$workspace_json"); then
-			fail 'Paseo did not return a workspace ID'
+			rm -f "$report_file"
+			warn "workspace response without an ID: $workspace_json"
+			fail 'could not identify the created workspace; inspect paseo workspace ls for cleanup'
 		fi
 		created_workspace=1
 	fi
@@ -319,6 +335,7 @@ spawn_agent() {
 		:
 	else
 		local status=$?
+		rm -f "$report_file"
 		if ((created_workspace)); then
 			warn "agent launch failed after workspace creation; retained workspace $workspace_id"
 		fi
@@ -395,7 +412,12 @@ send_message() {
 
 	local agent_json
 	local status
-	agent_json=$("$paseo_command" inspect --json "$recipient")
+	if agent_json=$("$paseo_command" inspect --json "$recipient"); then
+		:
+	else
+		local inspect_status=$?
+		fail "could not inspect agent $recipient" "$inspect_status"
+	fi
 	if ! status=$(jq -er '.Status // .status // empty' <<<"$agent_json"); then
 		fail "could not determine agent state: $recipient"
 	fi

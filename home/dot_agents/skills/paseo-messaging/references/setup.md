@@ -47,11 +47,11 @@ Keep the MCP server available but disable tool injection into agents:
 }
 ```
 
-The dotfiles modifier sets these two keys without replacing the rest of `~/.paseo/config.json`. Apply the source state, reload Paseo, and start fresh agent sessions. A running session keeps the tools it received at launch.
+The dotfiles modifier sets these two keys, removes the obsolete `daemon.appendSystemPrompt` orchestration block, and preserves unrelated configuration. Apply the source state, reload Paseo, and start fresh agent sessions. A running session keeps the tools and prompt it received at launch.
 
 Disable the bundled `paseo`, `paseo-handoff`, `paseo-advisor`, and `paseo-committee` skills in Paseo settings. Keep `agent-messaging` for zmx and `paseo-messaging` for Paseo.
 
-Remove any old additional system prompt that tells agents to call Paseo MCP tools, read profile notes, or act as a dedicated orchestrator. The global `AGENTS.md` and this skill replace it.
+The global `AGENTS.md` and this skill replace the removed orchestration prompt.
 
 ## Smoke test
 

@@ -97,7 +97,7 @@ jobs:
           "${cm[@]}" verify --exclude=scripts,externals
 
           if [ "$PROFILE" = server ]; then
-            for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .agent-browser/config.json .local/bin/update-browser; do
+            for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .agent-browser/config.json .paseo .local/bin/paseo-peer .local/bin/update-browser; do
               test ! -e "$RUNNER_TEMP/home/$target"
             done
           fi
@@ -109,7 +109,7 @@ jobs:
           mkdir -p "$rendered_dir"
           while IFS= read -r script; do
             case "$script" in
-              .bootstrap.sh|tests/*.sh|home/.chezmoiscripts/*|home/.chezmoihooks/*.sh|home/dot_local/bin/executable_*|home/dot_claude/*.sh|home/dot_claude/modify_*.tmpl|home/dot_paseo/modify_*|home/dot_bash*|home/dot_z*|home/dot_config/shell/*) ;;
+              .bootstrap.sh|tests/*.sh|home/.chezmoiscripts/*|home/.chezmoihooks/*.sh|home/dot_local/bin/executable_*|home/dot_claude/*.sh|home/dot_claude/modify_*.tmpl|home/private_dot_paseo/modify_*|home/dot_bash*|home/dot_z*|home/dot_config/shell/*) ;;
               *) continue ;;
             esac
             rendered="$rendered_dir/${script//\//-}"
@@ -130,6 +130,8 @@ jobs:
             shfmt -d -i 0 "$rendered.normalized"
           done < <(git ls-files --cached --others --exclude-standard)
 
-      - name: Test Paseo peer wrapper
+      - name: Test Paseo peer workflow
         shell: bash
-        run: bash tests/paseo-peer.sh home/dot_local/bin/executable_paseo-peer
+        run: |
+          bash tests/paseo-peer.sh home/dot_local/bin/executable_paseo-peer
+          bash tests/paseo-config.sh home/private_dot_paseo/modify_private_config.json

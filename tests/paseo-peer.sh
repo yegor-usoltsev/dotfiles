@@ -6,7 +6,9 @@ original_path=$PATH
 test_root=$(mktemp -d)
 trap 'rm -rf "$test_root"' EXIT
 
-mkdir -p "$test_root/bin" "$test_root/home" "$test_root/repo"
+unset PASEO_HOME PASEO_PEER_OWNER_ID PASEO_PEER_REPORT PASEO_PEER_ROLE PASEO_PEER_ROOT PASEO_PEER_TASK PASEO_PEER_TASK_DIR
+
+mkdir -p "$test_root/bin" "$test_root/home"
 fake_paseo=$test_root/bin/paseo
 call_log=$test_root/paseo.log
 export PASEO_PEER_TEST_LOG=$call_log
@@ -26,13 +28,20 @@ agent)
 	printf '{"status":"updated"}\n'
 	;;
 workspace)
-	printf '{"workspaceId":"wks-test"}\n'
+	if [[ ${PASEO_PEER_FAKE_WORKSPACE_NO_ID:-} ]]; then
+		printf '{"status":"created","slug":"orphan-test"}\n'
+	else
+		printf '{"workspaceId":"wks-test"}\n'
+	fi
 	;;
 run)
 	printf '{"agentId":"agent-test","status":"running"}\n'
 	;;
 inspect)
-	if [[ $* == *closed-agent* ]]; then
+	if [[ $* == *missing-agent* ]]; then
+		printf '{"error":"agent not found"}\n' >&2
+		exit 1
+	elif [[ $* == *closed-agent* ]]; then
 		printf '{"Status":"closed"}\n'
 	else
 		printf '{"Status":"idle"}\n'
@@ -64,13 +73,13 @@ chmod +x "$fake_paseo"
 
 export HOME=$test_root/home
 export PATH=$test_root/bin:/usr/bin:/bin:$original_path
-export PASEO_AGENT_CWD=$test_root/repo
 export PASEO_AGENT_ID=owner-test
 export PASEO_PEER_PASEO=$fake_paseo
 
 task_dir=$(bash "$script" init demo)
 [[ $task_dir == "$HOME/.paseo/demo" ]]
 [[ -f $task_dir/task.md ]]
+grep -F '| agent ID | role | model | workspace ID | branch | status |' "$task_dir/task.md" >/dev/null
 [[ -d $task_dir/assignments ]]
 [[ -d $task_dir/reports ]]
 [[ -d $task_dir/reviews ]]
@@ -108,6 +117,7 @@ bash "$script" spawn builder \
 	--task demo \
 	--family claude \
 	--assignment assignments/build.md \
+	--report reports/claude-build.md \
 	--worktree feature/claude-demo \
 	--base main >/dev/null
 grep -F '<--provider> <claude/claude-opus-5>' "$call_log" >/dev/null
@@ -127,8 +137,16 @@ grep -F 'Read the assigned diff first, inspect only touched code and directly re
 bash "$script" spawn reviewer \
 	--task demo \
 	--for claude \
-	--assignment assignments/review.md >/dev/null
+	--assignment assignments/review.md \
+	--report reviews/claude-review.md >/dev/null
 grep -F '<--provider> <codex/gpt-5.6-sol>' "$call_log" >/dev/null
+
+if bash "$script" spawn scout \
+	--task demo \
+	--assignment assignments/scout.md >/dev/null 2>&1; then
+	printf 'duplicate report path unexpectedly succeeded\n' >&2
+	exit 1
+fi
 
 bash "$script" send peer-test --task demo 'Review the report.' >/dev/null
 grep -F '[from:owner-test task:demo]' "$call_log" >/dev/null
@@ -163,6 +181,20 @@ if bash "$script" spawn reviewer \
 	exit 1
 fi
 
+no_id_error=$test_root/no-id-error.log
+if PASEO_PEER_FAKE_WORKSPACE_NO_ID=1 bash "$script" spawn builder \
+	--task demo \
+	--assignment assignments/build.md \
+	--report reports/no-id.md \
+	--worktree feature/no-id \
+	--base main 2>"$no_id_error"; then
+	printf 'workspace response without an ID unexpectedly succeeded\n' >&2
+	exit 1
+fi
+grep -F '"slug":"orphan-test"' "$no_id_error" >/dev/null
+grep -F 'inspect paseo workspace ls for cleanup' "$no_id_error" >/dev/null
+[[ ! -e $task_dir/reports/no-id.md ]]
+
 if bash "$script" spawn scout \
 	--task demo \
 	--family claude \
@@ -185,6 +217,13 @@ if bash "$script" send closed-agent --task demo 'Hello.' >/dev/null 2>&1; then
 	printf 'send to closed agent unexpectedly succeeded\n' >&2
 	exit 1
 fi
+
+inspect_error=$test_root/inspect-error.log
+if bash "$script" send missing-agent --task demo 'Hello.' >"$inspect_error" 2>&1; then
+	printf 'send to missing agent unexpectedly succeeded\n' >&2
+	exit 1
+fi
+grep -F 'paseo-peer: could not inspect agent missing-agent' "$inspect_error" >/dev/null
 
 if bash "$script" init ../invalid >/dev/null 2>&1; then
 	printf 'invalid task name unexpectedly succeeded\n' >&2

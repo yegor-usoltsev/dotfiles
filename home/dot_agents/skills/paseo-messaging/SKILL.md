@@ -57,7 +57,7 @@ paseo-peer spawn builder --task <task> --assignment assignments/build.md --workt
 paseo-peer spawn builder --family claude --task <task> --assignment assignments/build.md --worktree <branch> --base <base-ref>
 ```
 
-The report defaults to `reports/<assignment-name>` for a scout or builder and `reviews/<assignment-name>` for a reviewer. Pass `--report` only when a later round needs a different filename. The command returns the agent ID, workspace ID when it created one, role, task, and absolute report path. Record the full IDs in `task.md`. The wrapper adds only `task=<task>` as a recovery label; the task file remains authoritative.
+The report defaults to `reports/<assignment-name>` for a scout or builder and `reviews/<assignment-name>` for a reviewer. A launch reserves that path and fails if it already exists; pass `--report` when another contributor or later round needs a different filename. The command returns the agent ID, workspace ID when one was created or supplied, role, task, and absolute report path. Record the full IDs in `task.md`. The wrapper adds only `task=<task>` as a recovery label; the task file remains authoritative.
 
 ## Send
 
