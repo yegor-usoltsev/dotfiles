@@ -52,20 +52,25 @@ Each contributor owns one file under `reports/`. State the outcome first, then c
 
 ## Review
 
-Each reviewer owns one file under `reviews/`:
+Each reviewer owns one file under `reviews/`. Keep it short:
 
 ```markdown
-# Review of <base>..<head>
+# Review and fix of <base>..<head>
 
-## Verdict
-`pass`, `changes requested`, or `escalated`.
+## Result
+State whether the task is complete or blocked, and name the correction commit if any. For read-only review, state `pass`, `changes requested`, or `escalated`.
 
-## Findings
-| ID | severity | file:line | claim | evidence | status |
-| --- | --- | --- | --- | --- | --- |
+## Changes
+Summarize corrections and relevant simplifications. Omit this section when no changes were needed.
+
+## Verification
+List commands, outcomes, and any checks that did not run. Identify the checked commit or code state. Omit passing logs.
+
+## Unresolved
+Describe remaining defects or questions with file:line references and evidence. Omit this section when nothing remains.
 ```
 
-Use `open`, `fixed`, `rejected`, or `escalated` for status. The builder responds in its report or a peer message and never deletes a finding. The reviewer updates statuses after reading the fix diff. A rejected finding that the reviewer still supports becomes `escalated` and moves to Open questions in `task.md`.
+Do not maintain a findings table or a status history for corrected issues. A read-only assignment uses the same report structure but lists actionable findings instead of corrections. The owner records decisions that affect the task in `task.md`.
 
 ## Ownership transfer
 

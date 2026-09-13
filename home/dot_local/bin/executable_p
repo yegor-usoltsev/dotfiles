@@ -11,7 +11,7 @@ usage: p init TASK
 Roles:
   scout                 read-only reconnaissance with Codex Luna
   builder               implementation with Codex Sol, or Claude via --family
-  reviewer              read-only review by the family opposite --for
+  reviewer              review and fix by the family opposite --for
 
 Spawn options:
   --family FAMILY       builder family: codex (default) or claude
@@ -239,7 +239,7 @@ configure_role() {
 		*) fail '--for must be codex or claude' 64 ;;
 		esac
 		report_directory=reviews
-		role_constraints='Do not edit repository files or task coordination files except your review. Read the assigned diff first, inspect only touched code and directly relevant definitions, and report actionable findings with severity, file:line, and evidence.'
+		role_constraints='Review and fix the assigned diff unless the assignment explicitly requires read-only work. Stay within scope and requirements; return questions before changing either. Commit corrections separately. Edit no task coordination files except your report.'
 		;;
 	*) fail "unknown role: $role" 64 ;;
 	esac
