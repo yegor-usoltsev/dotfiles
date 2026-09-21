@@ -11,10 +11,10 @@ usage: p init TASK
 Roles:
   scout                 read-only reconnaissance with Codex Luna
   builder               implementation with Codex Sol, or Claude via --family
-  reviewer              review and fix by the family opposite --for
+  reviewer              review and fix, normally by the family opposite --for
 
 Spawn options:
-  --family FAMILY       builder family: codex (default) or claude
+  --family FAMILY       builder family or explicit reviewer override: codex or claude
   --thinking LEVEL      Codex builder effort: low, medium or high (default)
   --for FAMILY          reviewer target family: codex or claude
   --report PATH         override reports/NAME or reviews/NAME inferred from assignment
@@ -203,7 +203,7 @@ parse_spawn_options() {
 # Fixes the model, report directory, and prompt constraints that define a role.
 configure_role() {
 	validate_name role "$role"
-	[[ -z $family || $role == builder ]] || fail '--family applies only to builders' 64
+	[[ -z $family || $role == builder || $role == reviewer ]] || fail '--family applies only to builders and reviewers' 64
 	[[ -z $requested_thinking || $role == builder ]] || fail '--thinking applies only to builders' 64
 	[[ -z $reviewed_family || $role == reviewer ]] || fail '--for applies only to reviewers' 64
 	[[ -z $worktree_branch || $role == builder ]] || fail 'only a builder may create a worktree' 64
@@ -217,6 +217,7 @@ configure_role() {
 		role_constraints='Do not edit repository files or task coordination files except your report. Answer only the bounded reconnaissance question with file:line evidence, and do not make design decisions.'
 		;;
 	builder)
+		[[ ${assignment##*/} != review* ]] || fail 'use reviewer for review assignments; a builder creates a worktree' 64
 		[[ -n $worktree_branch ]] || fail 'a builder requires --worktree and --base' 64
 		select_family "${family:-codex}"
 		if [[ -n $requested_thinking ]]; then
@@ -231,10 +232,9 @@ configure_role() {
 		role_constraints='Edit only the assigned implementation slice in the isolated worktree. Keep the diff focused, commit the finished work, and record the commit and verification in your report.'
 		;;
 	reviewer)
-		# The opposite family reviews, so no model ever reviews its own diff.
 		case $reviewed_family in
-		codex) select_family claude ;;
-		claude) select_family codex ;;
+		codex) select_family "${family:-claude}" ;;
+		claude) select_family "${family:-codex}" ;;
 		'') fail 'a reviewer requires --for codex or --for claude' 64 ;;
 		*) fail '--for must be codex or claude' 64 ;;
 		esac

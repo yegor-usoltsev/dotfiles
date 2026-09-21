@@ -34,10 +34,10 @@ Read [task files](references/task-files.md) when creating an assignment, prepari
 Use the cheapest complete path: the top-level worker implements and one worker from the other model family reviews and fixes. Add a scout only when reconnaissance would save substantial worker reading. Choose a role; the wrapper owns the model, mode, worktree, report location, and review-family rules, and the thinking level everywhere except a Codex builder.
 
 - `builder` uses GPT-5.6 Sol at high. Drop it with `--thinking medium` for a narrow, well specified slice, or `--thinking low` for a mechanical one. Pass `--family claude` after Codex fails the same assignment twice or when the human asks for Claude; a Claude builder stays at high.
-- `reviewer --for codex` uses Claude Opus 5 at high; `reviewer --for claude` uses GPT-5.6 Sol at high. The wrapper makes same-family review impossible through its interface.
+- `reviewer --for codex` uses Claude Opus 5 at high; `reviewer --for claude` uses GPT-5.6 Sol at high. If the human rules out the other family, keep the reviewer role and pass `--family codex` or `--family claude` explicitly. Do not disguise review as builder work: a builder launch creates a new worktree.
 - `scout` uses GPT-5.6 Luna at max and receives a read-only reconnaissance prompt.
 
-Send the implementation to the other model family for review and correction.
+Send the implementation to the other model family for review and correction unless the human rules it out.
 
 ## Launch
 
@@ -62,7 +62,7 @@ Launch the reviewer in the workspace containing the implementation. For a launch
 p spawn reviewer --for codex --task <task> --assignment assignments/review-1.md --workspace <builder-workspace-id>
 ```
 
-Omit `--workspace` only when the implementation is in the current workspace. Confirm the builder has stopped editing before handing the workspace to the reviewer.
+If the human requires Codex to review Codex work already in your workspace, use `p spawn reviewer --for codex --family codex --task <task> --assignment assignments/review-1.md` instead. Omit `--workspace` only when the implementation is in the current workspace: Paseo inherits the caller's workspace, and reviewer launches do not create one. Confirm the implementation agent has stopped editing before handing the workspace to the reviewer. If the implementation is in another workspace, pass its ID; never create a review worktree.
 
 The report defaults to `reports/<assignment-name>` for a scout or builder and `reviews/<assignment-name>` for a reviewer. A launch reserves that path and fails if it already exists; pass `--report` when another contributor or later round needs a different filename. The command returns the agent ID, workspace ID when one was created or supplied, role, task, and absolute report path. Record the full IDs in `task.md`. The wrapper adds only `task=<task>` as a recovery label; the task file remains authoritative.
 
