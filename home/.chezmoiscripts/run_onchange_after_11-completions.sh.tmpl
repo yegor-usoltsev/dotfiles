@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+# completion registry hash: {{ includeTemplate "mise-completions-registry" . | sha256sum }}
+
+# Editing the overlay changes how existing tools generate completions, and the
+# postinstall hook cannot see that because nothing was installed. Every other
+# case is covered by the hook.
+info "Syncing zsh completions"
+misecompsync --shell zsh
+success "Zsh completions synced"

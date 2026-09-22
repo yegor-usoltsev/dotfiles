@@ -122,7 +122,13 @@ yt-dlp = "latest"
 "aqua:alltuner/mise-completions-sync" = "latest"
 
 [hooks]
-postinstall = "misecompsync"
+# --new-only reads MISE_INSTALLED_TOOLS and regenerates completions for the
+# tools this command touched, a tenth of a second against four seconds for a
+# full pass. mise runs the hook through `sh -o errexit -c` and puts only the
+# freshly installed tools on its PATH, so the line sets up its own: misecompsync
+# comes from the shims and calls `mise` from ~/.local/bin. Without that, the
+# hook works from a login shell and fails under Ansible and cron.
+postinstall = 'export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"; misecompsync --shell zsh --new-only'
 
 [settings]
 minimum_release_age = "0s"

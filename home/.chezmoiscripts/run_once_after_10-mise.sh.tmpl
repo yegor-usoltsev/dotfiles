@@ -3,7 +3,6 @@ set -euo pipefail
 
 {{ template "script-header" . }}
 # config.toml hash: {{ includeTemplate "dot_config/mise/config.toml.tmpl" . | sha256sum }}
-# completion registry hash: {{ includeTemplate "mise-completions-registry" . | sha256sum }}
 
 mise_bin="$HOME/.local/bin/mise"
 
@@ -23,10 +22,8 @@ fi
 {{ end -}}
 info "Installing mise runtimes"
 
+# The postinstall hook syncs completions for whatever these two install.
 "$mise_bin" install --yes
 "$mise_bin" upgrade
-
-# The postinstall hook only fires for tools it actually touched.
-misecompsync --shell zsh
 
 success "Mise runtimes installed"

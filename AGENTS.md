@@ -38,7 +38,7 @@ A `run_once_` script runs only when its rendered content has not already complet
 # config.toml hash: {{ includeTemplate "dot_config/mise/config.toml.tmpl" . | sha256sum }}
 ```
 
-`home/.chezmoiscripts/run_once_after_10-mise.sh.tmpl` hashes both the mise config and the completion registry. Adding another input that must retrigger it means adding another hash line.
+`home/.chezmoiscripts/run_once_after_10-mise.sh.tmpl` hashes the mise config and `run_onchange_after_11-completions.sh.tmpl` hashes the completion registry. Adding another input that must retrigger a script means adding another hash line to that script.
 
 `home/.chezmoihooks/ensure-prerequisites.sh` runs before every source-state read and only checks prerequisites. Do not make it install or prompt: it also runs under non-interactive Ansible provisioning, where a prompt deadlocks the run. It demands an unlocked Bitwarden vault only when neither `~/.config/chezmoi/secrets.toml` nor `~/.config/chezmoi/chezmoi.toml` exists, so `chezmoi status` and `chezmoi diff` keep working on a configured machine.
 
@@ -56,6 +56,12 @@ When adding a tool to the mise config:
 4. Pick a backend. A bare registry alias resolves through mise, and `aqua:` or `github:` names a release directly when the alias is wrong or missing. `npm:` tools with native dependencies need `allow_builds = true`, which is what `min_version` guards; do not lower it. `pipx:` needs uv, which every profile has, so `pipx:httpie` sits outside the conditional; `go:` needs Go and therefore stays inside it.
 
 The overlay template renders into two targets, because misecompsync resolves the platform data directory and ignores `XDG_DATA_HOME`: `~/Library/Application Support/mise-completions-sync/registry.toml` on macOS and `~/.local/share/mise-completions-sync/registry.toml` on Linux. Keep both `registry.toml.tmpl` files as one-line includes of the shared template.
+
+mise's `postinstall` hook runs misecompsync with `--new-only`, which reads `MISE_INSTALLED_TOOLS` and regenerates completions for the tools that command installed or upgraded. A full pass takes four seconds and a single tool takes a tenth of one, so the hook stays cheap enough to fire on every `mise use`.
+
+The hook line sets its own `PATH` first. mise runs it through `sh -o errexit -c` and puts only the freshly installed tools on `PATH`, so misecompsync needs the shims directory and `mise` itself needs `~/.local/bin`; without both, the hook works from a login shell and fails under Ansible and cron. A failing hook is a warning rather than an error, so the miss would be silent.
+
+`run_onchange_after_11-completions.sh.tmpl` exists for the one case the hook cannot see: editing the overlay changes how an already installed tool generates its completions, and no installation happens. It does the full pass.
 
 chezmoi and mise install themselves rather than through mise, so misecompsync cannot see them and `home/dot_zshrc.tmpl` generates their two completions into the zsh cache directory.
 

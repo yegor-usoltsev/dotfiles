@@ -49,6 +49,8 @@ The secrets file may hold `context7ApiKey`, `githubToken`, `sshPrivateKey` and `
 
 Run `update` on any machine. It upgrades native packages, chezmoi and mise, pulls and applies the dotfiles, then upgrades mise tools. On Ubuntu it reports when a reboot is needed. A normal Ansible run performs the equivalent updates on provisioned hosts.
 
+Zsh completions follow mise. Its `postinstall` hook regenerates them for whatever a `mise install`, `mise use` or `mise upgrade` touched, so installing a tool by hand keeps them current and so does the weekly Ansible run. Nothing needs a separate command.
+
 `.chezmoiversion` and mise's `min_version` declare the minimum supported versions; installers and self-updaters fetch the latest releases.
 
 `mise ls` shows installed versions and `mise registry <tool>` shows which backend an alias resolves to.
