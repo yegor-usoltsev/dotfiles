@@ -116,12 +116,12 @@ select_family() {
 	local family=$1
 	case $family in
 	codex)
-		provider=codex/gpt-5.6-sol
+		provider=codex/gpt-6-sol
 		thinking=high
 		mode=full-access
 		;;
 	claude)
-		provider=claude/claude-opus-5
+		provider=claude/claude-opus-5-5
 		thinking=high
 		mode=bypassPermissions
 		;;
@@ -210,7 +210,7 @@ configure_role() {
 
 	case $role in
 	scout)
-		provider=codex/gpt-5.6-luna
+		provider=codex/gpt-6-luna
 		thinking=max
 		mode=full-access
 		report_directory=reports
@@ -222,7 +222,7 @@ configure_role() {
 		select_family "${family:-codex}"
 		if [[ -n $requested_thinking ]]; then
 			# Only Sol holds up below high; Opus and Luna keep the level select_family set.
-			[[ $provider == codex/gpt-5.6-sol ]] || fail '--thinking applies only to a Codex builder' 64
+			[[ $provider == codex/gpt-6-sol ]] || fail '--thinking applies only to a Codex builder' 64
 			case $requested_thinking in
 			low | medium | high) thinking=$requested_thinking ;;
 			*) fail '--thinking must be low, medium or high' 64 ;;

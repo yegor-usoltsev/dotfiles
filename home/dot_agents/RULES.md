@@ -6,7 +6,7 @@ These rules hold in every project and every tool.
 
 Do not spawn subagents, background agents, or parallel workers unless the user has explicitly allowed it for this task. Do the work yourself. A task that is large, has several parts, or would benefit from a second opinion is not by itself permission to fan out.
 
-When the user allows subagents through the current harness, use one of three models: Claude Opus 5 at high, GPT-5.6 Sol between low and high, and GPT-5.6 Luna at max. Default to Sol at high. Ignore every other model and effort level the harness offers. A model the user names wins over this. Say which model and effort level you chose.
+When the user allows subagents through the current harness, use one of three models: Claude Opus 5.5 at high, GPT-6 Sol between low and high, and GPT-6 Luna at max. Default to Sol at high. When the harness offers a newer Opus, Sol, or Luna release than the one named here, use the newest release of that family. Ignore every other model and effort level the harness offers. A model the user names wins over this. Say which model and effort level you chose.
 
 Paseo peer launches follow the role matrix in `paseo-messaging` instead. Its wrapper selects fixed models and effort levels so implementation receives cross-family review and every peer sees the same launch policy.
 

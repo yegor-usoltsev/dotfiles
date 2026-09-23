@@ -33,9 +33,9 @@ Read [task files](references/task-files.md) when creating an assignment, prepari
 
 Use the cheapest complete path: the top-level worker implements and one worker from the other model family reviews and fixes. Add a scout only when reconnaissance would save substantial worker reading. Choose a role; the wrapper owns the model, mode, worktree, report location, and review-family rules, and the thinking level everywhere except a Codex builder.
 
-- `builder` uses GPT-5.6 Sol at high. Drop it with `--thinking medium` for a narrow, well specified slice, or `--thinking low` for a mechanical one. Pass `--family claude` after Codex fails the same assignment twice or when the human asks for Claude; a Claude builder stays at high.
-- `reviewer --for codex` uses Claude Opus 5 at high; `reviewer --for claude` uses GPT-5.6 Sol at high. If the human rules out the other family, keep the reviewer role and pass `--family codex` or `--family claude` explicitly. Do not disguise review as builder work: a builder launch creates a new worktree.
-- `scout` uses GPT-5.6 Luna at max and receives a read-only reconnaissance prompt.
+- `builder` uses GPT-6 Sol at high. Drop it with `--thinking medium` for a narrow, well specified slice, or `--thinking low` for a mechanical one. Pass `--family claude` after Codex fails the same assignment twice or when the human asks for Claude; a Claude builder stays at high.
+- `reviewer --for codex` uses Claude Opus 5.5 at high; `reviewer --for claude` uses GPT-6 Sol at high. If the human rules out the other family, keep the reviewer role and pass `--family codex` or `--family claude` explicitly. Do not disguise review as builder work: a builder launch creates a new worktree.
+- `scout` uses GPT-6 Luna at max and receives a read-only reconnaissance prompt.
 
 Send the implementation to the other model family for review and correction unless the human rules it out.
 
