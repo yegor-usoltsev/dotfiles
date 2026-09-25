@@ -39,7 +39,8 @@ Run this after changing the wrapper, model matrix, or Paseo version:
 1. Start a disposable top-level worker and authorize the scout and reviewer launches below.
 2. Run `p init` and create a read-only assignment.
 3. Launch a scout. Confirm the returned ID, `PASEO_PEER_*` environment, report file, and reply to `owner`.
-4. Give a cross-family reviewer an explicit review-and-fix assignment in the implementation workspace, with the builder idle. Confirm a separate correction commit, a report of checks, and a reply to the owner. Have the owner read only the correction diff before finishing.
-5. Archive the disposable agents by full ID.
+4. Launch a scout with only `--message`. Confirm that no task files or report appear and that the reply arrives as a message prefixed with `[from:<agent-id>]`.
+5. Give a cross-family reviewer an explicit review-and-fix assignment in the implementation workspace, with the builder idle. Confirm a separate correction commit, a report of checks, and a reply to the owner. Have the owner read only the correction diff before finishing.
+6. Archive the disposable agents by full ID.
 
 Check `paseo --help` and update the wrapper when a release changes the interface it calls.

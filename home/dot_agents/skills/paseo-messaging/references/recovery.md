@@ -15,7 +15,7 @@ Do not resend merely because a peer has not replied. When nothing else can progr
 
 ## Recover task agents
 
-The wrapper adds only `task=<task>` to each agent. Use it as an index when `task.md` is incomplete:
+The wrapper adds `task=<task>` to each agent launched with a task. Use it as an index when `task.md` is incomplete; agents launched with only a message brief carry no label, so find them by title or in the owner's conversation:
 
 ```sh
 paseo ls --global --label task=<task> --json
