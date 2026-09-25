@@ -31,10 +31,10 @@ Read [task files](references/task-files.md) when creating an assignment, prepari
 
 ## Choose a peer
 
-Use the cheapest complete path: the top-level worker implements and one worker from the other model family reviews and fixes. Add a scout only when reconnaissance would save substantial worker reading. Choose a role; the wrapper owns the model, mode, worktree, report location, and review-family rules, and the thinking level everywhere except a Codex builder.
+Use the cheapest complete path: the top-level worker implements and one worker from the other model family reviews and fixes. Add a scout only when reconnaissance would save substantial worker reading. Choose a role; the wrapper owns the model, mode, workspace, report location, and review-family rules, and the thinking level everywhere except a Codex builder.
 
 - `builder` uses GPT-6 Sol at high. Drop it with `--thinking medium` for a narrow, well specified slice, or `--thinking low` for a mechanical one. Pass `--family claude` after Codex fails the same assignment twice or when the human asks for Claude; a Claude builder stays at high.
-- `reviewer --for codex` uses Claude Opus 5.5 at high; `reviewer --for claude` uses GPT-6 Sol at high. If the human rules out the other family, keep the reviewer role and pass `--family codex` or `--family claude` explicitly. Do not disguise review as builder work: a builder launch creates a new worktree.
+- `reviewer --for codex` uses Claude Opus 5.5 at high; `reviewer --for claude` uses GPT-6 Sol at high. If the human rules out the other family, keep the reviewer role and pass `--family codex` or `--family claude` explicitly. Do not disguise review as builder work: the roles carry different instructions.
 - `scout` uses GPT-6 Luna at max and receives a read-only reconnaissance prompt.
 
 Send the implementation to the other model family for review and correction unless the human rules it out.
@@ -49,14 +49,20 @@ Launch reconnaissance in the current workspace:
 p spawn scout --task <task> --assignment assignments/scout.md
 ```
 
-Give a launched builder its own worktree:
+Launch a builder in the current workspace by default. One agent edits a workspace at a time, so stop editing it yourself until the builder reports:
+
+```sh
+p spawn builder --task <task> --assignment assignments/build.md
+p spawn builder --family claude --task <task> --assignment assignments/build.md
+```
+
+Give a builder its own worktree only when builders must work in parallel or the human asks for isolation:
 
 ```sh
 p spawn builder --task <task> --assignment assignments/build.md --worktree <branch> --base <base-ref>
-p spawn builder --family claude --task <task> --assignment assignments/build.md --worktree <branch> --base <base-ref>
 ```
 
-Launch the reviewer in the workspace containing the implementation. For a launched builder, pass the workspace ID returned by its launch:
+Launch the reviewer in the workspace containing the implementation. For a builder in its own worktree, pass the workspace ID returned by its launch:
 
 ```sh
 p spawn reviewer --for codex --task <task> --assignment assignments/review-1.md --workspace <builder-workspace-id>

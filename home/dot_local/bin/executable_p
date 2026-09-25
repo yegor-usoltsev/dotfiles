@@ -19,7 +19,8 @@ Spawn options:
   --for FAMILY          reviewer target family: codex or claude
   --report PATH         override reports/NAME or reviews/NAME inferred from assignment
   --workspace ID        use an existing workspace
-  --worktree BRANCH     builder branch in a new isolated worktree
+  --worktree BRANCH     builder branch in a new isolated worktree; omit it to
+                        work in the caller's workspace
   --base REF            builder base ref; required with --worktree
   --title TITLE         override the generated agent title
 
@@ -217,8 +218,7 @@ configure_role() {
 		role_constraints='Do not edit repository files or task coordination files except your report. Answer only the bounded reconnaissance question with file:line evidence, and do not make design decisions.'
 		;;
 	builder)
-		[[ ${assignment##*/} != review* ]] || fail 'use reviewer for review assignments; a builder creates a worktree' 64
-		[[ -n $worktree_branch ]] || fail 'a builder requires --worktree and --base' 64
+		[[ ${assignment##*/} != review* ]] || fail 'use reviewer for review assignments' 64
 		select_family "${family:-codex}"
 		if [[ -n $requested_thinking ]]; then
 			# Only Sol holds up below high; Opus and Luna keep the level select_family set.
@@ -229,7 +229,7 @@ configure_role() {
 			esac
 		fi
 		report_directory=reports
-		role_constraints='Edit only the assigned implementation slice in the isolated worktree. Keep the diff focused, commit the finished work, and record the commit and verification in your report.'
+		role_constraints='Edit only the assigned implementation slice in your workspace. Keep the diff focused, commit the finished work, and record the commit and verification in your report.'
 		;;
 	reviewer)
 		case $reviewed_family in
