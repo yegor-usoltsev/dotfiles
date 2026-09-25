@@ -5,7 +5,7 @@ set -euo pipefail
 {{ if eq .chezmoi.os "darwin" -}}
 info "Updating Homebrew packages"
 brew update
-brew upgrade
+brew upgrade --greedy-auto-updates
 brew cleanup
 success "Homebrew packages updated"
 {{ else -}}
