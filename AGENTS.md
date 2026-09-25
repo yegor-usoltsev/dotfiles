@@ -12,7 +12,7 @@ Much of the source state sits in dot-prefixed directories: `home/.chezmoiscripts
 
 Filenames carry chezmoi attributes. Each target type has its own prefix chain in a fixed order, so check [the attributes table](https://www.chezmoi.io/reference/source-state-attributes/) before renaming a source file rather than reasoning from another target type. Scripts are `run_`, then `once_` or `onchange_`, then `before_` or `after_`; `dot_` is always last on the types that allow it; `.tmpl` is the suffix. Scripts run in alphabetical order of the name with attributes stripped, which is what the numeric prefixes (`10-`, `20-`, `90-`) control.
 
-When a path stops being managed, add its target path to `home/.chezmoiremove`. Deleting the source file alone leaves the old file sitting in the home directory.
+Deleting a source file stops chezmoi from managing the target but leaves the file in the home directory. The repository keeps no `.chezmoiremove`, so remove a retired target by hand on each machine when it matters.
 
 ## Profiles
 
