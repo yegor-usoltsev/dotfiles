@@ -8,7 +8,7 @@ Keep three profiles in **Settings -> host -> Agents -> Agent profiles**. Profile
 
 | Name | Provider | Model | Thinking | Mode |
 | --- | --- | --- | --- | --- |
-| `worker-codex` | Codex | `gpt-6-sol` | `high` | `full-access` |
+| `worker-codex` | Codex | `gpt-6.1-sol` | `high` | `full-access` |
 | `worker-claude` | Claude | `claude-opus-5-5` | `high` | `bypassPermissions` |
 | `scout` | Codex | `gpt-6-luna` | `max` | `full-access` |
 
