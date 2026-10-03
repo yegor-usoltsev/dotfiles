@@ -1,6 +1,6 @@
 ---
 name: paseo
-description: Control Paseo projects, workspaces, scripts, agents, schedules and heartbeats through MCP tools or the CLI. Read configured profiles before delegation, use peer.send for non-interrupting agent messages, and inspect auto-resume after provider usage limits.
+description: Control Paseo projects, workspaces, scripts, agents, schedules and heartbeats through MCP tools or the CLI. Select senior, worker or scout profiles before delegation, use peer.send for non-interrupting agent messages, and inspect auto-resume after provider usage limits.
 ---
 
 Paseo is a remote daemon that manages coding agents, terminals. Control it through MCP tools or the CLI.
@@ -71,7 +71,22 @@ Agent-scoped `create_agent` defaults `notifyOnFinish` to true. Set it to `false`
 
 **`archive_agent`** — `{ agentId }`. Interrupts if running, removes from active list.
 
+## Permissions
+
+**`list_pending_permissions`** and **`respond_to_permission`** are enabled for agents that need permission coordination. Inspect the actual pending request and respond within the user's authorized scope. These tools do not change the non-interrupting messaging rule: use `peer.send` for agent messages.
+
 ## Agent profiles and provider discovery
+
+The managed profiles have three levels of responsibility:
+
+| Profile | Model / reasoning | Role |
+| --- | --- | --- |
+| `claude-senior` | Opus 5.5 / High | Equal senior counterpart of `codex-senior`; prefer for ambiguous requirements and architecture |
+| `codex-senior` | GPT-6.1 Sol / High | Equal senior counterpart of `claude-senior`; prefer for iterative implementation, debugging and tests |
+| `claude-worker` | Sonnet 5.5 / Medium | Primary subagent for scoped implementation and substantial investigation |
+| `codex-scout` | GPT-6 Luna / Max | Simple, explicit, read-only reconnaissance and factual checks |
+
+"Ask Claude" or "ask Codex" without a tier means the senior profile. Senior colleagues have equal authority and can exchange roles. Prefer different providers for independent review; the same provider or model family is also allowed. Choose helpers by scope and available quota, and follow [paseo-peers](../paseo-peers/SKILL.md) for ownership and coordination.
 
 **`list_profiles`** — named launch bundles configured by the human. Before choosing how to launch a delegated agent, call this tool and read every profile's `notes`. Pick a named profile the user requested, or the profile whose notes best match the work.
 

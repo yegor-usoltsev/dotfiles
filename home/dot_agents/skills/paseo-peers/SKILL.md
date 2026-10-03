@@ -1,23 +1,25 @@
 ---
 name: paseo-peers
-description: Coordinate substantial engineering work in Paseo as equal Claude and Codex peers: select configured worker profiles, assign file ownership, implement and cross-review, and communicate through peer.send. Use for delegation, pairing and peer review; handle small or conversational tasks alone and use scouts only for bounded read-only reconnaissance.
+description: Coordinate complex engineering work in Paseo with equal Claude and Codex senior peers, a Claude implementation worker and a Codex read-only scout. Use for delegation, pairing and independent review; handle small or conversational tasks alone.
 ---
 
 # Peers on Paseo
 
-Every non-trivial task runs as two equal peers from different model families: one Claude agent and one Codex agent. They work autonomously, in parallel, talk to each other directly, review each other's work and settle problems between themselves, the way two senior colleagues would. The [paseo](../paseo/SKILL.md) skill describes the tools and CLI used below.
+For complex work, form a pair of equal senior colleagues: `claude-senior` and `codex-senior`. They work autonomously, in parallel, communicate directly, review each other's work and resolve problems together. Neither is the other's supervisor; either can plan, implement or review. The [paseo](../paseo/SKILL.md) skill describes the tools and CLI used below.
 
-This applies inside Paseo, where `PASEO_AGENT_ID` is set. Outside Paseo, use the harness's native subagents when available; choose another model family only if the harness exposes it, and preserve the same file ownership rules.
+This applies inside Paseo, where `PASEO_AGENT_ID` is set. Outside Paseo, use the harness's native subagents when available; prefer another provider for independent review when the harness exposes one, and preserve the same file ownership rules.
 
 ## Start the counterpart
 
 The agent the user started owns the task: it answers to the user and delivers the result. The counterpart is an equal in every engineering decision.
 
-1. Call `list_profiles` and pick the counterpart's profile from the other family: `worker-codex` for a Claude owner, `worker-claude` for a Codex owner. A model the user named takes precedence.
+1. Call `list_profiles` and prefer the counterpart's profile from the other provider: `codex-senior` for a Claude owner, `claude-senior` for a Codex owner. A model the user named takes precedence.
 2. Choose the shape (below) and, for a split, create the workspaces first.
 3. Call `create_agent` with the profile materialized into `provider` and `settings`. Brief the counterpart in `initialPrompt`: the objective, what you already know, the constraints and checks, the shape and who does what, your agent ID (`$PASEO_AGENT_ID`) so it can message you, and that it should use this skill.
 
 Do small, single-file or purely conversational work alone; a counterpart costs time.
+
+Different providers are preferred for independent review. Agents from the same provider or model family may also work together when the task or available quota favors it. An unqualified request to "ask Claude" or "ask Codex" means the corresponding senior profile.
 
 ## Choose a shape
 
@@ -39,7 +41,14 @@ Review the other peer's diff against the task's requirements, not your own prefe
 
 ## Bring in help
 
-Either peer can start a `scout` agent with `create_agent` for read-only exploration that would otherwise cost substantial reading; ask it for file:line evidence. Start other specialised agents the same way when a narrow job is easier to hand off. Archive helpers you started once their result is used.
+Either senior can launch helpers with `create_agent` when the scope, context cost or available quota warrants delegation:
+
+- `claude-worker` (Sonnet 5.5, Medium) is the primary implementation subagent: scoped coding, refactoring, tests, documentation and substantial repository investigation.
+- `codex-scout` (GPT-6 Luna, Max) handles narrow, read-only searches, symbol tracing, structured-data extraction and factual checks. Give it simple, explicit tasks and ask for evidence and uncertainties; use `claude-worker` for implementation or deeper analysis.
+
+This is a capability and cost hierarchy: prefer Opus for the hardest ambiguous reasoning, Sol for iterative implementation and debugging, Sonnet for substantive delegated work, and Luna for simple, easily verified lookups. Opus and Sol retain equal authority and can exchange planning, implementation and review roles.
+
+Use as many helpers as useful, including several from one provider. Brief each with its scope, expected result, checks and file ownership. In a shared checkout only one designated writer edits; parallel writers need separate workspaces or worktrees. Workers and scouts execute their assigned scope without automatically starting a senior counterpart. Archive helpers once their results are used.
 
 ## Heal without the user
 
