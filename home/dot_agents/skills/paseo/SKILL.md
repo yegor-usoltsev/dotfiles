@@ -1,6 +1,6 @@
 ---
 name: paseo
-description: Paseo reference for managing projects, workspaces, workspace scripts, agents, schedules, and heartbeats.
+description: Control Paseo projects, workspaces, scripts, agents, schedules and heartbeats through MCP tools or the CLI. Read configured profiles before delegation, use peer.send for non-interrupting agent messages, and inspect auto-resume after provider usage limits.
 ---
 
 Paseo is a remote daemon that manages coding agents, terminals. Control it through MCP tools or the CLI.
@@ -114,7 +114,9 @@ Don't poll `list_agents` or `get_agent_status` to "check on" a running agent. Th
 
 ## Usage limits
 
-An agent that stops on a provider usage limit continues by itself once the limit resets; its chat shows when. Do not relaunch or replace it. When its resumed turn finishes, its parent receives a `[from:<agent-id>]` message.
+With the enabled `paseo-resume` plugin, a Claude Code or Codex agent that stops on a provider usage limit gets a persisted resume schedule; its chat shows when. Provider usage is the primary reset source; the plugin falls back to Claude notices with their timezone or Codex local reset messages. A known reset gets two minutes of margin; otherwise the plugin estimates 30 minutes and rechecks the usage API after its five-minute cache expires. Failed delivery retries after five minutes. Do not relaunch or replace it. When its resumed turn finishes, its parent receives a `[from:<agent-id>]` message. A new turn or an archive cancels the pending resume. Authentication errors and ordinary API throttling do not schedule one.
+
+If no resume appears, inspect `paseo plugin ls --json` and `paseo plugin logs paseo-resume`; do not assume the plugin is installed or running. Plugins are maintained by `update-paseo-plugins`, including when the macOS CLI is available only inside Paseo.app.
 
 ## CLI semantics
 

@@ -52,7 +52,7 @@ jq -s '
           "model": "gpt-6.1-sol",
           "modeId": "full-access",
           "thinkingOptionId": "high",
-          "notes": "Codex peer for implementation, review and pair work. Choose it as the counterpart of a Claude agent."
+          "notes": "Equal Codex peer for implementation, debugging, tests and evidence-based review. Choose as the counterpart of a Claude agent for substantial engineering work. Brief the objective, scope, checks and file ownership; coordinate through peer.send. In a shared checkout only the designated writer edits."
         },
         {
           "id": "agent_profile_mtw2ucia_ve0rm3ub8o",
@@ -63,7 +63,7 @@ jq -s '
           "model": "claude-opus-5-5",
           "modeId": "bypassPermissions",
           "thinkingOptionId": "high",
-          "notes": "Claude peer for implementation, review and pair work. Choose it as the counterpart of a Codex agent."
+          "notes": "Equal Claude peer for implementation, debugging, tests and evidence-based review. Choose as the counterpart of a Codex agent for substantial engineering work. Brief the objective, scope, checks and file ownership; coordinate through peer.send. In a shared checkout only the designated writer edits."
         },
         {
           "id": "agent_profile_mtw3wd16_q49xr2i3osc",
@@ -74,7 +74,7 @@ jq -s '
           "model": "gpt-6-luna",
           "modeId": "full-access",
           "thinkingOptionId": "max",
-          "notes": "Read-only reconnaissance: trace symbols and callers, inspect tests and conventions, and return file:line evidence. Never edits files. Use when exploration would cost a peer substantial reading."
+          "notes": "Read-only scout for bounded repository reconnaissance: trace symbols and callers, inspect tests and conventions, and return concise file:line evidence with uncertainties. Never edits files or changes services. Use when exploration would cost a peer substantial reading; use a worker for implementation or review requiring fixes."
         }
       ] as $profiles
     | .daemon.agentProfiles = $profiles + [

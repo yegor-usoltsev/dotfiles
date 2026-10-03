@@ -6,6 +6,9 @@ set -euo pipefail
 # Paseo from a checkout in ~/dev, where they can also be edited. The checkout
 # only fast-forwards when it is a clean main, so local work is never touched.
 # --no-pull only clones a missing checkout and installs missing plugins.
+{{- if eq .chezmoi.os "darwin" }}
+export PATH="/opt/homebrew/bin:$PATH"
+{{- end }}
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 repo=https://github.com/yegor-usoltsev/paseo-plugins.git
 checkout=$HOME/dev/yegor-usoltsev/paseo-plugins
@@ -19,11 +22,14 @@ fi
 paseo=paseo
 if ! command -v paseo >/dev/null 2>&1; then
 	paseo=/Applications/Paseo.app/Contents/Resources/bin/paseo
-	[[ -x $paseo ]] || exit 0
+	if [[ ! -x $paseo ]]; then
+		warn "Skipping the Paseo plugins: no CLI on PATH or in Paseo.app"
+		exit 0
+	fi
 fi
 
 updated=false
-if [[ ! -d $checkout/.git ]]; then
+if [[ ! -e $checkout/.git ]]; then
 	info "Cloning the Paseo plugins"
 	git clone --quiet "$repo" "$checkout"
 elif $pull; then
@@ -41,18 +47,25 @@ fi
 
 # Plugins are installed through the running daemon; the next run catches up
 # when it is stopped.
-"$paseo" daemon status --json 2>/dev/null | jq -e '.localDaemon == "running"' >/dev/null || exit 0
+if ! "$paseo" daemon status --json 2>/dev/null | jq -e '.localDaemon == "running"' >/dev/null; then
+	warn "Skipping the Paseo plugins: the local daemon is not running"
+	exit 0
+fi
 installed=$("$paseo" plugin ls --json)
 for plugin in "${plugins[@]}"; do
 	id=paseo-$plugin
 	path=$checkout/$plugin
 	current=$(jq -r --arg id "$id" '.[] | select(.id == $id) | .path' <<<"$installed")
 	if [[ $current != "$path" ]]; then
+		if ! jq -e --arg id "$id" '.id == $id' "$path/paseo-plugin.json" >/dev/null 2>&1; then
+			warn "Cannot install $id: missing or mismatched manifest in $path"
+			exit 1
+		fi
 		[[ -z $current ]] || "$paseo" plugin remove "$id" >/dev/null
 		info "Installing the Paseo plugin $id"
 		"$paseo" plugin install "$path" >/dev/null
 		success "Paseo plugin $id installed"
-	elif $updated; then
+	elif $updated && ! git -C "$checkout" diff --quiet "$before" HEAD -- "$plugin"; then
 		"$paseo" plugin reload "$id" >/dev/null
 		success "Paseo plugin $id updated"
 	fi

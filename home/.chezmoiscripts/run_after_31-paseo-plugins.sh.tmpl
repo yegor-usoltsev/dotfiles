@@ -2,6 +2,6 @@
 set -euo pipefail
 
 {{ template "script-header" . }}
-# Apply stays offline: it only adds a missing checkout or plugin. `update` and
-# the Paseo upgrade hook pull new plugin versions.
+# Apply only clones a missing checkout or installs a missing plugin. Existing
+# checkouts pull new versions through `update` and the Paseo upgrade hook.
 "$HOME/.local/bin/update-paseo-plugins" --no-pull

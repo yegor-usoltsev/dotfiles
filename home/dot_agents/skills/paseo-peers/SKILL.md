@@ -1,13 +1,13 @@
 ---
 name: paseo-peers
-description: Work as one of two peer agents from different model families inside Paseo. Start the counterpart, pair on or split the task, review each other, message each other in real time and resolve problems without the user. Use for delegation, pairing, second opinions, peer review, reconnaissance, or a message to another Paseo agent.
+description: Coordinate substantial engineering work in Paseo as equal Claude and Codex peers: select configured worker profiles, assign file ownership, implement and cross-review, and communicate through peer.send. Use for delegation, pairing and peer review; handle small or conversational tasks alone and use scouts only for bounded read-only reconnaissance.
 ---
 
 # Peers on Paseo
 
 Every non-trivial task runs as two equal peers from different model families: one Claude agent and one Codex agent. They work autonomously, in parallel, talk to each other directly, review each other's work and settle problems between themselves, the way two senior colleagues would. The [paseo](../paseo/SKILL.md) skill describes the tools and CLI used below.
 
-This applies inside Paseo, where `PASEO_AGENT_ID` is set. Outside Paseo, use the harness's native subagents with the same split of work.
+This applies inside Paseo, where `PASEO_AGENT_ID` is set. Outside Paseo, use the harness's native subagents when available; choose another model family only if the harness exposes it, and preserve the same file ownership rules.
 
 ## Start the counterpart
 
