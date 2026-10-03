@@ -1,0 +1,18 @@
+# Retired global agent rules and terminal wrapper.
+.agents/RULES.md
+.local/bin/z
+
+# Skills merged into the global AGENTS.md or retired.
+.agents/skills/backlog
+.agents/skills/clean-code
+.agents/skills/humanizer
+.agents/skills/learn
+.agents/skills/workflow
+.agents/skills/writing-for-agents
+.agents/skills/writing-for-humans
+.agents/skills/zmx-messaging
+
+# References removed when simplifying paseo-messaging.
+.agents/skills/paseo-messaging/references/recovery.md
+.agents/skills/paseo-messaging/references/setup.md
+.agents/skills/paseo-messaging/references/task-files.md
