@@ -43,10 +43,10 @@ Review the other peer's diff against the task's requirements, not your own prefe
 
 Either senior can launch helpers with `create_agent` when the scope, context cost or available quota warrants delegation:
 
-- `claude-worker` (Sonnet 5.5, Medium) is the primary implementation subagent: scoped coding, refactoring, tests, documentation and substantial repository investigation.
-- `codex-scout` (GPT-6 Luna, Max) handles narrow, read-only searches, symbol tracing, structured-data extraction and factual checks. Give it simple, explicit tasks and ask for evidence and uncertainties; use `claude-worker` for implementation or deeper analysis.
+- `claude-worker` is the primary implementation subagent: scoped coding, refactoring, tests, documentation and substantial repository investigation.
+- `codex-scout` handles narrow, read-only searches, symbol tracing, structured-data extraction and factual checks. Give it simple, explicit tasks and ask for evidence and uncertainties; use `claude-worker` for implementation or deeper analysis.
 
-This is a capability and cost hierarchy: prefer Opus for the hardest ambiguous reasoning, Sol for iterative implementation and debugging, Sonnet for substantive delegated work, and Luna for simple, easily verified lookups. Opus and Sol retain equal authority and can exchange planning, implementation and review roles.
+The capability and cost hierarchy is `claude-senior`, `codex-senior`, `claude-worker`, then `codex-scout`. Prefer `claude-senior` for the hardest ambiguous tasks, `codex-senior` for iterative implementation and debugging, `claude-worker` for substantive delegated work, and `codex-scout` for simple, easily verified lookups. The seniors retain equal authority and can exchange planning, implementation and review roles.
 
 Use as many helpers as useful, including several from one provider. Brief each with its scope, expected result, checks and file ownership. In a shared checkout only one designated writer edits; parallel writers need separate workspaces or worktrees. Workers and scouts execute their assigned scope without automatically starting a senior counterpart. Archive helpers once their results are used.
 

@@ -47,24 +47,24 @@ jq -s '
         {
           "id": "agent_profile_claude_senior",
           "name": "claude-senior",
-          "icon": "hammer",
+          "icon": "brain",
           "color": "orange",
           "provider": "claude",
           "model": "claude-opus-5-5",
           "modeId": "bypassPermissions",
           "thinkingOptionId": "high",
-          "notes": "Equal senior colleague for paired work with codex-senior (GPT-6.1 Sol, High) on complex implementation and independent review. Prefer for ambiguous requirements, architecture and maintaining the overall goal. Either senior may own the task, implement or review; treat the counterpart as an equal. Delegate scoped implementation to claude-worker and narrow read-only checks to codex-scout. Coordinate through peer.send and agree file ownership."
+          "notes": "Equal senior colleague for paired work with codex-senior on complex implementation and independent review. Prefer for ambiguous requirements, architecture and maintaining the overall goal. Either senior may own the task, implement or review; treat the counterpart as an equal. Delegate scoped implementation to claude-worker and narrow read-only checks to codex-scout. Coordinate through peer.send and agree file ownership."
         },
         {
           "id": "agent_profile_codex_senior",
           "name": "codex-senior",
-          "icon": "hammer",
+          "icon": "brain",
           "color": "blue",
           "provider": "codex",
           "model": "gpt-6.1-sol",
           "modeId": "full-access",
           "thinkingOptionId": "high",
-          "notes": "Equal senior colleague for paired work with claude-senior (Claude Opus 5.5, High) on complex engineering and independent review. Prefer for iterative implementation, debugging and tests. Either senior may own the task, plan or make architectural decisions; treat the counterpart as an equal. Delegate scoped implementation to claude-worker and narrow read-only checks to codex-scout. Coordinate through peer.send and agree file ownership."
+          "notes": "Equal senior colleague for paired work with claude-senior on complex engineering and independent review. Prefer for iterative implementation, debugging and tests. Either senior may own the task, plan or make architectural decisions; treat the counterpart as an equal. Delegate scoped implementation to claude-worker and narrow read-only checks to codex-scout. Coordinate through peer.send and agree file ownership."
         },
         {
           "id": "agent_profile_claude_worker",
@@ -80,7 +80,7 @@ jq -s '
         {
           "id": "agent_profile_codex_scout",
           "name": "codex-scout",
-          "icon": "rocket",
+          "icon": "eye",
           "color": "blue",
           "provider": "codex",
           "model": "gpt-6-luna",

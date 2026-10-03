@@ -51,7 +51,7 @@ paseo script stop <name> [--cwd <path> | --workspace <workspace-id>]
 
 ## Agents
 
-**`create_agent`** — required: `title`, `provider` (`claude/claude-opus-5-5`, `codex/gpt-6.1-sol`, …), `initialPrompt`. Optional: `workspaceId`, `notifyOnFinish`, `settings`, `labels`. Returns `{ agentId, workspaceId, … }`.
+**`create_agent`** — required: `title`, `provider` (`provider/model`, taken from the selected profile), `initialPrompt`. Optional: `workspaceId`, `notifyOnFinish`, `settings`, `labels`. Returns `{ agentId, workspaceId, … }`.
 
 Initial runtime settings live under `settings`: `modeId`, `thinkingOptionId`, and provider-specific `features`. Agent profiles are the preferred source for these values. For Codex fast mode, pass `settings: { features: { "fast_mode": true } }` when creating the agent.
 
@@ -79,16 +79,18 @@ Agent-scoped `create_agent` defaults `notifyOnFinish` to true. Set it to `false`
 
 The managed profiles have three levels of responsibility:
 
-| Profile | Model / reasoning | Role |
-| --- | --- | --- |
-| `claude-senior` | Opus 5.5 / High | Equal senior counterpart of `codex-senior`; prefer for ambiguous requirements and architecture |
-| `codex-senior` | GPT-6.1 Sol / High | Equal senior counterpart of `claude-senior`; prefer for iterative implementation, debugging and tests |
-| `claude-worker` | Sonnet 5.5 / Medium | Primary subagent for scoped implementation and substantial investigation |
-| `codex-scout` | GPT-6 Luna / Max | Simple, explicit, read-only reconnaissance and factual checks |
+| Profile | Role |
+| --- | --- |
+| `claude-senior` | Equal senior counterpart of `codex-senior`; prefer for ambiguous requirements and architecture |
+| `codex-senior` | Equal senior counterpart of `claude-senior`; prefer for iterative implementation, debugging and tests |
+| `claude-worker` | Primary subagent for scoped implementation and substantial investigation |
+| `codex-scout` | Simple, explicit, read-only reconnaissance and factual checks |
 
 "Ask Claude" or "ask Codex" without a tier means the senior profile. Senior colleagues have equal authority and can exchange roles. Prefer different providers for independent review; the same provider or model family is also allowed. Choose helpers by scope and available quota, and follow [paseo-peers](../paseo-peers/SKILL.md) for ownership and coordination.
 
 **`list_profiles`** — named launch bundles configured by the human. Before choosing how to launch a delegated agent, call this tool and read every profile's `notes`. Pick a named profile the user requested, or the profile whose notes best match the work.
+
+Specific models, versions and reasoning levels belong only in the structured profile fields. Keep notes and workflow instructions about roles; read the current launch values from `list_profiles`.
 
 There is no `profile` parameter on `create_agent`. Materialize the selected profile into the call:
 
@@ -141,8 +143,8 @@ The CLI and tools use the same ownership semantics even where their syntax diffe
 paseo workspace create --isolation worktree --mode branch-off --new-branch fix-x --base origin/main
 paseo workspace create --isolation worktree --mode checkout-branch --branch existing-work
 paseo workspace create --isolation worktree --mode checkout-pr --pr-number 42
-paseo run --provider codex/gpt-6.1-sol --mode full-access --workspace <workspace-id> "<prompt>"
-paseo run --provider codex/gpt-6.1-sol --mode full-access --new-workspace worktree --worktree-mode branch-off --new-branch fix-x --base origin/main "<prompt>"
+paseo run --provider <provider/model> --mode <mode-id> --workspace <workspace-id> "<prompt>"
+paseo run --provider <provider/model> --mode <mode-id> --new-workspace worktree --worktree-mode branch-off --new-branch fix-x --base origin/main "<prompt>"
 paseo ls
 paseo schedule create --cron "*/15 * * * *" "ping main build"
 paseo heartbeat create --cron "*/15 * * * *" "check the build"
