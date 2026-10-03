@@ -51,7 +51,7 @@ paseo script stop <name> [--cwd <path> | --workspace <workspace-id>]
 
 ## Agents
 
-**`create_agent`** — required: `title`, `provider` (`claude/opus`, `codex/gpt-5.4`, …), `initialPrompt`. Optional: `workspaceId`, `notifyOnFinish`, `settings`, `labels`. Returns `{ agentId, workspaceId, … }`.
+**`create_agent`** — required: `title`, `provider` (`claude/claude-opus-5-5`, `codex/gpt-6.1-sol`, …), `initialPrompt`. Optional: `workspaceId`, `notifyOnFinish`, `settings`, `labels`. Returns `{ agentId, workspaceId, … }`.
 
 Initial runtime settings live under `settings`: `modeId`, `thinkingOptionId`, and provider-specific `features`. Agent profiles are the preferred source for these values. For Codex fast mode, pass `settings: { features: { "fast_mode": true } }` when creating the agent.
 
@@ -61,11 +61,13 @@ Detach is an explicit user action in the subagents track, not an agent tool. A c
 
 Agent-scoped `create_agent` defaults `notifyOnFinish` to true. Set it to `false` only for truly fire-and-forget agents.
 
-**`send_agent_prompt`** — `{ agentId, prompt }`. Use for follow-ups to an existing agent. Agent-scoped prompt calls default to `background: true` and `notifyOnFinish: true`; top-level calls default to blocking with no callback. For a synchronous follow-up, pass `background: false` and use the returned result.
+**`peer.send`** — `{ to, message }`. Use for follow-ups to an existing agent and for any message to another agent. Paseo's `send_agent_prompt` is disabled here because it interrupts a busy recipient's turn and cancels its subagents. `to` takes an agent ID, a unique ID prefix, or an exact title. A working recipient receives the message inside its current turn; an idle one starts a new turn. The message arrives with a `[from:<your-agent-id>]` first line; answer a message by sending to that ID. The call returns on delivery, with no result and no finish notification.
 
 **`update_agent`** — `{ agentId, name?, labels?, settings? }`. Use `settings` for runtime changes on an existing agent: `modeId`, `model`, `thinkingOptionId`, and provider-specific `features`. For Codex fast mode, pass `settings: { features: { "fast_mode": true } }`.
 
 **`list_agents`** — filter by `cwd`, `statuses`, `sinceHours`, `includeArchived`.
+
+**`get_agent_activity`** — `{ agentId, limit? }`. Another agent's recent timeline as a curated summary. `paseo logs <agent-id>` prints the raw log.
 
 **`archive_agent`** — `{ agentId }`. Interrupts if running, removes from active list.
 
@@ -106,9 +108,13 @@ Schedules have the full list/inspect/update/pause/resume/run-once/log/delete sur
 
 Agents take time — 10–30+ minutes is routine. Favor asynchronous workflows.
 
-For agent-scoped `create_agent` and background `send_agent_prompt`, leave `notifyOnFinish` omitted or set it to `true` unless the work is truly fire-and-forget. You will get notified when the target agent finishes, errors, or needs permission. Move on to other work. The notification arrives on its own.
+For agent-scoped `create_agent`, leave `notifyOnFinish` omitted or set it to `true` unless the work is truly fire-and-forget. You will get notified when the target agent finishes or errors. Move on to other work. The notification arrives on its own. A `peer.send` message has no notification; the recipient answers with its own message.
 
 Don't poll `list_agents` or `get_agent_status` to "check on" a running agent. The notification will tell you.
+
+## Usage limits
+
+An agent that stops on a provider usage limit continues by itself once the limit resets; its chat shows when. Do not relaunch or replace it. When its resumed turn finishes, its parent receives a `[from:<agent-id>]` message.
 
 ## CLI semantics
 
@@ -118,14 +124,11 @@ The CLI and tools use the same ownership semantics even where their syntax diffe
 paseo workspace create --isolation worktree --mode branch-off --new-branch fix-x --base origin/main
 paseo workspace create --isolation worktree --mode checkout-branch --branch existing-work
 paseo workspace create --isolation worktree --mode checkout-pr --pr-number 42
-paseo run --provider codex/gpt-5.4 --mode full-access --workspace <workspace-id> "<prompt>"
-paseo run --provider codex/gpt-5.4 --mode full-access --new-workspace worktree --worktree-mode branch-off --new-branch fix-x --base origin/main "<prompt>"
-paseo send <agent-id> "<follow-up>"
+paseo run --provider codex/gpt-6.1-sol --mode full-access --workspace <workspace-id> "<prompt>"
+paseo run --provider codex/gpt-6.1-sol --mode full-access --new-workspace worktree --worktree-mode branch-off --new-branch fix-x --base origin/main "<prompt>"
 paseo ls
 paseo schedule create --cron "*/15 * * * *" "ping main build"
 paseo heartbeat create --cron "*/15 * * * *" "check the build"
 ```
 
-Discover with `paseo --help` and `paseo <cmd> --help`.
-
-For product questions, setup, logs, version problems, or troubleshooting, use the **paseo-help** skill.
+`paseo send` interrupts a running turn, so agents message each other with `peer.send` instead. Discover with `paseo --help` and `paseo <cmd> --help`.
