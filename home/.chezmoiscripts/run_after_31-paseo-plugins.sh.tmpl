@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+# Apply stays offline: it only adds a missing checkout or plugin. `update` and
+# the Paseo upgrade hook pull new plugin versions.
+"$HOME/.local/bin/update-paseo-plugins" --no-pull

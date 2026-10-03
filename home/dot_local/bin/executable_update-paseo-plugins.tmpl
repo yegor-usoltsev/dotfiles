@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "log" . }}
+# Keeps the plugins from github.com/yegor-usoltsev/paseo-plugins installed in
+# Paseo from a checkout in ~/dev, where they can also be edited. The checkout
+# only fast-forwards when it is a clean main, so local work is never touched.
+# --no-pull only clones a missing checkout and installs missing plugins.
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+repo=https://github.com/yegor-usoltsev/paseo-plugins.git
+checkout=$HOME/dev/yegor-usoltsev/paseo-plugins
+plugins=(peer resume)
+
+pull=true
+if [[ ${1:-} == --no-pull ]]; then
+	pull=false
+fi
+
+paseo=paseo
+if ! command -v paseo >/dev/null 2>&1; then
+	paseo=/Applications/Paseo.app/Contents/Resources/bin/paseo
+	[[ -x $paseo ]] || exit 0
+fi
+
+updated=false
+if [[ ! -d $checkout/.git ]]; then
+	info "Cloning the Paseo plugins"
+	git clone --quiet "$repo" "$checkout"
+elif $pull; then
+	if [[ $(git -C "$checkout" branch --show-current) != main || -n $(git -C "$checkout" status --porcelain) ]]; then
+		warn "Skipping the Paseo plugins update: $checkout is not a clean main checkout"
+	else
+		before=$(git -C "$checkout" rev-parse HEAD)
+		if git -C "$checkout" pull --quiet --ff-only; then
+			[[ $(git -C "$checkout" rev-parse HEAD) == "$before" ]] || updated=true
+		else
+			warn "Could not update the Paseo plugins checkout"
+		fi
+	fi
+fi
+
+# Plugins are installed through the running daemon; the next run catches up
+# when it is stopped.
+"$paseo" daemon status --json 2>/dev/null | jq -e '.localDaemon == "running"' >/dev/null || exit 0
+installed=$("$paseo" plugin ls --json)
+for plugin in "${plugins[@]}"; do
+	id=paseo-$plugin
+	path=$checkout/$plugin
+	current=$(jq -r --arg id "$id" '.[] | select(.id == $id) | .path' <<<"$installed")
+	if [[ $current != "$path" ]]; then
+		[[ -z $current ]] || "$paseo" plugin remove "$id" >/dev/null
+		info "Installing the Paseo plugin $id"
+		"$paseo" plugin install "$path" >/dev/null
+		success "Paseo plugin $id installed"
+	elif $updated; then
+		"$paseo" plugin reload "$id" >/dev/null
+		success "Paseo plugin $id updated"
+	fi
+done

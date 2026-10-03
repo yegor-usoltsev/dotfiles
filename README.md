@@ -31,7 +31,7 @@ chezmoi apply
 
 ## Updates
 
-Run `update` to upgrade native packages, chezmoi, mise and its tools, and pull and apply the dotfiles. Use `chezmoi update` to update only the dotfiles.
+Run `update` to upgrade native packages, chezmoi, mise and its tools, pull and apply the dotfiles, and on workstations and devboxes update the browser and the Paseo plugins. Use `chezmoi update` to update only the dotfiles.
 
 ## Working on this repository
 

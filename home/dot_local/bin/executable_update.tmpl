@@ -40,6 +40,10 @@ success "Mise tools updated"
 info "Updating browser"
 "$HOME/.local/bin/update-browser"
 success "Browser updated"
+
+info "Updating Paseo plugins"
+"$HOME/.local/bin/update-paseo-plugins"
+success "Paseo plugins updated"
 {{- end }}
 {{- if ne .chezmoi.os "darwin" }}
 
