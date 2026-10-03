@@ -109,7 +109,7 @@ jobs:
           mkdir -p "$rendered_dir"
           while IFS= read -r script; do
             case "$script" in
-              .bootstrap.sh|home/.chezmoiscripts/*|home/.chezmoihooks/*.sh|home/dot_local/bin/executable_*|home/dot_claude/*.sh|home/dot_claude/modify_*.tmpl|home/dot_bash*|home/dot_z*|home/dot_config/shell/*) ;;
+              .bootstrap.sh|home/.chezmoiscripts/*|home/.chezmoihooks/*.sh|home/dot_local/bin/executable_*|home/dot_claude/*.sh|home/dot_claude/modify_*.tmpl|home/private_dot_paseo/modify_*.tmpl|home/dot_bash*|home/dot_z*|home/dot_config/shell/*) ;;
               *) continue ;;
             esac
             rendered="$rendered_dir/${script//\//-}"
