@@ -74,7 +74,15 @@ for plugin in "${plugins[@]}"; do
 	if [[ -f $path/package-lock.json ]]; then
 		dependencies=$(cksum "$path/package.json" "$path/package-lock.json")
 		stamp=$path/node_modules/.paseo-dependencies.cksum
-		if [[ ! -f $path/node_modules/.package-lock.json || ! -f $stamp || $(cat "$stamp") != "$dependencies" ]]; then
+		complete=true
+		# Root workspace installs can hoist packages while leaving both stamps.
+		while IFS= read -r package; do
+			if [[ ! -f $path/$package/package.json ]]; then
+				complete=false
+				break
+			fi
+		done < <(jq -r '.packages | keys[] | select(. != "")' "$path/package-lock.json")
+		if ! $complete || [[ ! -f $path/node_modules/.package-lock.json || ! -f $stamp || $(cat "$stamp") != "$dependencies" ]]; then
 			info "Preparing the Paseo plugin $id dependencies"
 			npm ci --prefix "$path" --workspaces=false --omit=dev --ignore-scripts --no-audit --no-fund
 			printf '%s\n' "$dependencies" >"$stamp"
