@@ -1,47 +1,57 @@
 ---
-name: paseo-messaging
-description: Launch Paseo peers with the native CLI and exchange messages through p. Use for subagents, delegation, second opinions, peer review, reconnaissance, or messages to a supplied Paseo agent ID.
+name: paseo-peers
+description: Work as one of two peer agents from different model families inside Paseo. Start the counterpart, pair on or split the task, review each other, message each other in real time and resolve problems without the user. Use for delegation, pairing, second opinions, peer review, reconnaissance, or a message to another Paseo agent.
 ---
 
-# Peer messaging on Paseo
+# Peers on Paseo
 
-Use `paseo run` to launch and `p send` to message. Both require a running Paseo daemon; `p` also needs Bash.
+Every non-trivial task runs as two equal peers from different model families: one Claude agent and one Codex agent. They work autonomously, in parallel, talk to each other directly, review each other's work and settle problems between themselves, the way two senior colleagues would. The [paseo](../paseo/SKILL.md) skill describes the tools and CLI used below.
 
-## Launch
+This applies inside Paseo, where `PASEO_AGENT_ID` is set. Outside Paseo, use the harness's native subagents with the same split of work.
 
-Use these defaults; the user's model choice takes precedence:
+## Start the counterpart
 
-| Work | `--provider` | `--thinking` | `--mode` |
-| --- | --- | --- | --- |
-| Implementation, Codex review | `codex/gpt-6.1-sol` | `high` | `full-access` |
-| Claude implementation or review | `claude/claude-opus-5-5` | `high` | `bypassPermissions` |
-| Read-only reconnaissance | `codex/gpt-6-luna` | `max` | `full-access` |
+The agent the user started owns the task: it answers to the user and delivers the result. The counterpart is an equal in every engineering decision.
 
-Sol implementation may use `medium` for a narrow assignment or `low` for mechanical work. Review with the other family unless the user specifies otherwise. Give reconnaissance a read-only brief and ask for file:line evidence.
+1. Call `list_profiles` and pick the counterpart's profile from the other family: `worker-codex` for a Claude owner, `worker-claude` for a Codex owner. A model the user named takes precedence.
+2. Choose the shape (below) and, for a split, create the workspaces first.
+3. Call `create_agent` with the profile materialized into `provider` and `settings`. Brief the counterpart in `initialPrompt`: the objective, what you already know, the constraints and checks, the shape and who does what, your agent ID (`$PASEO_AGENT_ID`) so it can message you, and that it should use this skill.
 
-Outside Paseo (`PASEO_AGENT_ID` is unset), use the harness's native subagents with these model defaults or the closest available equivalents. Native subagents return through the harness; do not use `p send owner` or the launch example below.
+Do small, single-file or purely conversational work alone; a counterpart costs time.
 
-State the objective, known context, scope, expected result, and checks. Tell the peer to load this skill, reply with `p send owner`, and stop after replying. Use a message by default; put long or durable context in a shared file with one writer.
+## Choose a shape
 
-```sh
-paseo run --background --json --title "Implementation peer" \
-	--provider codex/gpt-6.1-sol --thinking high --mode full-access \
-	--env "PASEO_PEER_OWNER_ID=${PASEO_AGENT_ID:?Run inside a Paseo agent}" \
-	"Use paseo-messaging. <brief> Reply with p send owner; then stop."
-```
+**Pair** when the change is coupled or needs one line of thought. Both peers share one workspace. One writes the code; the other reviews it as it lands, reading `git diff` and the files, and sends corrections through `peer.send` while the writer is still working. Swap roles when it helps. Only the writer edits files; the reviewer edits only after the writer hands over.
 
-Record the returned full `agentId`. Omit workspace flags to reuse the caller's workspace, or pass `--workspace` for an existing checkout. Stop editing before handing a shared checkout to another editor; never create a worktree for review. Use an isolated worktree only for parallel implementation or when requested; consult `paseo workspace create --help` and retain its workspace ID. `run --json` does not return that ID.
+**Split** when the work divides into parts with little overlap. Create one worktree workspace per part (`create_workspace` with `isolation: "worktree"`, `mode: "branch-off"`, an explicit `baseBranch`), and place each peer in its own. Each peer implements and commits its part independently. When both are done, each reviews the other's commits and fixes what it finds in separate commits. The owner then integrates both branches.
 
-## Messages and waiting
+## Talk
 
-```sh
-p send <agent-id> "<action or result>"
-p send <agent-id> --prompt-file /absolute/path/brief.md
-p send owner "<outcome, changed paths or commits, checks, unresolved questions>"
-```
+Use `peer.send` for every message to another agent; it never interrupts the recipient. Reply to the ID in a message's `[from:…]` line.
 
-`p` adds `[from:<agent-id>]`, resolves `owner` through `PASEO_PEER_OWNER_ID`, and sends with `--no-wait`.
+Send a message when it carries something the other peer needs: a decision, a finding, a review comment, a question, a handoff or a finished result with its commit and checks. Skip acknowledgments and progress narration. Before editing a file the other peer owns, say so and wait for its answer.
 
-Send results, new evidence, or necessary questions; skip acknowledgments and routine progress. Continue independent work while waiting. When the reply is the next dependency, end the turn; the peer's message resumes it. Do not poll status or logs. Verify the claimed result rather than treating delivery or idle status as completion.
+Do not poll. A child you created with `create_agent` notifies you when it finishes; a peer's message wakes you. Keep doing independent work while you wait, and end your turn when the next step depends on the other peer.
 
-For a failed command or missing reply, inspect the exact agent once with `paseo inspect --json <agent-id>` and, if needed, `paseo logs <agent-id> --tail 12`. Recover lost IDs with `paseo ls --global --all --json`. After an ambiguous launch, find the agent before retrying. Archive only known task agents; archive an isolated workspace only after its commits are integrated and its path is no longer needed.
+## Review
+
+Review the other peer's diff against the task's requirements, not your own preferences. In a pair, send corrections to the writer. After a handoff or in the split cross-review, fix defects directly and commit the fixes separately, then tell the author what changed. Verify claims by reading the code and running the checks; a message saying "done" is not evidence.
+
+## Bring in help
+
+Either peer can start a `scout` agent with `create_agent` for read-only exploration that would otherwise cost substantial reading; ask it for file:line evidence. Start other specialised agents the same way when a narrow job is easier to hand off. Archive helpers you started once their result is used.
+
+## Heal without the user
+
+Resolve problems between the peers before involving the user:
+
+- A disagreement: each side states its evidence once. The peer who owns that part of the work decides; in a pair, the writer decides.
+- A merge conflict or broken build: the peer whose change caused it fixes it; if unclear, the owner does.
+- A peer that stops responding: check it with `get_agent_activity` or `paseo logs <agent-id>`. Cancel a stuck turn with `cancel_agent` and send it a fresh instruction. Archive an agent that is beyond repair, then start a replacement with a brief that includes the work done so far.
+- A peer that stopped on a usage limit continues by itself after the reset. Do not replace it; carry on with your own part.
+
+Ask the user only for a product decision, a change of scope, credentials or an action outside this computer, or a disagreement the peers could not settle.
+
+## Finish
+
+The owner runs the final checks on the integrated result, archives the agents and workspaces it created once their work is merged, and reports to the user what changed, how it was verified and anything left open.

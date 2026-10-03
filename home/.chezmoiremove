@@ -13,7 +13,6 @@
 .agents/skills/writing-for-humans
 .agents/skills/zmx-messaging
 
-# References removed when simplifying paseo-messaging.
-.agents/skills/paseo-messaging/references/recovery.md
-.agents/skills/paseo-messaging/references/setup.md
-.agents/skills/paseo-messaging/references/task-files.md
+# Replaced by the paseo and paseo-peers skills and the paseo-peer plugin.
+.agents/skills/paseo-messaging
+.local/bin/p

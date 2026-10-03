@@ -24,7 +24,7 @@ For review, report supported defects with their effect and location; separate th
 
 ## Delegation and tools
 
-Delegate when it helps complete the task. Use [paseo-messaging](~/.agents/skills/paseo-messaging/SKILL.md) for subagents, peer delegation, second opinions, or peer review. Give each peer the objective, known context, scope, expected result, and checks. Prefer one peer from the other model family for implementation review. Coordinate shared work so only one agent edits a checkout at a time; pass useful context through messages or shared files.
+Delegate when it helps complete the task. Inside Paseo, work as one of two peers from different model families following [paseo-peers](~/.agents/skills/paseo-peers/SKILL.md), with [paseo](~/.agents/skills/paseo/SKILL.md) as the tool reference. Give each peer the objective, known context, scope, expected result, and checks. Coordinate shared work so only one agent edits a checkout at a time; pass useful context through messages or shared files.
 
 Use [agent-browser](~/.agents/skills/agent-browser/SKILL.md) whenever browser work is needed, including verification of web changes.
 

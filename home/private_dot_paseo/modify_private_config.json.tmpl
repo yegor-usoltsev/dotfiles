@@ -1,0 +1,91 @@
+#!/bin/sh
+set -eu
+
+# The Paseo daemon owns the rest of this file: installed plugins, terminal
+# profiles and anything changed in Settings. Patch only the managed keys.
+{{- if eq .chezmoi.os "linux" }}
+{{- $host := .chezmoi.hostname }}
+{{- $hostnames := list $host (printf ".%s" $host) }}
+{{- $origins := list (printf "http://%s:6767" $host) "http://localhost:6767" }}
+{{- /* Tailscale may be installed but not yet up on a fresh host. */}}
+{{- $tailnet := output "sh" "-c" "tailscale status --json 2>/dev/null | jq -r '.MagicDNSSuffix // empty' || true" | trim }}
+{{- $tailscaleIp := output "sh" "-c" "tailscale ip -4 2>/dev/null | head -n 1 || true" | trim }}
+{{- if $tailnet }}
+{{- $origins = append $origins (printf "http://%s.%s:6767" $host $tailnet) }}
+{{- end }}
+{{- if $tailscaleIp }}
+{{- $origins = append $origins (printf "http://%s:6767" $tailscaleIp) }}
+{{- end }}
+PASEO_HOSTNAMES={{ join " " $hostnames | shellQuote }}
+PASEO_ORIGINS={{ join " " $origins | shellQuote }}
+PASEO_BASE_URL={{ printf "http://%s:6767" $host | shellQuote }}
+PASEO_WORKTREES={{ joinPath .chezmoi.homeDir "paseo" "worktrees" | shellQuote }}
+export PASEO_HOSTNAMES PASEO_ORIGINS PASEO_BASE_URL PASEO_WORKTREES
+{{- end }}
+
+jq -s '
+    (.[0] // {})
+    | ."$schema" = "https://paseo.sh/schemas/paseo.config.v1.json"
+    | .version = 1
+    | .pluginsEnabled = true
+    | .daemon.mcp.enabled = true
+    | .daemon.mcp.injectIntoAgents = true
+    # paseo-peer replaces send_agent_prompt, which interrupts a busy recipient.
+    # Agents run without permission prompts, so the permission tools are moot.
+    | ["send_agent_prompt", "respond_to_permission", "list_pending_permissions"] as $disabled
+    | .agents.providers.claude.paseoTools.disabledTools = $disabled
+    | .agents.providers.codex.paseoTools.disabledTools = $disabled
+    | .agents.providers.copilot.enabled = false
+    | .agents.providers.opencode.enabled = false
+    | .agents.providers.pi.enabled = false
+    | [
+        {
+          "id": "agent_profile_mtw2to2z_j22tw8opg5h",
+          "name": "worker-codex",
+          "icon": "hammer",
+          "color": "blue",
+          "provider": "codex",
+          "model": "gpt-6.1-sol",
+          "modeId": "full-access",
+          "thinkingOptionId": "high",
+          "notes": "Codex peer for implementation, review and pair work. Choose it as the counterpart of a Claude agent."
+        },
+        {
+          "id": "agent_profile_mtw2ucia_ve0rm3ub8o",
+          "name": "worker-claude",
+          "icon": "hammer",
+          "color": "orange",
+          "provider": "claude",
+          "model": "claude-opus-5-5",
+          "modeId": "bypassPermissions",
+          "thinkingOptionId": "high",
+          "notes": "Claude peer for implementation, review and pair work. Choose it as the counterpart of a Codex agent."
+        },
+        {
+          "id": "agent_profile_mtw3wd16_q49xr2i3osc",
+          "name": "scout",
+          "icon": "rocket",
+          "color": "blue",
+          "provider": "codex",
+          "model": "gpt-6-luna",
+          "modeId": "full-access",
+          "thinkingOptionId": "max",
+          "notes": "Read-only reconnaissance: trace symbols and callers, inspect tests and conventions, and return file:line evidence. Never edits files. Use when exploration would cost a peer substantial reading."
+        }
+      ] as $profiles
+    | .daemon.agentProfiles = $profiles + [
+        (.daemon.agentProfiles // [])[] | select(.id as $id | $profiles | all(.id != $id))
+      ]
+{{- if eq .chezmoi.os "linux" }}
+    | .daemon.listen = "0.0.0.0:6767"
+    | .daemon.hostnames = (env.PASEO_HOSTNAMES | split(" "))
+    | .daemon.cors.allowedOrigins = (env.PASEO_ORIGINS | split(" "))
+    # Phones reach this host over Tailscale, not through the relay.
+    | .daemon.relay.enabled = false
+    | .app.baseUrl = env.PASEO_BASE_URL
+    | .worktrees.root = env.PASEO_WORKTREES
+    | .features.dictation.enabled = false
+    | .features.voiceMode.enabled = false
+    | .features.webUi.enabled = true
+{{- end }}
+    '

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+# config.json patch hash: {{ includeTemplate "private_dot_paseo/modify_private_config.json.tmpl" . | sha256sum }}
+
+# The daemon reads config.json only at startup or on reload, and reload never
+# restarts running agents.
+paseo=paseo
+if ! command -v paseo >/dev/null 2>&1; then
+	paseo=/Applications/Paseo.app/Contents/Resources/bin/paseo
+	[[ -x $paseo ]] || exit 0
+fi
+"$paseo" daemon status --json 2>/dev/null | jq -e '.localDaemon == "running"' >/dev/null || exit 0
+
+info "Reloading the Paseo daemon configuration"
+if "$paseo" daemon reload --json >/dev/null; then
+	success "Paseo configuration reloaded"
+else
+	warn "Paseo did not reload its configuration; restart the daemon to apply it"
+fi
