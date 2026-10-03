@@ -28,6 +28,10 @@ jq -s '
     | ."$schema" = "https://paseo.sh/schemas/paseo.config.v1.json"
     | .version = 1
     | .pluginsEnabled = true
+    # The paseo and paseo-peers skills come from this repository. With the
+    # default "all" selection the daemon reinstalls its bundled skills on
+    # startup and overwrites the adapted paseo skill.
+    | .skills.selection = { "mode": "custom", "skills": [] }
     | .daemon.mcp.enabled = true
     | .daemon.mcp.injectIntoAgents = true
     # paseo-peer replaces send_agent_prompt, which interrupts a busy recipient.
