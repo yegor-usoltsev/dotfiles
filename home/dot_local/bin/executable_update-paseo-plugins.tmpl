@@ -5,12 +5,13 @@ set -euo pipefail
 # Keeps the plugins from github.com/yegor-usoltsev/paseo-plugins installed in
 # Paseo from a checkout in ~/dev, where they can also be edited. The checkout
 # only fast-forwards when it is a clean main, so local work is never touched.
-# --no-pull only clones a missing checkout and installs missing plugins.
+# --no-pull keeps existing checkouts in place, preparing dependencies and
+# installing missing plugins without fetching source updates.
 {{- if eq .chezmoi.os "darwin" }}
 export PATH="/opt/homebrew/bin:$PATH"
 {{- end }}
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-repo=https://github.com/yegor-usoltsev/paseo-plugins.git
+repo=git@github.com:yegor-usoltsev/paseo-plugins.git
 checkout=$HOME/dev/yegor-usoltsev/paseo-plugins
 plugins=(peer resume)
 
@@ -32,7 +33,14 @@ updated=false
 if [[ ! -e $checkout/.git ]]; then
 	info "Cloning the Paseo plugins"
 	git clone --quiet "$repo" "$checkout"
-elif $pull; then
+else
+	origin=$(git -C "$checkout" remote get-url origin 2>/dev/null || true)
+	if [[ $origin == https://github.com/yegor-usoltsev/paseo-plugins || $origin == https://github.com/yegor-usoltsev/paseo-plugins.git ]]; then
+		git -C "$checkout" remote set-url origin "$repo"
+	fi
+fi
+
+if $pull; then
 	if [[ $(git -C "$checkout" branch --show-current) != main || -n $(git -C "$checkout" status --porcelain) ]]; then
 		warn "Skipping the Paseo plugins update: $checkout is not a clean main checkout"
 	else
@@ -55,17 +63,30 @@ installed=$("$paseo" plugin ls --json)
 for plugin in "${plugins[@]}"; do
 	id=paseo-$plugin
 	path=$checkout/$plugin
+	prepared=false
 	current=$(jq -r --arg id "$id" '.[] | select(.id == $id) | .path' <<<"$installed")
-	if [[ $current != "$path" ]]; then
-		if ! jq -e --arg id "$id" '.id == $id' "$path/paseo-plugin.json" >/dev/null 2>&1; then
-			warn "Cannot install $id: missing or mismatched manifest in $path"
-			exit 1
+	if ! jq -e --arg id "$id" '.id == $id' "$path/paseo-plugin.json" >/dev/null 2>&1; then
+		warn "Cannot install $id: missing or mismatched manifest in $path"
+		exit 1
+	fi
+	# Directory installs do not run the manifest build preparation. Keep the
+	# standalone dependencies current before replacing or reloading a plugin.
+	if [[ -f $path/package-lock.json ]]; then
+		dependencies=$(cksum "$path/package.json" "$path/package-lock.json")
+		stamp=$path/node_modules/.paseo-dependencies.cksum
+		if [[ ! -f $path/node_modules/.package-lock.json || ! -f $stamp || $(cat "$stamp") != "$dependencies" ]]; then
+			info "Preparing the Paseo plugin $id dependencies"
+			npm ci --prefix "$path" --workspaces=false --omit=dev --ignore-scripts --no-audit --no-fund
+			printf '%s\n' "$dependencies" >"$stamp"
+			prepared=true
 		fi
+	fi
+	if [[ $current != "$path" ]]; then
 		[[ -z $current ]] || "$paseo" plugin remove "$id" >/dev/null
 		info "Installing the Paseo plugin $id"
 		"$paseo" plugin install "$path" >/dev/null
 		success "Paseo plugin $id installed"
-	elif $updated && ! git -C "$checkout" diff --quiet "$before" HEAD -- "$plugin"; then
+	elif $prepared || { $updated && ! git -C "$checkout" diff --quiet "$before" HEAD -- "$plugin"; }; then
 		"$paseo" plugin reload "$id" >/dev/null
 		success "Paseo plugin $id updated"
 	fi

@@ -7,6 +7,8 @@
      setValueAtPath "approval_policy" "never" |
      setValueAtPath "mcp_servers.context7.url" "https://mcp.context7.com/mcp" |
      setValueAtPath "mcp_servers.context7.http_headers.CONTEXT7_API_KEY" .secrets.context7ApiKey |
+     setValueAtPath "model_context_window" 1000000 |
+     setValueAtPath "model_auto_compact_token_limit" 500000 |
      setValueAtPath "personality" "pragmatic" |
      setValueAtPath "sandbox_mode" "danger-full-access" |
      setValueAtPath "service_tier" "default" |

@@ -18,6 +18,8 @@ Use active voice, concrete words, and one topic per paragraph. Keep each Markdow
 
 Read the relevant instructions, code, and tests before editing. Follow existing conventions and reuse available helpers, standard libraries, and native features. Choose the simplest complete solution; add abstractions, dependencies, or options only for a concrete need. Comments explain intent or constraints that the code cannot express.
 
+Before starting work in a new repository, fetch and check its upstream; fast-forward a clean checkout when safe, and preserve existing local work.
+
 Carry the task through implementation, relevant checks, and documentation. Test changed behavior and meaningful boundaries, not the implementation itself. Reuse check results when the code and relevant environment are unchanged; rerun affected checks after corrections. Report checks that could not run.
 
 For review, report supported defects with their effect and location; separate them from optional improvements. A request for review alone does not authorize edits. When assigned review and correction, fix defects within scope, verify the corrections, and return the result. Another full review needs a concrete reason.

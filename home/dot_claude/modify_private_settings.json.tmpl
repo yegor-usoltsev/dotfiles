@@ -10,9 +10,12 @@ jq -s '
     | .attribution.commit = ""
     | .attribution.pr = ""
     | .attribution.sessionUrl = false
+    | .autoCompactEnabled = true
+    | .autoCompactWindow = 500000
     | .autoMemoryEnabled = false
     | .awaySummaryEnabled = false
     | .env.CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR = "1"
+    | .language = "Русский"
     | .outputStyle = "Concise"
     | .permissions.defaultMode = "bypassPermissions"
     | .promptSuggestionEnabled = false
