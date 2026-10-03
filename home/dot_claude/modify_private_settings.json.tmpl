@@ -17,6 +17,7 @@ jq -s '
     | .permissions.defaultMode = "bypassPermissions"
     | .promptSuggestionEnabled = false
     | .skipDangerousModePermissionPrompt = true
+    | .syncClaudeAiSkills = false
     | .statusLine = { "type": "command", "command": env.CHEZMOI_STATUSLINE }
     | .tui = "fullscreen"
     '
