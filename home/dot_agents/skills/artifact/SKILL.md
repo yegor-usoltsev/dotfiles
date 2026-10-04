@@ -39,4 +39,4 @@ After successful upload, return a clickable direct link to each artifact. If cur
 - Download: `curl -fsS "$url" -o local-file`; list files: `curl -fsS 'http://agentarium:5000/?simple'`.
 - Create missing directories with `curl -fsS -X MKCOL 'http://agentarium:5000/folder'`, parents first; existing directories return 405.
 - For many files, use SSH with scp/rsync, e.g. `rsync -av ./bundle/ agentarium:~/dev/artifacts/bundle/`. Preserve relative paths: `~/dev/artifacts/bundle/index.html` maps to `http://agentarium:5000/bundle/index.html`.
-- Service administration: `ssh agentarium`; inspect configuration with `docker inspect artifact-dufs` and read logs with `docker logs artifact-dufs`.
+- Service administration: `ssh agentarium`; setup and recovery notes are in [references/server.md](references/server.md), needed only for service maintenance.
