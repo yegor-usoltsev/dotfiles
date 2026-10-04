@@ -75,6 +75,8 @@ yq = "latest"
 # Code quality, linting, formatting, and benchmarking
 {{- if ne .profile "server" }}
 hyperfine = "latest"
+"npm:oxfmt" = { version = "latest", allow_builds = true }
+"npm:oxlint" = { version = "latest", allow_builds = true }
 pre-commit = "latest"
 shellcheck = "latest"
 shfmt = "latest"

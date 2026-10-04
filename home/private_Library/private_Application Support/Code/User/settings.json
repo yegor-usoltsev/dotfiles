@@ -1,23 +1,32 @@
 {
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
+  },
   "chat.disableAIFeatures": true,
   "diffEditor.ignoreTrimWhitespace": false,
   "editor.accessibilitySupport": "off",
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
+    "source.fixAll.oxc": "explicit",
     "source.organizeImports": "explicit",
   },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.fontFamily": "JetBrainsMono Nerd Font",
   "editor.fontLigatures": false,
   "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
   "extensions.ignoreRecommendations": true,
   "git.confirmSync": false,
   "security.workspace.trust.enabled": false,
+  "svelte.enable-ts-plugin": true,
   "telemetry.telemetryLevel": "off",
   "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font",
   "update.showReleaseNotes": false,
   "window.confirmBeforeClose": "never",
   "workbench.secondarySideBar.defaultVisibility": "hidden",
+  "yaml.format.enable": false,
 }

@@ -74,9 +74,7 @@ packages:
     "Windows App": 1295203466
   vscode:
     - "astro-build.astro-vscode"
-    - "biomejs.biome"
     - "bradlc.vscode-tailwindcss"
-    - "dbaeumer.vscode-eslint"
-    - "esbenp.prettier-vscode"
+    - "oxc.oxc-vscode"
     - "redhat.vscode-yaml"
     - "svelte.svelte-vscode"
