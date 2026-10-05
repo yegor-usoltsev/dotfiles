@@ -22,12 +22,9 @@ PASEO_BASE_URL={{ printf "http://%s:6767" $host | shellQuote }}
 PASEO_WORKTREES={{ joinPath .chezmoi.homeDir "paseo" "worktrees" | shellQuote }}
 export PASEO_HOSTNAMES PASEO_ORIGINS PASEO_BASE_URL PASEO_WORKTREES
 {{- end }}
-PASEO_SYSTEM_PROMPT=$(
-	cat <<'PROMPT'
-{{ includeTemplate ".chezmoitemplates/paseo-system-prompt" . | trim }}
-PROMPT
-)
-export PASEO_SYSTEM_PROMPT
+# Keep prompt text literal; macOS Bash 3.2 misparses a quoted heredoc inside $(...).
+# shellcheck disable=SC2016
+export PASEO_SYSTEM_PROMPT={{ includeTemplate ".chezmoitemplates/paseo-system-prompt" . | trim | shellQuote }}
 
 jq -s '
     (.[0] // {})
