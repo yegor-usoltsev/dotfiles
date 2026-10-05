@@ -1,18 +1,2 @@
-# Retired global agent rules and terminal wrapper.
-.agents/RULES.md
-.local/bin/z
-
-# Skills merged into the global AGENTS.md or retired.
-.agents/skills/backlog
-.agents/skills/clean-code
-.agents/skills/humanizer
-.agents/skills/learn
-.agents/skills/synced
-.agents/skills/workflow
-.agents/skills/writing-for-agents
-.agents/skills/writing-for-humans
-.agents/skills/zmx-messaging
-
-# Replaced by the paseo and paseo-peers skills and the paseo-peer plugin.
-.agents/skills/paseo-messaging
-.local/bin/p
+# Merged into the paseo skill.
+.agents/skills/paseo-peers

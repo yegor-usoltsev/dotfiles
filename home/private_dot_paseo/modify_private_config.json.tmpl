@@ -22,16 +22,24 @@ PASEO_BASE_URL={{ printf "http://%s:6767" $host | shellQuote }}
 PASEO_WORKTREES={{ joinPath .chezmoi.homeDir "paseo" "worktrees" | shellQuote }}
 export PASEO_HOSTNAMES PASEO_ORIGINS PASEO_BASE_URL PASEO_WORKTREES
 {{- end }}
+PASEO_SYSTEM_PROMPT=$(
+	cat <<'PROMPT'
+{{ includeTemplate ".chezmoitemplates/paseo-system-prompt" . | trim }}
+PROMPT
+)
+export PASEO_SYSTEM_PROMPT
 
 jq -s '
     (.[0] // {})
     | ."$schema" = "https://paseo.sh/schemas/paseo.config.v1.json"
     | .version = 1
     | .pluginsEnabled = true
-    # The paseo and paseo-peers skills come from this repository. With the
-    # default "all" selection the daemon reinstalls its bundled skills on
-    # startup and overwrites the adapted paseo skill.
+    # The paseo skill comes from this repository. With the default "all"
+    # selection the daemon reinstalls its bundled skills on startup and
+    # overwrites it.
     | .agents.skills.selection = { "mode": "custom", "skills": [] }
+    # Appended to the system prompt of every Paseo agent.
+    | .daemon.appendSystemPrompt = env.PASEO_SYSTEM_PROMPT
     | .daemon.mcp.enabled = true
     | .daemon.mcp.injectIntoAgents = true
     # paseo-peer replaces send_agent_prompt, which interrupts a busy recipient.
@@ -53,7 +61,7 @@ jq -s '
           "model": "claude-opus-5-5",
           "modeId": "bypassPermissions",
           "thinkingOptionId": "high",
-          "notes": "Equal senior colleague for paired work with codex-senior on complex implementation and independent review. Prefer for ambiguous requirements, architecture and maintaining the overall goal. Either senior may own the task, implement or review; treat the counterpart as an equal. Delegate scoped implementation to claude-worker and narrow read-only checks to codex-scout. Coordinate through peer.send and agree file ownership."
+          "notes": "Senior peer: an equal colleague to the other senior for owning a task, planning, implementing and independent review. Strongest at ambiguous requirements, architecture and keeping the overall goal in view. Delegates scoped implementation to a worker and narrow read-only lookups to a scout."
         },
         {
           "id": "agent_profile_codex_senior",
@@ -64,7 +72,7 @@ jq -s '
           "model": "gpt-6.1-sol",
           "modeId": "full-access",
           "thinkingOptionId": "high",
-          "notes": "Equal senior colleague for paired work with claude-senior on complex engineering and independent review. Prefer for iterative implementation, debugging and tests. Either senior may own the task, plan or make architectural decisions; treat the counterpart as an equal. Delegate scoped implementation to claude-worker and narrow read-only checks to codex-scout. Coordinate through peer.send and agree file ownership."
+          "notes": "Senior peer: an equal colleague to the other senior for owning a task, planning, implementing and independent review. Strongest at iterative implementation, debugging and tests. Delegates scoped implementation to a worker and narrow read-only lookups to a scout."
         },
         {
           "id": "agent_profile_claude_worker",
@@ -75,7 +83,7 @@ jq -s '
           "model": "claude-sonnet-5-5",
           "modeId": "bypassPermissions",
           "thinkingOptionId": "medium",
-          "notes": "Primary implementation subagent for scoped coding, refactoring, tests, documentation and substantial repository investigation. Use when the work needs more understanding than a narrow scout lookup. Own assigned files, verify changes and report evidence to the delegating senior. Escalate unclear requirements or changes beyond the assigned scope; do not start a senior counterpart automatically."
+          "notes": "Implementation worker: scoped coding, refactoring, tests, documentation and substantial repository investigation. Works within the assigned files, commits and reports evidence to the agent that started it. Escalates unclear requirements or scope changes to that agent instead of starting peers."
         },
         {
           "id": "agent_profile_codex_scout",
@@ -86,7 +94,7 @@ jq -s '
           "model": "gpt-6-luna",
           "modeId": "full-access",
           "thinkingOptionId": "max",
-          "notes": "Fast, inexpensive read-only subagent for narrow searches, symbol tracing, structured-data extraction and factual checks. Keep tasks simple, explicit and easy to verify. Return concise evidence and uncertainties to the delegating senior. Never edit files or change services; use claude-worker for implementation or deeper analysis. Do not start a senior counterpart automatically."
+          "notes": "Fast, inexpensive read-only scout: narrow searches, symbol tracing, data extraction and factual checks with an easily verified answer. Returns concise evidence and uncertainty to the agent that started it. Never edits files or changes services; implementation and deeper analysis belong to a worker."
         }
       ]
 {{- if eq .chezmoi.os "linux" }}
