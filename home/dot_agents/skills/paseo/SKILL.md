@@ -38,4 +38,4 @@ Message formats for findings, handoffs and results are in [messages](references/
 
 The owner verifies the integrated result, archives the helpers and workspaces it created once their work is merged or saved, and sends the final report.
 
-For an unattended multi-step plan, use the `plan-loop` skill.
+When the user explicitly invokes `plan-loop`, follow that skill for an unattended multi-step plan.

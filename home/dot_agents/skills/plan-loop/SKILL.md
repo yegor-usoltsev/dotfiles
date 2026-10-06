@@ -1,6 +1,7 @@
 ---
 name: plan-loop
-description: Run a multi-step plan unattended in Paseo, one fresh worker per task, driven by a plan file and a heartbeat. Use when the user asks for a loop, a goal to pursue unattended, overnight work, or a plan to execute task by task.
+description: Run a user-invoked multi-step plan unattended in Paseo, one fresh worker per task, driven by a plan file and a heartbeat.
+disable-model-invocation: true
 ---
 
 # Plan loop
