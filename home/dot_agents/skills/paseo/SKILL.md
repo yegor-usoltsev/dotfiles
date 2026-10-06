@@ -7,9 +7,9 @@ description: Coordinate agents in Paseo. Use before create_agent or create_works
 
 The Paseo system prompt holds the always-on rules: roles, peer.send, waiting, usage limits. This skill covers the moves that need more than a rule. MCP tool schemas and `paseo <command> --help` document arguments; [tools](references/tools.md) holds the non-obvious semantics of workspaces, scripts, heartbeats, schedules and plugins.
 
-## Decide whether to delegate
+## Before you start an agent
 
-Do the work yourself when it fits in a handful of tool calls or needs this conversation's context. Delegate a sizeable, separable track: an independent review, a part of a split, a long investigation, or a lookup a scout can answer while you keep working. Check `list_agents` for a colleague already on this task first.
+Start an agent only for the user's request, as the global rules say. Check `list_agents` for a colleague already on this task first.
 
 ## Start an agent
 

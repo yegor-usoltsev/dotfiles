@@ -36,7 +36,7 @@ Review with the [review](~/.agents/skills/review/SKILL.md) skill: report support
 
 ## Delegation and tools
 
-Delegate sizeable, independent work; do yourself what takes a handful of tool calls, since briefing and waiting cost more. Give each agent the objective, known context, scope, expected result, and checks. Only one agent edits a checkout at a time. Inside Paseo, follow its system prompt and the [paseo](~/.agents/skills/paseo/SKILL.md) skill; elsewhere, use the harness's native subagents and prefer another provider for independent review.
+Work on tasks yourself unless I explicitly ask you to involve other agents or to use a skill that runs them. A brief from the agent that started you can pass on that request within its scope. Give each agent the objective, known context, scope, expected result, and checks. Only one agent edits a checkout at a time. Inside Paseo, follow its system prompt and the [paseo](~/.agents/skills/paseo/SKILL.md) skill; elsewhere, use the harness's native subagents and prefer another provider for independent review.
 
 Use [agent-browser](~/.agents/skills/agent-browser/SKILL.md) whenever browser work is needed, including verification of web changes.
 
