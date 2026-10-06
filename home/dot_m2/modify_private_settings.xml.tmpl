@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+# Maven matches credentials by server id: projects use `github` for
+# https://maven.pkg.github.com/OWNER/REPO and `gitea` for
+# https://gitea.usoltsev.xyz/api/packages/OWNER/maven. Other settings stay.
+import sys
+import xml.etree.ElementTree as ET
+
+servers = {
+    "github": ("yegor-usoltsev", {{ dig "githubToken" "" .secrets | toJson }}),
+    "gitea": ("yegor", {{ dig "giteaToken" "" .secrets | toJson }}),
+}
+
+source = sys.stdin.read()
+if source.strip():
+    root = ET.fromstring(source, ET.XMLParser(target=ET.TreeBuilder(insert_comments=True)))
+else:
+    root = ET.Element("{http://maven.apache.org/SETTINGS/1.2.0}settings")
+namespace = root.tag[1 : root.tag.index("}")] if root.tag.startswith("{") else ""
+ET.register_namespace("", namespace)
+
+
+def tag(name):
+    return "{" + namespace + "}" + name if namespace else name
+
+
+def child(parent, name):
+    element = parent.find(tag(name))
+    return element if element is not None else ET.SubElement(parent, tag(name))
+
+
+server_list = child(root, "servers")
+for server_id, (username, password) in servers.items():
+    if not password:
+        continue
+    server = next((s for s in server_list.findall(tag("server")) if s.findtext(tag("id")) == server_id), None)
+    if server is None:
+        server = ET.SubElement(server_list, tag("server"))
+        ET.SubElement(server, tag("id")).text = server_id
+    child(server, "username").text = username
+    child(server, "password").text = password
+
+ET.indent(root, space="  ")
+sys.stdout.write(ET.tostring(root, encoding="unicode", xml_declaration=True) + "\n")

@@ -2,9 +2,18 @@
 set -euo pipefail
 
 {{ template "script-header" . }}
-# Gitea token hash: {{ dig "giteaToken" "" .secrets | sha256sum }}
-# Git's credential store already holds the token, so the rendered script never does.
-printf 'protocol=https\nhost=gitea.usoltsev.xyz\n\n' |
-	GIT_TERMINAL_PROMPT=0 git credential fill |
-	sed -n 's/^password=//p' |
-	docker login gitea.usoltsev.xyz --username yegor --password-stdin
+# Token hash: {{ list (dig "githubToken" "" .secrets) (dig "giteaToken" "" .secrets) (dig "dockerToken" "" .secrets) | join "\n" | sha256sum }}
+# Read tokens at run time so the rendered script and argv never hold them.
+secrets=$("$CHEZMOI_EXECUTABLE" --config "$CHEZMOI_CONFIG_FILE" dump-config --format=json | jq -c '.data.secrets')
+
+login() {
+	local registry=$1 username=$2 key=$3 token
+	token=$(jq -r --arg key "$key" '.[$key] // ""' <<<"$secrets")
+	if [ -n "$token" ]; then
+		printf '%s' "$token" | docker login "$registry" --username "$username" --password-stdin
+	fi
+}
+
+login ghcr.io yegor-usoltsev githubToken
+login gitea.usoltsev.xyz yegor giteaToken
+login docker.io yusoltsev dockerToken

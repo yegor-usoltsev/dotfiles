@@ -1,0 +1,28 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /* Replace only the managed scope and token lines; the public default registry stays. */ -}}
+{{- $managed := list -}}
+{{- with dig "githubToken" "" .secrets -}}
+{{-   $managed = append $managed "@yegor-usoltsev:registry=https://npm.pkg.github.com/" -}}
+{{-   $managed = append $managed (printf "//npm.pkg.github.com/:_authToken=%s" .) -}}
+{{- end -}}
+{{- with dig "giteaToken" "" .secrets -}}
+{{-   $token := . -}}
+{{-   range $.giteaPackageOwners -}}
+{{-     $url := printf "//gitea.usoltsev.xyz/api/packages/%s/npm/" . -}}
+{{-     $managed = append $managed (printf "@%s:registry=https:%s" . $url) -}}
+{{-     $managed = append $managed (printf "%s:_authToken=%s" $url $token) -}}
+{{-   end -}}
+{{- end -}}
+{{- $keys := dict -}}
+{{- range $managed -}}
+{{-   $_ := set $keys (regexReplaceAll "\\s*=.*" . "") true -}}
+{{- end -}}
+{{- $lines := list -}}
+{{- if .chezmoi.stdin -}}
+{{-   range splitList "\n" (.chezmoi.stdin | trimSuffix "\n") -}}
+{{-     if not (hasKey $keys (regexReplaceAll "\\s*=.*" . "" | trim)) -}}
+{{-       $lines = append $lines . -}}
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{ concat $lines $managed | join "\n" }}

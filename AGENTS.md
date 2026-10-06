@@ -24,11 +24,13 @@ The `server` profile carries no compiled-language toolchains, coding assistants,
 
 ## Secrets
 
-`home/.chezmoi.toml.tmpl` fills `.secrets` from `~/.config/chezmoi/secrets.toml` when that file exists, and from Bitwarden through `rbw` otherwise. The keys are `context7ApiKey`, `githubToken`, `giteaToken`, `droneToken`, `sshPrivateKey` and `sshPublicKey`. Every key defaults to an empty string, so a template that uses one must still render when it is empty. `home/.chezmoiignore.tmpl` is the place to skip a whole file in that case, and it keeps CLI logins off the server profile. Git uses its native credential store with one private file per host, so a successful login cannot reorder entries and leave the target out of sync. tea reads `~/Library/Application Support/tea/config.yml` on macOS and `~/.config/tea/config.yml` on Linux, so `home/.chezmoitemplates/tea-config.yml` patches both; the first run seeds the file from a legacy `~/.tea/tea.yml`, which tea stops reading once the new file exists.
+`home/.chezmoi.toml.tmpl` fills `.secrets` from `~/.config/chezmoi/secrets.toml` when that file exists, and from Bitwarden through `rbw` otherwise. The keys are `context7ApiKey`, `githubToken`, `giteaToken`, `droneToken`, `dockerToken`, `sshPrivateKey` and `sshPublicKey`. Every key defaults to an empty string, so a template that uses one must still render when it is empty. `home/.chezmoiignore.tmpl` is the place to skip a whole file in that case, and it keeps CLI logins off the server profile. Git uses its native credential store with one private file per host, so a successful login cannot reorder entries and leave the target out of sync. tea reads `~/Library/Application Support/tea/config.yml` on macOS and `~/.config/tea/config.yml` on Linux, so `home/.chezmoitemplates/tea-config.yml` patches both; the first run seeds the file from a legacy `~/.tea/tea.yml`, which tea stops reading once the new file exists.
 
-Never commit a secret, a generated configuration file or a private key. One GitHub token serves Git, gh and mise, so `githubToken` needs the `repo`, `read:org` and `workflow` scopes. The macOS Docker script gets the Gitea token from `git credential fill` rather than nesting a chezmoi command inside apply or rendering the token into the script.
+Never commit a secret, a generated configuration file or a private key. One GitHub token serves Git, gh, mise, package registries and, on macOS, Homebrew's `HOMEBREW_GITHUB_API_TOKEN`, so `githubToken` needs the `repo`, `read:org`, `workflow` and `write:packages` scopes. The macOS Docker script logs into GHCR, Gitea and Docker Hub with tokens it reads at run time through `"$CHEZMOI_EXECUTABLE" --config "$CHEZMOI_CONFIG_FILE" dump-config`, so neither the rendered script nor argv holds them; Linux registry logins belong to Ansible.
 
-Ansible's `github_cli_token`, `gitea_cli_token` and `drone_cli_token` map to `githubToken`, `giteaToken` and `droneToken`. Bitwarden stores each token in the `fleet-cli` field of its existing service/account item; new GitHub and Gitea tokens use the label `fleet-cli`.
+Ansible's `github_cli_token`, `gitea_cli_token`, `drone_cli_token` and `docker_cli_token` map to `githubToken`, `giteaToken`, `droneToken` and `dockerToken`. Bitwarden stores each token in the `fleet-cli` field of its existing service/account item; new GitHub and Gitea tokens use the label `fleet-cli`.
+
+Package clients reuse the GitHub and Gitea tokens. `~/.npmrc` and `~/.netrc` reach every profile because servers run bun, Python and uv; `~/.pypirc`, Cargo, Maven and Gradle stay on development profiles. Each patcher replaces only its own entries: npm scope and `_authToken` lines for `@yegor-usoltsev` and the Gitea owners listed in `home/.chezmoidata/registries.yaml`, netrc entries for the two hosts, `gitea-<owner>` sections in `.pypirc` and Cargo, and the Maven servers `github` and `gitea`, which projects must use as repository ids. The Gradle init script adds credentials only to Maven repositories that a build declares under `https://maven.pkg.github.com/` or `https://gitea.usoltsev.xyz/api/packages/` without credentials of its own. `run_onchange_after_12-go-private.sh.tmpl` adds both hosts to `GOPRIVATE`, so Go fetches private modules directly with `~/.netrc`. GitHub has no PyPI or Cargo registry, Helm falls back to Docker's credentials, and GoReleaser stays unconfigured because its two default token files together abort every release that does not force one provider.
 
 ## Scripts
 
@@ -136,6 +138,7 @@ sshPublicKey = "placeholder"
 githubToken = "placeholder"
 giteaToken = "placeholder"
 droneToken = "placeholder"
+dockerToken = "placeholder"
 EOF
 chezmoi --source "$PWD" --destination "$tmp/home" --cache "$tmp/cache" \
 	--config "$tmp/chezmoi.toml" --persistent-state "$tmp/state/s.boltdb" \

@@ -23,11 +23,13 @@
 {{-   $github := rbwFields "github.com (yegor-usoltsev)" -}}
 {{-   $gitea := rbwFields "gitea.usoltsev.xyz (yegor)" -}}
 {{-   $drone := rbwFields "drone.usoltsev.xyz (yegor)" -}}
+{{-   $docker := rbwFields "docker.com (yusoltsev)" -}}
 {{-   $secrets = dict
         "context7ApiKey" (index $context7 "API key").value
         "githubToken" (dig "fleet-cli" "value" "" $github)
         "giteaToken" (dig "fleet-cli" "value" "" $gitea)
         "droneToken" (dig "fleet-cli" "value" "" $drone)
+        "dockerToken" (dig "fleet-cli" "value" "" $docker)
         "sshPublicKey" $sshKey.data.public_key
         "sshPrivateKey" $sshKey.data.private_key
 -}}
@@ -56,3 +58,4 @@ sshPublicKey = {{ dig "sshPublicKey" "" $secrets | quote }}
 githubToken = {{ dig "githubToken" "" $secrets | quote }}
 giteaToken = {{ dig "giteaToken" "" $secrets | quote }}
 droneToken = {{ dig "droneToken" "" $secrets | quote }}
+dockerToken = {{ dig "dockerToken" "" $secrets | quote }}

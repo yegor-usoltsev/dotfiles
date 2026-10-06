@@ -1,0 +1,43 @@
+// Authenticate Maven repositories that builds already declare for these
+// registries; repositories with their own credentials keep them.
+def accounts = [
+{{- with dig "githubToken" "" .secrets }}
+    'https://maven.pkg.github.com/': ['yegor-usoltsev', {{ . | replace "\\" "\\\\" | replace "'" "\\'" | squote }}],
+{{- end }}
+{{- with dig "giteaToken" "" .secrets }}
+    'https://gitea.usoltsev.xyz/api/packages/': ['yegor', {{ . | replace "\\" "\\\\" | replace "'" "\\'" | squote }}],
+{{- end }}
+]
+
+def authenticate = { repository ->
+    if (!(repository instanceof MavenArtifactRepository) || repository.url == null) {
+        return
+    }
+    def account = accounts.find { prefix, value -> repository.url.toString().startsWith(prefix) }?.value
+    if (account == null) {
+        return
+    }
+    def credentials
+    try {
+        credentials = repository.credentials
+    } catch (IllegalStateException ignored) {
+        return // The build configured another credentials type.
+    }
+    if (credentials.username == null && credentials.password == null) {
+        credentials.username = account[0]
+        credentials.password = account[1]
+    }
+}
+
+beforeSettings { settings ->
+    settings.pluginManagement.repositories.configureEach(authenticate)
+    settings.dependencyResolutionManagement.repositories.configureEach(authenticate)
+}
+
+allprojects {
+    buildscript.repositories.configureEach(authenticate)
+    repositories.configureEach(authenticate)
+    plugins.withId('maven-publish') {
+        extensions.getByName('publishing').repositories.configureEach(authenticate)
+    }
+}

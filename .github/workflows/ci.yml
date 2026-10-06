@@ -70,6 +70,7 @@ jobs:
           githubToken = "$secret"
           giteaToken = "$secret"
           droneToken = "$secret"
+          dockerToken = "$secret"
           EOF
           done
 
@@ -96,11 +97,15 @@ jobs:
             "${cm[@]}" verify --exclude=scripts,externals
 
             if [ "$PROFILE" = server ]; then
-              for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .agent-browser/config.json .local/bin/update-browser .paseo .config/gh/hosts.yml .config/tea/config.yml .config/shell/credentials.sh; do
+              for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .agent-browser/config.json .local/bin/update-browser .paseo .config/gh/hosts.yml .config/tea/config.yml .config/shell/credentials.sh .pypirc .cargo .m2 .gradle; do
                 test ! -e "$test_home/$target"
               done
             fi
-            for target in .config/mise/github_tokens.toml .config/git/github.credentials .config/git/gitea.credentials; do
+            credentials=(.config/mise/github_tokens.toml .config/git/github.credentials .config/git/gitea.credentials .npmrc .netrc)
+            if [ "$PROFILE" != server ]; then
+              credentials+=(.pypirc .cargo/credentials.toml .m2/settings.xml .gradle/init.d/registry.gradle)
+            fi
+            for target in "${credentials[@]}"; do
               if [ "$secrets" = filled ]; then
                 test -f "$test_home/$target"
               else
