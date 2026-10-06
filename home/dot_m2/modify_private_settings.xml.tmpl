@@ -38,6 +38,11 @@ for server_id, (username, password) in servers.items():
         ET.SubElement(server, tag("id")).text = server_id
     child(server, "username").text = username
     child(server, "password").text = password
+    headers = server.find(tag("configuration") + "/" + tag("httpHeaders"))
+    if headers is not None:
+        for header in headers.findall(tag("property")):
+            if (header.findtext(tag("name")) or "").lower() == "authorization":
+                headers.remove(header)
 
 ET.indent(root, space="  ")
 sys.stdout.write(ET.tostring(root, encoding="unicode", xml_declaration=True) + "\n")

@@ -23,7 +23,7 @@ def authenticate = { repository ->
     } catch (IllegalStateException ignored) {
         return // The build configured another credentials type.
     }
-    if (credentials.username == null && credentials.password == null) {
+    if (!credentials.password && (!credentials.username || credentials.username == account[0])) {
         credentials.username = account[0]
         credentials.password = account[1]
     }

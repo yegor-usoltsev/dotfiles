@@ -10,16 +10,20 @@
 {{- $lines := list -}}
 {{- $tail := list -}}
 {{- $skip := false -}}
+{{- $default := false -}}
 {{- if .chezmoi.stdin -}}
 {{-   range splitList "\n" (.chezmoi.stdin | trimSuffix "\n") -}}
 {{-     $fields := splitList " " (regexReplaceAll "\\s+" (trim .) " ") -}}
 {{-     if has (first $fields) (list "machine" "default" "macdef") -}}
 {{-       $skip = and (eq (first $fields) "machine") (gt (len $fields) 1) (hasKey $managed (index $fields 1)) -}}
+{{-       $default = eq (first $fields) "default" -}}
 {{-     end -}}
-{{-     if or $tail (eq (first $fields) "default") -}}
-{{-       $tail = append $tail . -}}
-{{-     else if not $skip -}}
-{{-       $lines = append $lines . -}}
+{{-     if not $skip -}}
+{{-       if $default -}}
+{{-         $tail = append $tail . -}}
+{{-       else -}}
+{{-         $lines = append $lines . -}}
+{{-       end -}}
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
