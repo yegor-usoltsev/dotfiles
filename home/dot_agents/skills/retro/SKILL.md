@@ -21,7 +21,7 @@ Look for where the session lost time or quality:
 Present the findings worst first, each with its evidence and the concrete edit (file and text):
 
 ```text
-1. Correction, session eb26080e: the agent started implementing before the user reviewed the plan they asked for ("я тебе не давал разрешения начинать работу").
+1. Correction, session eb26080e: the agent started implementing before the user reviewed the plan they asked for ("I did not give you permission to start working").
    Edit: global AGENTS.md, Implementation: "When I ask to review a plan first, present it and end the turn; implement only after I approve."
 ```
 
