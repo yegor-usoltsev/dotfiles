@@ -97,7 +97,7 @@ The global agent rules live only in `home/dot_agents/AGENTS.md`; shell aliases d
 
 Skills, the global rules and the Paseo system prompt describe roles (senior peer, implementation worker, read-only scout) and tell agents to choose from `list_profiles` by its notes. Profile names, models and tool versions go stale with each release, so they stay out of that text and the profile notes do not name other profiles.
 
-The global rules own the gate for starting helpers: explicit user intent, including a request for a skill that runs agents. Other sources describe how to coordinate requested agents rather than prescribing delegation by default.
+The global rules own the gate for starting helpers: explicit user intent, including a request for a skill that runs agents. They also require explicit permission to archive agents or workspaces. Other sources describe how to coordinate requested agents rather than prescribing delegation or cleanup by default.
 
 `home/.chezmoitemplates/paseo-system-prompt` is plain text, to save tokens on every Paseo agent, and the config patch sets it as `daemon.appendSystemPrompt`. It holds only rules that agents outside Paseo do not need; general rules stay in the global AGENTS.md, which Paseo agents also read. Reload applies it to agents started afterwards.
 

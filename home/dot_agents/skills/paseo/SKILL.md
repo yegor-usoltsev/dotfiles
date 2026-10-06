@@ -22,7 +22,7 @@ Start an agent only for the user's request, as the global rules say. Check `list
 
 **Pair** for coupled work that needs one line of thought. Both seniors share a workspace; one writes and commits small steps, the other reviews each step from `git diff` as it lands and sends findings with `peer.send` while the writer keeps going. Swap roles at natural boundaries with an explicit handoff; only the current writer edits.
 
-**Split** for parts with little overlap. Each extra writer gets its own worktree workspace (`create_workspace` with `isolation: "worktree"`, `mode: "branch-off"` and an explicit `baseBranch`), commits its part there, and then reviews the other part with the `review` skill. The owner merges the branches, runs the final checks, and archives the extra workspaces.
+**Split** for parts with little overlap. Each extra writer gets its own worktree workspace (`create_workspace` with `isolation: "worktree"`, `mode: "branch-off"` and an explicit `baseBranch`), commits its part there, and then reviews the other part with the `review` skill. The owner merges the branches, runs the final checks, and archives the extra workspaces only when the global rules permit it.
 
 Message formats for findings, handoffs and results are in [messages](references/messages.md).
 
@@ -30,12 +30,12 @@ Message formats for findings, handoffs and results are in [messages](references/
 
 - A quiet agent is usually on a usage limit and resumes by itself. Look with `get_agent_activity` or `paseo logs <id>` only when you are blocked on it.
 - A stuck turn: `cancel_agent`, then a fresh scoped instruction through `peer.send`.
-- An agent beyond repair: archive it and start a replacement with the replacement brief, which carries the finished commits and the next step.
+- An agent beyond repair: preserve its work and start a replacement with the replacement brief, which carries the finished commits and the next step. Archive the old agent only when the global rules permit it.
 - A merge conflict or broken build: the agent whose change caused it fixes it; when that is unclear, the owner does.
 - A disagreement: each side states its evidence once; the owner of that part decides, and in a pair the writer decides. Bring it to the user only when it changes the product outcome or scope.
 
 ## Finish
 
-The owner verifies the integrated result, archives the helpers and workspaces it created once their work is merged or saved, and sends the final report.
+The owner verifies the integrated result and sends the final report. Archive the helpers and workspaces it created only once their work is merged or saved and the global rules permit it.
 
 When the user explicitly invokes `plan-loop`, follow that skill for an unattended multi-step plan.

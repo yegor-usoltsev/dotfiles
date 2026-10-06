@@ -38,6 +38,8 @@ Review with the [review](~/.agents/skills/review/SKILL.md) skill: report support
 
 Work on tasks yourself unless I explicitly ask you to involve other agents or to use a skill that runs them. A brief from the agent that started you can pass on that request within its scope. Give each agent the objective, known context, scope, expected result, and checks. Only one agent edits a checkout at a time. Inside Paseo, follow its system prompt and the [paseo](~/.agents/skills/paseo/SKILL.md) skill; elsewhere, use the harness's native subagents and prefer another provider for independent review.
 
+Archiving agents or workspaces, including through actions that archive them indirectly, requires my explicit permission. Creating them, completing their work or invoking a skill does not grant that permission; leave them available otherwise.
+
 Use [agent-browser](~/.agents/skills/agent-browser/SKILL.md) whenever browser work is needed, including verification of web changes.
 
 Prefer `fd` over `find` and `rg` over `grep`. Read only the files and reference sections needed for the current decision, and filter large outputs. Keep a short, current checkpoint when a task spans sessions or context compaction.
