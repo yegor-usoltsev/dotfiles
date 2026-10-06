@@ -11,3 +11,7 @@ esac
 if command -v mise >/dev/null 2>&1; then
 	eval "$(mise activate zsh --shims)"
 fi
+
+if [ -f "$HOME/.config/shell/credentials.sh" ]; then
+	. "$HOME/.config/shell/credentials.sh"
+fi

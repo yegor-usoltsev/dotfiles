@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+# Gitea token hash: {{ dig "giteaToken" "" .secrets | sha256sum }}
+# Git's credential store already holds the token, so the rendered script never does.
+printf 'protocol=https\nhost=gitea.usoltsev.xyz\n\n' |
+	GIT_TERMINAL_PROMPT=0 git credential fill |
+	sed -n 's/^password=//p' |
+	docker login gitea.usoltsev.xyz --username yegor --password-stdin

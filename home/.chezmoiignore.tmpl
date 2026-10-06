@@ -1,9 +1,21 @@
 {{- if not (dig "githubToken" "" .secrets) }}
 .config/mise/github_tokens.toml
+.config/git/github.credentials
+.config/gh/hosts.yml
+{{- end }}
+{{- if not (dig "giteaToken" "" .secrets) }}
+.config/git/gitea.credentials
+.config/tea/config.yml
+Library/Application Support/tea/config.yml
+.chezmoiscripts/darwin/40-docker-login.sh
+{{- end }}
+{{- if or (eq .profile "server") (not (dig "droneToken" "" .secrets)) }}
+.config/shell/credentials.sh
 {{- end }}
 {{- if eq .chezmoi.os "darwin" }}
 .bash_profile
 .bashrc
+.config/tea/config.yml
 .local/share/mise-completions-sync
 {{- else }}
 Library
@@ -15,6 +27,8 @@ Library/**
 .agent-browser/config.json
 {{- end }}
 {{- if eq .profile "server" }}
+.config/gh/hosts.yml
+.config/tea/config.yml
 .ssh/id_ed25519
 .ssh/id_ed25519.pub
 .agents

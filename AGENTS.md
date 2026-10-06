@@ -24,9 +24,11 @@ The `server` profile carries no compiled-language toolchains, coding assistants,
 
 ## Secrets
 
-Templates read `.secrets.context7ApiKey`, `.secrets.githubToken`, `.secrets.sshPrivateKey` and `.secrets.sshPublicKey`. `home/.chezmoi.toml.tmpl` fills them from `~/.config/chezmoi/secrets.toml` when that file exists, and from Bitwarden through `rbw` otherwise. Every key defaults to an empty string, so a template that uses one must still render when it is empty. `home/.chezmoiignore.tmpl` is the place to skip a whole file in that case, as it does for `.config/mise/github_tokens.toml`.
+`home/.chezmoi.toml.tmpl` fills `.secrets` from `~/.config/chezmoi/secrets.toml` when that file exists, and from Bitwarden through `rbw` otherwise. The keys are `context7ApiKey`, `githubToken`, `giteaToken`, `droneToken`, `sshPrivateKey` and `sshPublicKey`. Every key defaults to an empty string, so a template that uses one must still render when it is empty. `home/.chezmoiignore.tmpl` is the place to skip a whole file in that case, and it keeps CLI logins off the server profile. Git uses its native credential store with one private file per host, so a successful login cannot reorder entries and leave the target out of sync. tea reads `~/Library/Application Support/tea/config.yml` on macOS and `~/.config/tea/config.yml` on Linux, so `home/.chezmoitemplates/tea-config.yml` patches both; the first run seeds the file from a legacy `~/.tea/tea.yml`, which tea stops reading once the new file exists.
 
-Never commit a secret, a generated configuration file or a private key. The GitHub token exists only to lift the unauthenticated API rate limit during a full install and needs no repository scopes.
+Never commit a secret, a generated configuration file or a private key. One GitHub token serves Git, gh and mise, so `githubToken` needs the `repo`, `read:org` and `workflow` scopes. The macOS Docker script gets the Gitea token from `git credential fill` rather than nesting a chezmoi command inside apply or rendering the token into the script.
+
+Ansible's `github_cli_token`, `gitea_cli_token` and `drone_cli_token` map to `githubToken`, `giteaToken` and `droneToken`. Bitwarden stores each token in the `fleet-cli` field of its existing service/account item; new GitHub and Gitea tokens use the label `fleet-cli`.
 
 ## Scripts
 
@@ -97,7 +99,7 @@ Paseo's `~/.paseo/config.json` belongs to this repository; the infrastructure re
 
 The four managed Paseo profiles are `claude-senior`, `codex-senior`, `claude-worker` and `codex-scout`. The config patch owns the complete profile list. Their IDs are `agent_profile_claude_senior`, `agent_profile_codex_senior`, `agent_profile_claude_worker` and `agent_profile_codex_scout`; preserve these role IDs across model updates. Keep specific models, versions and reasoning levels only in the structured profile fields. The seniors treat each other as equal colleagues; the worker handles substantive scoped implementation and the scout stays read-only. Only `send_agent_prompt` is disabled; permission coordination tools remain enabled.
 
-The agent workflow relies on the Paseo plugins from [paseo-plugins](https://github.com/yegor-usoltsev/paseo-plugins): `paseo-peer` (the `peer.send` tool that messages a busy agent without interrupting it) and `paseo-resume` (continuing an agent after a usage-limit reset). `home/dot_local/bin/executable_update-paseo-plugins.tmpl` keeps a checkout at `~/dev/yegor-usoltsev/paseo-plugins` and installs each plugin from its directory there, so the same checkout is where they are edited. It clones over SSH and migrates the official HTTPS origin to SSH before pulling; other remotes stay unchanged. It fast-forwards only a clean `main` checkout and reloads a plugin whose code changed. Directory installation does not run a plugin manifest’s build preparation, so the updater installs each plugin’s standalone locked runtime dependencies first and stores their fingerprint in the ignored `node_modules/` directory. Root npm workspace commands can hoist these packages while leaving the fingerprint intact, so a cache hit also checks every package path in the standalone lock. `update` runs it, and so does the infrastructure repository's mise hook after a Paseo upgrade; `run_after_31-paseo-plugins.sh.tmpl` runs it with `--no-pull` on every apply, which keeps existing checkout revisions in place while preparing dependencies and installing missing plugins. Installing needs a running daemon, so a run while it is stopped installs nothing and the next one catches up. Add a new plugin from that repository to the script's `plugins` list.
+The agent workflow relies on the Paseo plugins from [paseo-plugins](https://github.com/yegor-usoltsev/paseo-plugins): `paseo-peer` (the `peer.send` tool that messages a busy agent without interrupting it) and `paseo-resume` (continuing an agent after a usage-limit reset). `home/dot_local/bin/executable_update-paseo-plugins.tmpl` keeps a checkout at `~/dev/yegor-usoltsev/paseo-plugins` and installs each plugin from its directory there, so the same checkout is where they are edited. It clones over HTTPS and preserves existing origins. It fast-forwards only a clean `main` checkout and reloads a plugin whose code changed. Directory installation does not run a plugin manifest’s build preparation, so the updater installs each plugin’s standalone locked runtime dependencies first and stores their fingerprint in the ignored `node_modules/` directory. Root npm workspace commands can hoist these packages while leaving the fingerprint intact, so a cache hit also checks every package path in the standalone lock. `update` runs it, and so does the infrastructure repository's mise hook after a Paseo upgrade; `run_after_31-paseo-plugins.sh.tmpl` runs it with `--no-pull` on every apply, which keeps existing checkout revisions in place while preparing dependencies and installing missing plugins. Installing needs a running daemon, so a run while it is stopped installs nothing and the next one catches up. Add a new plugin from that repository to the script's `plugins` list.
 
 On macOS the updater falls back to `/Applications/Paseo.app/Contents/Resources/bin/paseo`, so shell CLI registration is optional. Missing CLI or a stopped daemon produces a warning. Test installers with a mocked CLI or an explicit isolated daemon endpoint; changing only `HOME` can still reach a live daemon through the default TCP port.
 
@@ -113,7 +115,7 @@ Render one template without applying anything. This uses the local machine's own
 chezmoi execute-template < home/dot_zshrc.tmpl
 ```
 
-Apply the whole source state into a throwaway destination, which is what CI does for four platform and profile combinations:
+Apply the whole source state into a throwaway destination, which is what CI does for three platform and profile combinations, each with filled and empty secrets:
 
 ```sh
 tmp=$(mktemp -d)
@@ -132,6 +134,8 @@ context7ApiKey = "placeholder"
 sshPrivateKey = "placeholder"
 sshPublicKey = "placeholder"
 githubToken = "placeholder"
+giteaToken = "placeholder"
+droneToken = "placeholder"
 EOF
 chezmoi --source "$PWD" --destination "$tmp/home" --cache "$tmp/cache" \
 	--config "$tmp/chezmoi.toml" --persistent-state "$tmp/state/s.boltdb" \
