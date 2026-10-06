@@ -11,7 +11,7 @@ set -euo pipefail
 export PATH="/opt/homebrew/bin:$PATH"
 {{- end }}
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-repo=git@github.com:yegor-usoltsev/paseo-plugins.git
+repo=https://github.com/yegor-usoltsev/paseo-plugins.git
 checkout=$HOME/dev/yegor-usoltsev/paseo-plugins
 plugins=(peer resume)
 
@@ -33,11 +33,6 @@ updated=false
 if [[ ! -e $checkout/.git ]]; then
 	info "Cloning the Paseo plugins"
 	git clone --quiet "$repo" "$checkout"
-else
-	origin=$(git -C "$checkout" remote get-url origin 2>/dev/null || true)
-	if [[ $origin == https://github.com/yegor-usoltsev/paseo-plugins || $origin == https://github.com/yegor-usoltsev/paseo-plugins.git ]]; then
-		git -C "$checkout" remote set-url origin "$repo"
-	fi
 fi
 
 if $pull; then

@@ -1,0 +1,33 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /* Replace the managed hosts' entries, including their continuation lines; default stays last. */ -}}
+{{- $managed := dict -}}
+{{- with dig "githubToken" "" .secrets -}}
+{{-   $_ := set $managed "github.com" (printf "machine github.com login yegor-usoltsev password %s" .) -}}
+{{- end -}}
+{{- with dig "giteaToken" "" .secrets -}}
+{{-   $_ := set $managed "gitea.usoltsev.xyz" (printf "machine gitea.usoltsev.xyz login yegor password %s" .) -}}
+{{- end -}}
+{{- $lines := list -}}
+{{- $tail := list -}}
+{{- $skip := false -}}
+{{- $default := false -}}
+{{- if .chezmoi.stdin -}}
+{{-   range splitList "\n" (.chezmoi.stdin | trimSuffix "\n") -}}
+{{-     $fields := splitList " " (regexReplaceAll "\\s+" (trim .) " ") -}}
+{{-     if has (first $fields) (list "machine" "default" "macdef") -}}
+{{-       $skip = and (eq (first $fields) "machine") (gt (len $fields) 1) (hasKey $managed (index $fields 1)) -}}
+{{-       $default = eq (first $fields) "default" -}}
+{{-     end -}}
+{{-     if not $skip -}}
+{{-       if $default -}}
+{{-         $tail = append $tail . -}}
+{{-       else -}}
+{{-         $lines = append $lines . -}}
+{{-       end -}}
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{- range keys $managed | sortAlpha -}}
+{{-   $lines = append $lines (get $managed .) -}}
+{{- end -}}
+{{ concat $lines $tail | join "\n" }}

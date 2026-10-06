@@ -1,0 +1,11 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /* Name the Gitea Cargo registries; crates.io stays the default. */ -}}
+{{- $config := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $config = fromToml .chezmoi.stdin -}}
+{{- end -}}
+{{- range .giteaPackageOwners -}}
+{{-   $config = setValueAtPath (list "registries" (printf "gitea-%s" .) "index") (printf "sparse+https://gitea.usoltsev.xyz/api/packages/%s/cargo/" .) $config -}}
+{{-   $config = setValueAtPath (list "registries" (printf "gitea-%s" .) "credential-provider") "cargo:token" $config -}}
+{{- end -}}
+{{ $config | toToml }}

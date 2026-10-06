@@ -1,3 +1,3 @@
-# Avoid unauthenticated API limits during installation; no scopes are needed.
+# Use the shared GitHub token to avoid unauthenticated API limits.
 [tokens."github.com"]
 token = {{ .secrets.githubToken | quote }}

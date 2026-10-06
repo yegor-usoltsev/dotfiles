@@ -22,6 +22,17 @@
 	helper = store
 {{- end }}
 
+{{- if dig "githubToken" "" .secrets }}
+[credential "https://github.com"]
+	helper =
+	helper = store --file ~/.config/git/github.credentials
+{{- end }}
+{{- if dig "giteaToken" "" .secrets }}
+[credential "https://gitea.usoltsev.xyz"]
+	helper =
+	helper = store --file ~/.config/git/gitea.credentials
+{{- end }}
+
 [delta]
 	hyperlinks = true
 	line-numbers = true

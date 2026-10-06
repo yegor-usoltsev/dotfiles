@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+# Private modules bypass the public proxy and checksum database, so Go fetches
+# them directly with ~/.netrc. Keep any patterns already configured.
+private=$(go env GOPRIVATE)
+for pattern in github.com/yegor-usoltsev gitea.usoltsev.xyz; do
+	case ",$private," in
+	*",$pattern,"*) ;;
+	*) private=${private:+$private,}$pattern ;;
+	esac
+done
+go env -w GOPRIVATE="$private"

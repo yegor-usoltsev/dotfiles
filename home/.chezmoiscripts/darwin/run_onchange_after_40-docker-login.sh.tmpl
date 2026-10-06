@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+# Token hash: {{ list (dig "githubToken" "" .secrets) (dig "giteaToken" "" .secrets) (dig "dockerToken" "" .secrets) | join "\n" | sha256sum }}
+# Read tokens at run time so the rendered script and argv never hold them.
+secrets=$("$CHEZMOI_EXECUTABLE" --config "$CHEZMOI_CONFIG_FILE" dump-config --format=json | jq -c '.data.secrets')
+
+login() {
+	local registry=$1 username=$2 key=$3 token
+	token=$(jq -r --arg key "$key" '.[$key] // ""' <<<"$secrets")
+	if [ -n "$token" ]; then
+		printf '%s' "$token" | docker login "$registry" --username "$username" --password-stdin
+	fi
+}
+
+login ghcr.io yegor-usoltsev githubToken
+login gitea.usoltsev.xyz yegor giteaToken
+login docker.io yusoltsev dockerToken

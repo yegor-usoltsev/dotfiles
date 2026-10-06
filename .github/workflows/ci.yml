@@ -18,17 +18,10 @@ jobs:
         include:
           - os: macos-latest
             profile: workstation
-            secrets: filled
-          - os: ubuntu-24.04
-            profile: devbox
-            secrets: filled
           - os: ubuntu-26.04-arm
             profile: devbox
-            secrets: filled
-          # Exercise optional secrets and the minimal server profile.
           - os: ubuntu-latest
             profile: server
-            secrets: empty
 
     steps:
       - uses: actions/checkout@v4
@@ -51,17 +44,17 @@ jobs:
           touch "$HOME/.config/chezmoi/secrets.toml"
           chmod 600 "$HOME/.config/chezmoi/secrets.toml"
 
-      - name: Write isolated config
+      - name: Write isolated configs
         env:
-          SECRETS: ${{ matrix.secrets }}
           PROFILE: ${{ matrix.profile }}
         run: |
-          mkdir -p "$RUNNER_TEMP/home" "$RUNNER_TEMP/cache" "$RUNNER_TEMP/state"
-          secret=placeholder
-          if [ "$SECRETS" = empty ]; then
+          mkdir -p "$RUNNER_TEMP/cache" "$RUNNER_TEMP/state"
+          for secrets in empty filled; do
             secret=
-          fi
-          cat > "$RUNNER_TEMP/chezmoi.toml" <<EOF
+            if [ "$secrets" = filled ]; then
+              secret=placeholder
+            fi
+            cat > "$RUNNER_TEMP/chezmoi-$secrets.toml" <<EOF
           [hooks.read-source-state.pre]
           command = "$GITHUB_WORKSPACE/home/.chezmoihooks/ensure-prerequisites.sh"
 
@@ -75,35 +68,51 @@ jobs:
           sshPrivateKey = "$secret"
           sshPublicKey = "$secret"
           githubToken = "$secret"
+          giteaToken = "$secret"
+          droneToken = "$secret"
+          dockerToken = "$secret"
           EOF
+          done
 
       - name: Apply, verify and lint source state
         shell: bash
         env:
           PROFILE: ${{ matrix.profile }}
-          SECRETS: ${{ matrix.secrets }}
         run: |
           set -euo pipefail
-          cm=(
-            chezmoi
-            --source "$GITHUB_WORKSPACE"
-            --destination "$RUNNER_TEMP/home"
-            --cache "$RUNNER_TEMP/cache"
-            --config "$RUNNER_TEMP/chezmoi.toml"
-            --persistent-state "$RUNNER_TEMP/state/s.boltdb"
-            --no-tty --force
-          )
-          "${cm[@]}" apply --exclude=scripts,externals
-          "${cm[@]}" verify --exclude=scripts,externals
+          # Optional secrets must render empty; the shell checks below use the filled run.
+          for secrets in empty filled; do
+            test_home="$RUNNER_TEMP/home-$secrets"
+            cm=(
+              chezmoi
+              --source "$GITHUB_WORKSPACE"
+              --destination "$test_home"
+              --cache "$RUNNER_TEMP/cache"
+              --config "$RUNNER_TEMP/chezmoi-$secrets.toml"
+              --persistent-state "$RUNNER_TEMP/state/$secrets.boltdb"
+              --no-tty --force
+            )
+            mkdir -p "$test_home"
+            "${cm[@]}" apply --exclude=scripts,externals
+            "${cm[@]}" verify --exclude=scripts,externals
 
-          if [ "$PROFILE" = server ]; then
-            for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .agent-browser/config.json .local/bin/update-browser .paseo; do
-              test ! -e "$RUNNER_TEMP/home/$target"
+            if [ "$PROFILE" = server ]; then
+              for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .agent-browser/config.json .local/bin/update-browser .paseo .config/gh/hosts.yml .config/tea/config.yml .config/shell/credentials.sh .cargo .m2 .gradle; do
+                test ! -e "$test_home/$target"
+              done
+            fi
+            credentials=(.config/mise/github_tokens.toml .config/git/github.credentials .config/git/gitea.credentials .npmrc .netrc)
+            if [ "$PROFILE" != server ]; then
+              credentials+=(.cargo/credentials.toml .m2/settings.xml .gradle/init.d/registry.gradle)
+            fi
+            for target in "${credentials[@]}"; do
+              if [ "$secrets" = filled ]; then
+                test -f "$test_home/$target"
+              else
+                test ! -e "$test_home/$target"
+              fi
             done
-          fi
-          if [ "$SECRETS" = empty ]; then
-            test ! -e "$RUNNER_TEMP/home/.config/mise/github_tokens.toml"
-          fi
+          done
 
           rendered_dir="$RUNNER_TEMP/rendered-shell"
           mkdir -p "$rendered_dir"

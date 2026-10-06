@@ -1,0 +1,7 @@
+# Gitea owners whose npm and PyPI registries receive the shared Gitea token;
+# each npm scope matches its owner.
+giteaPackageOwners:
+  - yegor
+  - chasovsky
+  - intuitio
+  - renovate-bot

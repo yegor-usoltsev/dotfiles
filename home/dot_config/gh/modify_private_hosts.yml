@@ -1,0 +1,12 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $config := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $config = fromYaml .chezmoi.stdin -}}
+{{- end -}}
+{{- $host := get $config "github.com" | default dict -}}
+{{- $host = $host |
+     setValueAtPath "user" "yegor-usoltsev" |
+     setValueAtPath "git_protocol" "https" |
+     setValueAtPath "oauth_token" (dig "githubToken" "" .secrets) |
+     setValueAtPath "users.yegor-usoltsev.oauth_token" (dig "githubToken" "" .secrets) -}}
+{{ $config | setValueAtPath (list "github.com") $host | toYaml | trim }}

@@ -5,3 +5,7 @@ export EDITOR="micro"
 export VISUAL="micro"
 
 export LESS="-R"
+
+if [ -f "$HOME/.config/shell/credentials.sh" ]; then
+	. "$HOME/.config/shell/credentials.sh"
+fi
