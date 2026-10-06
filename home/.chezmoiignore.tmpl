@@ -9,7 +9,6 @@
 .config/git/gitea.credentials
 .config/tea/config.yml
 Library/Application Support/tea/config.yml
-.pypirc
 .cargo
 .cargo/**
 {{- end }}
@@ -24,7 +23,7 @@ Library/Application Support/tea/config.yml
 {{- if not (or $github $gitea (dig "dockerToken" "" .secrets)) }}
 .chezmoiscripts/darwin/40-docker-login.sh
 {{- end }}
-{{- if or (eq .profile "server") (not (or (dig "droneToken" "" .secrets) (and (eq .chezmoi.os "darwin") $github))) }}
+{{- if or (eq .profile "server") (not (dig "droneToken" "" .secrets)) }}
 .config/shell/credentials.sh
 {{- end }}
 {{- if eq .chezmoi.os "darwin" }}
@@ -44,7 +43,6 @@ Library/**
 {{- if eq .profile "server" }}
 .config/gh/hosts.yml
 .config/tea/config.yml
-.pypirc
 .cargo
 .cargo/**
 .m2

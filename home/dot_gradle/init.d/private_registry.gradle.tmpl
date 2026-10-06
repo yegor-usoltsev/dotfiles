@@ -37,7 +37,4 @@ beforeSettings { settings ->
 allprojects {
     buildscript.repositories.configureEach(authenticate)
     repositories.configureEach(authenticate)
-    plugins.withId('maven-publish') {
-        extensions.getByName('publishing').repositories.configureEach(authenticate)
-    }
 }
