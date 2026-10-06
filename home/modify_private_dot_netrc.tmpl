@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+# Parse complete netrc entries so hosts on the same line remain independent.
+import netrc
+import sys
+
+config = netrc.netrc("/dev/stdin")
+managed = {
+    "github.com": ("yegor-usoltsev", {{ dig "githubToken" "" .secrets | toJson }}),
+    "gitea.usoltsev.xyz": ("yegor", {{ dig "giteaToken" "" .secrets | toJson }}),
+}
+for host, (username, token) in managed.items():
+    if token:
+        config.hosts[host] = (username, "", token)
+
+
+def quote(value):
+    if value and not any(char.isspace() or char in '\\"#' for char in value):
+        return value
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+# The default entry stays last for clients that stop at the first match.
+for host in sorted(config.hosts, key=lambda value: (value == "default", value)):
+    login, account, password = config.hosts[host]
+    sys.stdout.write("default\n" if host == "default" else "machine " + quote(host) + "\n")
+    sys.stdout.write("  login " + quote(login) + "\n")
+    if account:
+        sys.stdout.write("  account " + quote(account) + "\n")
+    sys.stdout.write("  password " + quote(password) + "\n")
+for name, lines in config.macros.items():
+    sys.stdout.write("macdef " + name + "\n" + "".join(lines) + "\n")
