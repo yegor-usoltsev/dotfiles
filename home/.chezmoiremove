@@ -1,2 +1,4 @@
 # Merged into the paseo skill.
 .agents/skills/paseo-peers
+# Replaced by ~/.gradle/gradle.properties.
+.gradle/init.d/registry.gradle

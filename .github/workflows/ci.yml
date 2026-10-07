@@ -103,7 +103,7 @@ jobs:
             fi
             credentials=(.config/git/github.credentials .config/git/gitea.credentials .npmrc .netrc)
             if [ "$PROFILE" != server ]; then
-              credentials+=(.config/mise/github_tokens.toml .cargo/credentials.toml .m2/settings.xml .gradle/init.d/registry.gradle)
+              credentials+=(.config/mise/github_tokens.toml .cargo/credentials.toml .m2/settings.xml .gradle/gradle.properties)
             fi
             for target in "${credentials[@]}"; do
               if [ "$secrets" = filled ]; then
