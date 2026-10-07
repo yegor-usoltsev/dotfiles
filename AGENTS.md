@@ -46,7 +46,7 @@ A `run_once_` script runs only when its rendered content has not already complet
 
 `home/.chezmoiscripts/run_once_after_10-mise.sh.tmpl` hashes the mise config and `run_onchange_after_11-completions.sh.tmpl` hashes the completion registry. Adding another input that must retrigger a script means adding another hash line to that script.
 
-`home/.chezmoihooks/ensure-prerequisites.sh` runs before every source-state read and only checks prerequisites. Do not make it install or prompt: it also runs under non-interactive Ansible provisioning, where a prompt deadlocks the run. It demands an unlocked Bitwarden vault only when neither `~/.config/chezmoi/secrets.toml` nor `~/.config/chezmoi/chezmoi.toml` exists, so `chezmoi status` and `chezmoi diff` keep working on a configured machine.
+`home/.chezmoihooks/ensure-prerequisites.sh` runs before every source-state read and checks prerequisites. Its one download fills uv's cache for the `modify_` scripts, described below. Keep it from installing system packages or prompting: it also runs under non-interactive Ansible provisioning, where a prompt deadlocks the run. It demands an unlocked Bitwarden vault only when neither `~/.config/chezmoi/secrets.toml` nor `~/.config/chezmoi/chezmoi.toml` exists, so `chezmoi status` and `chezmoi diff` keep working on a configured machine.
 
 Keep each file's existing shebang and portability target. Scripts under `home/.chezmoiscripts/` are bash, and `home/dot_config/shell/` is sourced by both bash and zsh. Indent with tabs. CI checks the zsh files with `zsh -n`, and the other shell files with `bash -n`, `shellcheck -s bash -e SC1090,SC1091` and `shfmt -d -i 0`.
 
@@ -54,11 +54,12 @@ Keep each file's existing shebang and portability target. Scripts under `home/.c
 
 Every `modify_` script is Python run by uv, so all of them share one language and one shape; `home/dot_cargo/modify_config.toml.tmpl` is the smallest example. chezmoi feeds the current target on stdin, empty when the target does not exist, and replaces the target with stdout. It runs them on every `status`, `diff` and `apply`, so they only read and print.
 
-The shebang is `#!/usr/bin/env -S uv run --quiet --no-project --python 3.14 --with PACKAGE==VERSION --script`, without `--with` when the standard library is enough:
+The shebang is `#!/usr/bin/env -S uv run --quiet --no-project --offline --python 3.14 --with PACKAGE==VERSION --script`, without `--with` when the standard library is enough:
 
 - `--script` is required because chezmoi runs a temporary copy named after the target, such as `/tmp/123.config.toml`.
 - Dependencies go in `--with` with an exact pin, not in an inline `# /// script` block. uv keys inline-metadata environments by script path, so chezmoi's random path would add a cached environment on every run.
 - `--no-project` keeps uv from syncing a Python project that encloses the temporary script or the working directory.
+- `--offline` keeps `status` and `diff` working without a network. Without it uv revalidates its PyPI index cache after ten minutes and fails when offline. The prerequisite hook runs each distinct shebang before chezmoi reads the source state and, when uv's cache lacks that Python or those packages, fetches them once without `--offline`, so a new pin needs no other change.
 - `--python` pins the minor version so every machine runs the same interpreter. Bump it in all shebangs at once.
 
 Use the standard library for JSON, XML and netrc; `json` keeps key order. Use `tomlkit` for TOML and `ruamel.yaml` with `preserve_quotes` for YAML, because both keep the comments, order and quoting of keys the script does not own. Give a new format a round-trip parser rather than regular expressions over its text.
@@ -68,12 +69,12 @@ Each script follows the same order:
 1. A comment saying what the application owns or why the file is patched rather than replaced.
 2. Template data as constants rendered with `toJson`, such as `token = {{ dig "giteaToken" "" .secrets | toJson }}`. The rest is plain Python without template actions, and a script that needs no data is not a `.tmpl`.
 3. Parse stdin, treating empty input as an empty document.
-4. Set only the managed keys with `setdefault` and `update`, so unmanaged keys keep their values and position.
+4. Set only the managed keys, so unmanaged keys keep their values and position. Reach nested tables through the `child(parent, key)` helper, which each script defines because the scripts share no module; it also replaces a null value, which `setdefault` would return as `None`.
 5. Write the whole document to stdout.
 
 Secrets reach a script only as those constants. The rendered script is a private temporary file, while a command-line argument would show in the process list.
 
-A script must produce a valid file from empty input and reproduce its own output unchanged. CI's apply and `chezmoi verify` into an empty destination check both for the empty case and lint the rendered scripts with `ruff check`; for existing content, pipe a sample through the rendered script twice and compare. The first run on a machine downloads the pinned packages, and a managed Python when no 3.14 is on `PATH`; later runs work offline from the uv cache.
+A script must produce a valid file from empty input and reproduce its own output unchanged. CI's apply and `chezmoi verify` into an empty destination check both for the empty case and lint the rendered scripts with `ruff check`; for existing content, pipe a sample through the rendered script twice and compare.
 
 ## Adding a tool
 

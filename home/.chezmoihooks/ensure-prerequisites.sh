@@ -14,9 +14,22 @@ Darwin)
 	;;
 esac
 
-# The modify_ scripts run through uv run, which also finds or downloads Python.
 command -v uv >/dev/null 2>&1 ||
 	error "uv is missing from PATH; run: mise use --global uv@latest and add ~/.local/share/mise/shims to PATH"
+
+# The modify_ scripts run uv with --offline, so status and diff work without a
+# network even after uv's index cache goes stale. When the cache lacks the
+# Python or the packages one of their shebangs pins, fetch them once here; this
+# downloads into uv's cache and never prompts.
+source_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+find "$source_dir" -type f \( -name 'modify_*' -o -path '*/.chezmoitemplates/*.py' \) -exec awk 'FNR == 1' {} + |
+	sed -n 's|^#!/usr/bin/env -S \(uv run .*\) --script$|\1|p' | sort -u |
+	while IFS= read -r command; do
+		# shellcheck disable=SC2086 # Split the shebang arguments as env -S does.
+		$command python -c '' 2>/dev/null ||
+			${command/ --offline/} python -c '' ||
+			error "uv could not fetch what the modify_ scripts need: $command"
+	done
 
 # Bitwarden is only read while the config template is being evaluated, which
 # happens when no generated config exists yet. Demanding an unlocked vault on

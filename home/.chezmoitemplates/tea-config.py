@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet --no-project --python 3.14 --with ruamel.yaml==0.19.1 --script
+#!/usr/bin/env -S uv run --quiet --no-project --offline --python 3.14 --with ruamel.yaml==0.19.1 --script
 # Upsert the managed login; tea ignores ~/.tea/tea.yml once this file exists.
 import sys
 from pathlib import Path
