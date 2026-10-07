@@ -29,7 +29,7 @@ find "$source_dir" -type f \( -name 'modify_*' -o -path '*/.chezmoitemplates/*.p
 		/usr/bin/env -S "$command" python -c '' 2>/dev/null ||
 			/usr/bin/env -S "${command/ --offline/}" python -c '' ||
 			error "uv could not fetch what the modify_ scripts need: $command"
-	done || exit 1 # macOS Bash 3.2 does not apply errexit to this pipeline.
+	done || exit 1 # Some Bash 3.2 releases skip errexit for this pipeline.
 
 # Bitwarden is only read while the config template is being evaluated, which
 # happens when no generated config exists yet. Demanding an unlocked vault on
