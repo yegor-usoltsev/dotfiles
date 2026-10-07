@@ -1,17 +1,26 @@
-#!/bin/sh
-set -eu
-
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --script
 # Claude Code owns the rest of this file, and writes it without a trailing
 # newline; patch only the managed keys and match that.
-CHEZMOI_CONTEXT7_API_KEY={{ .secrets.context7ApiKey | shellQuote }}
-export CHEZMOI_CONTEXT7_API_KEY
+import json
+import sys
 
-jq -sj '
-    (.[0] // {})
-    | .autoInstallIdeExtension = false
-    | .mcpServers.context7 = {
-        "type": "http",
-        "url": "https://mcp.context7.com/mcp",
-        "headers": { "CONTEXT7_API_KEY": env.CHEZMOI_CONTEXT7_API_KEY }
-      }
-    '
+context7_api_key = {{ .secrets.context7ApiKey | toJson }}
+
+
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
+source = sys.stdin.read()
+config = json.loads(source.strip() or "{}") or {}
+config["autoInstallIdeExtension"] = False
+child(config, "mcpServers")["context7"] = {
+    "type": "http",
+    "url": "https://mcp.context7.com/mcp",
+    "headers": {"CONTEXT7_API_KEY": context7_api_key},
+}
+
+sys.stdout.write(json.dumps(config, indent=2, ensure_ascii=False))

@@ -1,0 +1,45 @@
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --with tomlkit --script
+# Codex owns the rest of this file, including projects and trust records.
+import sys
+
+import tomlkit
+
+context7_api_key = {{ .secrets.context7ApiKey | toJson }}
+
+
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
+config = tomlkit.parse(sys.stdin.read())
+config.update(
+    approval_policy="never",
+    model_context_window=1000000,
+    model_auto_compact_token_limit=500000,
+    personality="pragmatic",
+    sandbox_mode="danger-full-access",
+    service_tier="default",
+)
+
+context7 = child(child(config, "mcp_servers"), "context7")
+context7["url"] = "https://mcp.context7.com/mcp"
+child(context7, "http_headers")["CONTEXT7_API_KEY"] = context7_api_key
+
+child(config, "tui").update(
+    auto_recap=False,
+    status_line=[
+        "model-with-reasoning",
+        "current-dir",
+        "project-root",
+        "git-branch",
+        "context-used",
+        "five-hour-limit",
+        "weekly-limit",
+    ],
+    terminal_title=["spinner", "thread-title"],
+)
+
+sys.stdout.write(tomlkit.dumps(config))

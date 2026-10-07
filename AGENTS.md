@@ -24,7 +24,7 @@ The `server` profile carries no compiled-language toolchains, coding assistants,
 
 ## Secrets
 
-`home/.chezmoi.toml.tmpl` fills `.secrets` from `~/.config/chezmoi/secrets.toml` when that file exists, and from Bitwarden through `rbw` otherwise. The keys are `context7ApiKey`, `githubToken`, `giteaToken`, `droneToken`, `dockerToken`, `sshPrivateKey` and `sshPublicKey`. Every key defaults to an empty string, so a template that uses one must still render when it is empty. `home/.chezmoiignore.tmpl` is the place to skip a whole file in that case, and it keeps CLI logins off the server profile. Git uses its native credential store with one private file per host, so a successful login cannot reorder entries and leave the target out of sync. tea reads `~/Library/Application Support/tea/config.yml` on macOS and `~/.config/tea/config.yml` on Linux, so `home/.chezmoitemplates/tea-config.yml` patches both; the first run seeds the file from a legacy `~/.tea/tea.yml`, which tea stops reading once the new file exists.
+`home/.chezmoi.toml.tmpl` fills `.secrets` from `~/.config/chezmoi/secrets.toml` when that file exists, and from Bitwarden through `rbw` otherwise. The keys are `context7ApiKey`, `githubToken`, `giteaToken`, `droneToken`, `dockerToken`, `sshPrivateKey` and `sshPublicKey`. Every key defaults to an empty string, so a template that uses one must still render when it is empty. `home/.chezmoiignore.tmpl` is the place to skip a whole file in that case, and it keeps CLI logins off the server profile. Git uses its native credential store with one private file per host, so a successful login cannot reorder entries and leave the target out of sync. tea reads `~/Library/Application Support/tea/config.yml` on macOS and `~/.config/tea/config.yml` on Linux, so `home/.chezmoitemplates/tea-config.py` patches both; the first run seeds the file from a legacy `~/.tea/tea.yml`, which tea stops reading once the new file exists.
 
 Never commit a secret, a generated configuration file or a private key. One GitHub token serves Git, gh, mise and package downloads, so `githubToken` needs the `repo`, `read:org`, `workflow` and `read:packages` scopes. The macOS Docker script logs into GHCR, Gitea and Docker Hub with tokens it reads at run time through `"$CHEZMOI_EXECUTABLE" --config "$CHEZMOI_CONFIG_FILE" dump-config`, so neither the rendered script nor argv holds them; Linux registry logins belong to Ansible.
 
@@ -46,9 +46,34 @@ A `run_once_` script runs only when its rendered content has not already complet
 
 `home/.chezmoiscripts/run_once_after_10-mise.sh.tmpl` hashes the mise config and `run_onchange_after_11-completions.sh.tmpl` hashes the completion registry. Adding another input that must retrigger a script means adding another hash line to that script.
 
-`home/.chezmoihooks/ensure-prerequisites.sh` runs before every source-state read and only checks prerequisites. Do not make it install or prompt: it also runs under non-interactive Ansible provisioning, where a prompt deadlocks the run. It demands an unlocked Bitwarden vault only when neither `~/.config/chezmoi/secrets.toml` nor `~/.config/chezmoi/chezmoi.toml` exists, so `chezmoi status` and `chezmoi diff` keep working on a configured machine.
+`home/.chezmoihooks/ensure-prerequisites.sh` runs before every source-state read and checks prerequisites. Its one download fills uv's cache for the `modify_` scripts, described below. Keep it from installing system packages or prompting: it also runs under non-interactive Ansible provisioning, where a prompt deadlocks the run. It demands an unlocked Bitwarden vault only when neither `~/.config/chezmoi/secrets.toml` nor `~/.config/chezmoi/chezmoi.toml` exists, so `chezmoi status` and `chezmoi diff` keep working on a configured machine.
 
-Keep each file's existing shebang and portability target. Scripts under `home/.chezmoiscripts/` are bash, the `modify_` scripts declare `#!/bin/sh`, and `home/dot_config/shell/` is sourced by both bash and zsh. Indent with tabs. CI checks the zsh files with `zsh -n`, and everything else with `bash -n`, `shellcheck -s bash -e SC1090,SC1091` and `shfmt -d -i 0`.
+Keep each file's existing shebang and portability target. Scripts under `home/.chezmoiscripts/` are bash, and `home/dot_config/shell/` is sourced by both bash and zsh. Indent with tabs. CI checks the zsh files with `zsh -n`, and the other shell files with `bash -n`, `shellcheck -s bash -e SC1090,SC1091` and `shfmt -d -i 0`.
+
+## Modify scripts
+
+Every `modify_` script is Python run by uv, so all of them share one language and one shape; `home/dot_cargo/modify_config.toml.tmpl` is the smallest example. chezmoi feeds the current target on stdin, empty when the target does not exist, and replaces the target with stdout. It runs them on every `status`, `diff` and `apply`, so they only read and print.
+
+The shebang is `#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --with PACKAGE --script`, without `--with` when the standard library is enough:
+
+- `--script` is required because chezmoi runs a temporary copy named after the target, such as `/tmp/123.config.toml`.
+- Dependencies go in `--with`, not in an inline `# /// script` block. uv keys inline-metadata environments by script path, so chezmoi's random path would add a cached environment on every run. Neither the packages nor Python carry a version: `--no-managed-python` makes uv run the Python that mise or the system puts on `PATH` rather than one uv installed, so keep the scripts compatible with macOS's `/usr/bin/python3`, which a fresh Mac runs until mise installs Python.
+- `--no-project` keeps uv from syncing a Python project that encloses the temporary script or the working directory.
+- `--offline` keeps `status` and `diff` working without a network. Without it uv revalidates its PyPI index cache after ten minutes and fails when offline. The prerequisite hook runs each distinct shebang before chezmoi reads the source state and fetches its packages without `--offline` when uv's cache lacks them, so a new dependency needs no other change. `update` sets `CHEZMOI_UV_REFRESH`, which makes the hook fetch the latest versions; until then a machine keeps the versions it fetched first.
+
+Use the standard library for JSON, XML and netrc; `json` keeps key order. Use `tomlkit` for TOML and `ruamel.yaml` with `preserve_quotes` for YAML, because both keep the comments, order and quoting of keys the script does not own. Give a new format a round-trip parser rather than regular expressions over its text.
+
+Each script follows the same order:
+
+1. A comment saying what the application owns or why the file is patched rather than replaced.
+2. Template data as constants rendered with `toJson`, such as `token = {{ dig "giteaToken" "" .secrets | toJson }}`. The rest is plain Python without template actions, and a script that needs no data is not a `.tmpl`.
+3. Parse stdin, treating empty input as an empty document.
+4. Set only the managed keys, so unmanaged keys keep their values and position. Reach nested tables through the `child(parent, key)` helper, which each script defines because the scripts share no module; it also replaces a null value, which `setdefault` would return as `None`.
+5. Write the whole document to stdout.
+
+Secrets reach a script only as those constants. The rendered script is a private temporary file, while a command-line argument would show in the process list.
+
+A script must produce a valid file from empty input and reproduce its own output unchanged. CI's apply and `chezmoi verify` into an empty destination check both for the empty case and lint the rendered scripts with `ruff check`; for existing content, pipe a sample through the rendered script twice and compare.
 
 ## Adding a tool
 
@@ -79,7 +104,7 @@ mise supplies portable CLI binaries on both platforms. Homebrew and apt supply b
 
 Cases that look wrong until you know why:
 
-- `jq` comes from mise on every platform, and the bootstrap installs and selects it before chezmoi runs. The prerequisite hook and the `modify_` scripts for `.claude/settings.json` and `.claude.json` need it before the full tool set exists.
+- `uv` comes from mise on every platform, and the bootstrap and the infrastructure repository's `linux/mise` role install and select it before chezmoi runs. chezmoi runs the `modify_` scripts through it on its first `status`, before the dotfiles mise configuration has installed anything, and the prerequisite hook checks for it.
 - `btop` comes from Homebrew on macOS and mise on Linux, because `aqua:aristocratos/btop` ships Linux builds only.
 - `ffmpeg`, ImageMagick, libvips and Graphviz are native packages on both platforms.
 - PostgreSQL, MySQL and Redis clients are native packages. `home/dot_zshenv.tmpl` and `home/dot_zprofile.tmpl` add the Homebrew `libpq` and `mysql-client` binary directories to `PATH`.
@@ -109,9 +134,7 @@ The agent workflow relies on the Paseo plugins from [paseo-plugins](https://gith
 
 On macOS the updater falls back to `/Applications/Paseo.app/Contents/Resources/bin/paseo`, so shell CLI registration is optional. Missing CLI or a stopped daemon produces a warning. Test installers with a mocked CLI or an explicit isolated daemon endpoint; changing only `HOME` can still reach a live daemon through the default TCP port.
 
-Application-owned JSON and TOML is patched, not replaced. `home/dot_claude/modify_private_settings.json.tmpl` and `home/modify_private_dot_claude.json.tmpl` pipe the existing file through `jq` and set only the managed keys; `.claude.json` uses `jq -sj` because Claude Code writes it without a trailing newline. `home/dot_codex/modify_private_config.toml` uses chezmoi's `setValueAtPath` on parsed TOML. Codex uses a 1,000,000-token context window and compacts at 500,000 tokens. Claude uses `autoCompactWindow = 500000` with automatic compaction enabled; its effective model context is provider-owned. Preserve host-selected models, reasoning effort, desktop settings, plugins, hooks and trust records when patching these files.
-
-Keep the secret in an environment variable rather than a `jq` argument so it stays out of the process list.
+Application-owned JSON and TOML is patched, not replaced, with the `modify_` scripts described above. `home/dot_claude/modify_private_settings.json` and `home/modify_private_dot_claude.json.tmpl` set only the managed keys; `.claude.json` is written without a trailing newline because Claude Code writes it that way. Codex uses a 1,000,000-token context window and compacts at 500,000 tokens. Claude uses `autoCompactWindow = 500000` with automatic compaction enabled; its effective model context is provider-owned. Preserve host-selected models, reasoning effort, desktop settings, plugins, hooks and trust records when patching these files.
 
 ## Verify a change
 

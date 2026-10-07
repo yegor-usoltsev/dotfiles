@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --script
 # Parse complete netrc entries so hosts on the same line remain independent.
 import netrc
 import sys
@@ -22,7 +22,9 @@ def quote(value):
 # The default entry stays last for clients that stop at the first match.
 for host in sorted(config.hosts, key=lambda value: (value == "default", value)):
     login, account, password = config.hosts[host]
-    sys.stdout.write("default\n" if host == "default" else "machine " + quote(host) + "\n")
+    sys.stdout.write(
+        "default\n" if host == "default" else "machine " + quote(host) + "\n"
+    )
     sys.stdout.write("  login " + quote(login) + "\n")
     if account:
         sys.stdout.write("  account " + quote(account) + "\n")

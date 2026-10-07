@@ -1,0 +1,26 @@
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --script
+# Replace only the managed scope and token lines; the public default registry stays.
+import sys
+
+github_token = {{ dig "githubToken" "" .secrets | toJson }}
+gitea_token = {{ dig "giteaToken" "" .secrets | toJson }}
+gitea_owners = {{ .giteaPackageOwners | toJson }}
+
+managed = {}
+if github_token:
+    managed["@yegor-usoltsev:registry"] = "https://npm.pkg.github.com/"
+    managed["//npm.pkg.github.com/:_authToken"] = github_token
+if gitea_token:
+    for owner in gitea_owners:
+        url = f"//gitea.usoltsev.xyz/api/packages/{owner}/npm/"
+        managed[f"@{owner}:registry"] = f"https:{url}"
+        managed[f"{url}:_authToken"] = gitea_token
+
+lines = [
+    line
+    for line in sys.stdin.read().splitlines()
+    if line.split("=", 1)[0].strip() not in managed
+]
+lines += [f"{key}={value}" for key, value in managed.items()]
+
+sys.stdout.write("".join(f"{line}\n" for line in lines))

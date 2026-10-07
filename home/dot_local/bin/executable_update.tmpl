@@ -27,9 +27,10 @@ info "Updating mise"
 success "Mise updated"
 
 # Rewriting this script mid-run is safe: chezmoi renames a temporary copy over
-# the target, so the running shell keeps reading the inode it opened.
+# the target, so the running shell keeps reading the inode it opened. The
+# variable makes the prerequisite hook fetch the latest modify_ script packages.
 info "Updating dotfiles"
-"$HOME/.local/bin/chezmoi" update
+CHEZMOI_UV_REFRESH=1 "$HOME/.local/bin/chezmoi" update
 success "Dotfiles updated"
 
 info "Updating mise tools"

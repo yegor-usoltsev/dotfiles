@@ -1,0 +1,24 @@
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --with tomlkit --script
+# Name the Gitea Cargo registries; crates.io stays the default.
+import sys
+
+import tomlkit
+
+owners = {{ .giteaPackageOwners | toJson }}
+
+
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
+config = tomlkit.parse(sys.stdin.read())
+registries = child(config, "registries")
+for owner in owners:
+    registry = child(registries, f"gitea-{owner}")
+    registry["index"] = f"sparse+https://gitea.usoltsev.xyz/api/packages/{owner}/cargo/"
+    registry["credential-provider"] = "cargo:token"
+
+sys.stdout.write(tomlkit.dumps(config))

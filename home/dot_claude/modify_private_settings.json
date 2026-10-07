@@ -1,0 +1,39 @@
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --script
+# Claude Code owns the rest of this file; keep its key order.
+import json
+import shlex
+import sys
+from pathlib import Path
+
+
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
+source = sys.stdin.read()
+settings = json.loads(source.strip() or "{}") or {}
+
+child(settings, "attribution").update(commit="", pr="", sessionUrl=False)
+child(settings, "env")["CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR"] = "1"
+child(settings, "permissions")["defaultMode"] = "bypassPermissions"
+settings.update(
+    autoCompactEnabled=True,
+    autoCompactWindow=500000,
+    autoMemoryEnabled=False,
+    awaySummaryEnabled=False,
+    language="Russian",
+    outputStyle="Concise",
+    promptSuggestionEnabled=False,
+    skipDangerousModePermissionPrompt=True,
+    syncClaudeAiSkills=False,
+    statusLine={
+        "type": "command",
+        "command": "sh " + shlex.quote(str(Path.home() / ".claude/statusline.sh")),
+    },
+    tui="fullscreen",
+)
+
+print(json.dumps(settings, indent=2, ensure_ascii=False))
