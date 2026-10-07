@@ -5,12 +5,20 @@ import shlex
 import sys
 from pathlib import Path
 
-source = sys.stdin.read()
-settings = json.loads(source) if source.strip() else {}
 
-settings.setdefault("attribution", {}).update(commit="", pr="", sessionUrl=False)
-settings.setdefault("env", {})["CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR"] = "1"
-settings.setdefault("permissions", {})["defaultMode"] = "bypassPermissions"
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
+source = sys.stdin.read()
+settings = json.loads(source.strip() or "{}") or {}
+
+child(settings, "attribution").update(commit="", pr="", sessionUrl=False)
+child(settings, "env")["CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR"] = "1"
+child(settings, "permissions")["defaultMode"] = "bypassPermissions"
 settings.update(
     autoCompactEnabled=True,
     autoCompactWindow=500000,

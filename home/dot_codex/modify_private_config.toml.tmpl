@@ -6,6 +6,14 @@ import tomlkit
 
 context7_api_key = {{ .secrets.context7ApiKey | toJson }}
 
+
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
 config = tomlkit.parse(sys.stdin.read())
 config.update(
     approval_policy="never",
@@ -16,11 +24,11 @@ config.update(
     service_tier="default",
 )
 
-context7 = config.setdefault("mcp_servers", {}).setdefault("context7", {})
+context7 = child(child(config, "mcp_servers"), "context7")
 context7["url"] = "https://mcp.context7.com/mcp"
-context7.setdefault("http_headers", {})["CONTEXT7_API_KEY"] = context7_api_key
+child(context7, "http_headers")["CONTEXT7_API_KEY"] = context7_api_key
 
-config.setdefault("tui", {}).update(
+child(config, "tui").update(
     auto_recap=False,
     status_line=[
         "model-with-reasoning",

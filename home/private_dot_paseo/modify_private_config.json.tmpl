@@ -19,8 +19,15 @@ def output(*command):
     return result.stdout.strip() if result.returncode == 0 else ""
 
 
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
 source = sys.stdin.read()
-config = json.loads(source) if source.strip() else {}
+config = json.loads(source.strip() or "{}") or {}
 config.update(
     {
         "$schema": "https://paseo.sh/schemas/paseo.config.v1.json",
@@ -29,23 +36,23 @@ config.update(
     }
 )
 
-agents = config.setdefault("agents", {})
+agents = child(config, "agents")
 # The paseo skill comes from this repository. With the default "all" selection
 # the daemon reinstalls its bundled skills on startup and overwrites it.
-agents.setdefault("skills", {})["selection"] = {"mode": "custom", "skills": []}
+child(agents, "skills")["selection"] = {"mode": "custom", "skills": []}
 
-daemon = config.setdefault("daemon", {})
+daemon = child(config, "daemon")
 # Appended to the system prompt of every Paseo agent.
 daemon["appendSystemPrompt"] = system_prompt
-daemon.setdefault("mcp", {}).update(enabled=True, injectIntoAgents=True)
+child(daemon, "mcp").update(enabled=True, injectIntoAgents=True)
 
-providers = agents.setdefault("providers", {})
+providers = child(agents, "providers")
 # paseo-peer replaces send_agent_prompt, which interrupts a busy recipient.
 for name in ("claude", "codex"):
-    tools = providers.setdefault(name, {}).setdefault("paseoTools", {})
+    tools = child(child(providers, name), "paseoTools")
     tools["disabledTools"] = ["send_agent_prompt"]
 for name in ("copilot", "opencode", "pi"):
-    providers.setdefault(name, {})["enabled"] = False
+    child(providers, name)["enabled"] = False
 
 # Role IDs stay stable when a model version changes. Manage the complete
 # four-profile list so retired profiles do not remain as duplicate roles.
@@ -108,14 +115,14 @@ if sys.platform == "linux":
 
     daemon["listen"] = "0.0.0.0:6767"
     daemon["hostnames"] = [host, f".{host}"]
-    daemon.setdefault("cors", {})["allowedOrigins"] = origins
+    child(daemon, "cors")["allowedOrigins"] = origins
     # Phones reach this host over Tailscale, not through the relay.
-    daemon.setdefault("relay", {})["enabled"] = False
-    config.setdefault("app", {})["baseUrl"] = f"http://{host}:6767"
-    config.setdefault("worktrees", {})["root"] = str(Path.home() / "paseo" / "worktrees")
-    features = config.setdefault("features", {})
+    child(daemon, "relay")["enabled"] = False
+    child(config, "app")["baseUrl"] = f"http://{host}:6767"
+    child(config, "worktrees")["root"] = str(Path.home() / "paseo" / "worktrees")
+    features = child(config, "features")
     for name in ("dictation", "voiceMode"):
-        features.setdefault(name, {})["enabled"] = False
-    features.setdefault("webUi", {})["enabled"] = True
+        child(features, name)["enabled"] = False
+    child(features, "webUi")["enabled"] = True
 
 print(json.dumps(config, indent=2, ensure_ascii=False))

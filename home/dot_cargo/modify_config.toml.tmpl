@@ -6,10 +6,18 @@ import tomlkit
 
 owners = {{ .giteaPackageOwners | toJson }}
 
+
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
 config = tomlkit.parse(sys.stdin.read())
-registries = config.setdefault("registries", {})
+registries = child(config, "registries")
 for owner in owners:
-    registry = registries.setdefault(f"gitea-{owner}", {})
+    registry = child(registries, f"gitea-{owner}")
     registry["index"] = f"sparse+https://gitea.usoltsev.xyz/api/packages/{owner}/cargo/"
     registry["credential-provider"] = "cargo:token"
 

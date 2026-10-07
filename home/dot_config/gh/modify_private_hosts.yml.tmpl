@@ -7,13 +7,21 @@ from ruamel.yaml import YAML
 user = "yegor-usoltsev"
 token = {{ dig "githubToken" "" .secrets | toJson }}
 
+
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
 yaml = YAML()
 yaml.preserve_quotes = True
 config = yaml.load(sys.stdin) or {}
-host = config.setdefault("github.com", {})
+host = child(config, "github.com")
 host["user"] = user
 host["git_protocol"] = "https"
 host["oauth_token"] = token
-host.setdefault("users", {}).setdefault(user, {})["oauth_token"] = token
+child(child(host, "users"), user)["oauth_token"] = token
 
 yaml.dump(config, sys.stdout)

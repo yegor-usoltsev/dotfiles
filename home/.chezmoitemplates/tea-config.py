@@ -15,19 +15,21 @@ if not source.strip() and legacy.exists():
     source = legacy.read_text()
 config = yaml.load(source) or {}
 
-logins = config.setdefault("logins", [])
+# Rebuild the managed login so stale auth and TLS fields cannot survive.
+logins = [
+    other for other in config.get("logins") or [] if other.get("name") != "default"
+]
 for other in logins:
     other["default"] = False
-login = next((other for other in logins if other["name"] == "default"), None)
-if login is None:
-    login = {}
-    logins.append(login)
-login.update(
-    name="default",
-    url="https://gitea.usoltsev.xyz",
-    user="yegor",
-    token=token,
-    default=True,
+logins.append(
+    {
+        "name": "default",
+        "url": "https://gitea.usoltsev.xyz",
+        "user": "yegor",
+        "token": token,
+        "default": True,
+    }
 )
+config["logins"] = logins
 
 yaml.dump(config, sys.stdout)

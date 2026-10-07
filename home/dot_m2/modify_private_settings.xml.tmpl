@@ -12,7 +12,9 @@ servers = {
 
 source = sys.stdin.read()
 if source.strip():
-    root = ET.fromstring(source, ET.XMLParser(target=ET.TreeBuilder(insert_comments=True)))
+    root = ET.fromstring(
+        source, ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
+    )
 else:
     root = ET.Element("{http://maven.apache.org/SETTINGS/1.2.0}settings")
 namespace = root.tag[1 : root.tag.index("}")] if root.tag.startswith("{") else ""
@@ -32,7 +34,14 @@ server_list = child(root, "servers")
 for server_id, (username, password) in servers.items():
     if not password:
         continue
-    server = next((s for s in server_list.findall(tag("server")) if s.findtext(tag("id")) == server_id), None)
+    server = next(
+        (
+            s
+            for s in server_list.findall(tag("server"))
+            if s.findtext(tag("id")) == server_id
+        ),
+        None,
+    )
     if server is None:
         server = ET.SubElement(server_list, tag("server"))
         ET.SubElement(server, tag("id")).text = server_id
