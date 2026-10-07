@@ -54,10 +54,11 @@ Keep each file's existing shebang and portability target. Scripts under `home/.c
 
 Every `modify_` script is Python run by uv, so all of them share one language and one shape; `home/dot_cargo/modify_config.toml.tmpl` is the smallest example. chezmoi feeds the current target on stdin, empty when the target does not exist, and replaces the target with stdout. It runs them on every `status`, `diff` and `apply`, so they only read and print.
 
-The shebang is `#!/usr/bin/env -S uv run --quiet --python 3.14 --with PACKAGE==VERSION --script`, without `--with` when the standard library is enough:
+The shebang is `#!/usr/bin/env -S uv run --quiet --no-project --python 3.14 --with PACKAGE==VERSION --script`, without `--with` when the standard library is enough:
 
 - `--script` is required because chezmoi runs a temporary copy named after the target, such as `/tmp/123.config.toml`.
 - Dependencies go in `--with` with an exact pin, not in an inline `# /// script` block. uv keys inline-metadata environments by script path, so chezmoi's random path would add a cached environment on every run.
+- `--no-project` keeps uv from syncing a Python project that encloses the temporary script or the working directory.
 - `--python` pins the minor version so every machine runs the same interpreter. Bump it in all shebangs at once.
 
 Use the standard library for JSON, XML and netrc; `json` keeps key order. Use `tomlkit` for TOML and `ruamel.yaml` with `preserve_quotes` for YAML, because both keep the comments, order and quoting of keys the script does not own. Give a new format a round-trip parser rather than regular expressions over its text.
