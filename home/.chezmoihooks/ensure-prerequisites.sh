@@ -19,16 +19,21 @@ command -v uv >/dev/null 2>&1 ||
 	error "uv is missing from PATH; run: mise use --global uv@latest and add ~/.local/share/mise/shims to PATH"
 
 # The modify_ scripts run uv with --offline, so status and diff work without a
-# network even after uv's index cache goes stale. When the cache lacks the
-# Python or the packages one of their shebangs pins, fetch them once here; this
-# downloads into uv's cache and never prompts.
+# network even after uv's index cache goes stale. Fetch what a shebang needs
+# when uv's cache lacks it, and the latest versions when CHEZMOI_UV_REFRESH is
+# set, as `update` does. This only fills uv's cache and never prompts.
 source_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 find "$source_dir" -type f \( -name 'modify_*' -o -path '*/.chezmoitemplates/*.py' \) -exec awk 'FNR == 1' {} + |
 	sed -n 's|^#!/usr/bin/env -S \(uv run .*\) --script$|\1|p' | sort -u |
 	while IFS= read -r command; do
-		/usr/bin/env -S "$command" python -c '' 2>/dev/null ||
-			/usr/bin/env -S "${command/ --offline/}" python -c '' ||
-			error "uv could not fetch what the modify_ scripts need: $command"
+		online="${command/ --offline/}"
+		if [ -n "${CHEZMOI_UV_REFRESH:-}" ]; then
+			online="$online --refresh"
+		elif /usr/bin/env -S "$command" python -c '' 2>/dev/null; then
+			continue
+		fi
+		/usr/bin/env -S "$online" python -c '' ||
+			error "uv could not fetch what the modify_ scripts need: $online"
 	done || exit 1 # Some Bash 3.2 releases skip errexit for this pipeline.
 
 # Bitwarden is only read while the config template is being evaluated, which

@@ -54,13 +54,12 @@ Keep each file's existing shebang and portability target. Scripts under `home/.c
 
 Every `modify_` script is Python run by uv, so all of them share one language and one shape; `home/dot_cargo/modify_config.toml.tmpl` is the smallest example. chezmoi feeds the current target on stdin, empty when the target does not exist, and replaces the target with stdout. It runs them on every `status`, `diff` and `apply`, so they only read and print.
 
-The shebang is `#!/usr/bin/env -S uv run --quiet --no-project --offline --python 3.14 --with PACKAGE==VERSION --script`, without `--with` when the standard library is enough:
+The shebang is `#!/usr/bin/env -S uv run --quiet --no-project --offline --with PACKAGE --script`, without `--with` when the standard library is enough:
 
 - `--script` is required because chezmoi runs a temporary copy named after the target, such as `/tmp/123.config.toml`.
-- Dependencies go in `--with` with an exact pin, not in an inline `# /// script` block. uv keys inline-metadata environments by script path, so chezmoi's random path would add a cached environment on every run.
+- Dependencies go in `--with`, not in an inline `# /// script` block. uv keys inline-metadata environments by script path, so chezmoi's random path would add a cached environment on every run. Neither the packages nor Python carry a version: uv runs the Python that mise or the system puts on `PATH`, so keep the scripts compatible with macOS's `/usr/bin/python3`, which a fresh Mac runs until mise installs Python.
 - `--no-project` keeps uv from syncing a Python project that encloses the temporary script or the working directory.
-- `--offline` keeps `status` and `diff` working without a network. Without it uv revalidates its PyPI index cache after ten minutes and fails when offline. The prerequisite hook runs each distinct shebang before chezmoi reads the source state and, when uv's cache lacks that Python or those packages, fetches them once without `--offline`, so a new pin needs no other change.
-- `--python` pins the minor version so every machine runs the same interpreter. Bump it in all shebangs at once.
+- `--offline` keeps `status` and `diff` working without a network. Without it uv revalidates its PyPI index cache after ten minutes and fails when offline. The prerequisite hook runs each distinct shebang before chezmoi reads the source state and fetches its packages without `--offline` when uv's cache lacks them, so a new dependency needs no other change. `update` sets `CHEZMOI_UV_REFRESH`, which makes the hook fetch the latest versions; until then a machine keeps the versions it fetched first.
 
 Use the standard library for JSON, XML and netrc; `json` keeps key order. Use `tomlkit` for TOML and `ruamel.yaml` with `preserve_quotes` for YAML, because both keep the comments, order and quoting of keys the script does not own. Give a new format a round-trip parser rather than regular expressions over its text.
 
