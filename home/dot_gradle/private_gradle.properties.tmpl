@@ -1,10 +1,8 @@
-# Builds read these through `credentials(PasswordCredentials::class)` on a
-# Maven repository named `github` or `gitea`.
-{{- with dig "githubToken" "" .secrets }}
+{{- with dig "githubToken" "" .secrets -}}
 githubUsername=yegor-usoltsev
-githubPassword={{ . | replace "\\" "\\\\" }}
-{{- end }}
-{{- with dig "giteaToken" "" .secrets }}
+githubToken={{ . | replace "\\" "\\\\" }}
+{{ end -}}
+{{- with dig "giteaToken" "" .secrets -}}
 giteaUsername=yegor
-giteaPassword={{ . | replace "\\" "\\\\" }}
-{{- end }}
+giteaToken={{ . | replace "\\" "\\\\" }}
+{{ end -}}
