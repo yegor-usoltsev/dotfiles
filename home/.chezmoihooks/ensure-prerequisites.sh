@@ -3,8 +3,9 @@ set -euo pipefail
 
 error() { printf '\033[0;31m==> ERROR: %s\033[0m\n' "$1" >&2 && exit 1; }
 
-# This hook deliberately only checks prerequisites. Installing or prompting here
-# could deadlock a non-interactive chezmoi run such as Ansible provisioning.
+# This hook checks prerequisites and fills uv's cache; it never installs system
+# packages or prompts, which could deadlock a non-interactive chezmoi run such as
+# Ansible provisioning.
 case "$(uname -s)" in
 Darwin)
 	rbw_fix="brew install rbw"
@@ -25,9 +26,8 @@ source_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 find "$source_dir" -type f \( -name 'modify_*' -o -path '*/.chezmoitemplates/*.py' \) -exec awk 'FNR == 1' {} + |
 	sed -n 's|^#!/usr/bin/env -S \(uv run .*\) --script$|\1|p' | sort -u |
 	while IFS= read -r command; do
-		# shellcheck disable=SC2086 # Split the shebang arguments as env -S does.
-		$command python -c '' 2>/dev/null ||
-			${command/ --offline/} python -c '' ||
+		/usr/bin/env -S "$command" python -c '' 2>/dev/null ||
+			/usr/bin/env -S "${command/ --offline/}" python -c '' ||
 			error "uv could not fetch what the modify_ scripts need: $command"
 	done
 
