@@ -34,9 +34,9 @@ jobs:
             sudo apt-get update
             sudo apt-get install --yes shellcheck shfmt zsh
           fi
-          # jq comes from mise, exactly as the bootstrap installs it.
+          # uv comes from mise, exactly as the bootstrap installs it.
           curl -fsSL https://mise.run | sh
-          "$HOME/.local/bin/mise" use --global --yes jq@latest
+          "$HOME/.local/bin/mise" use --global --yes uv@latest
           sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b "$HOME/.local/bin"
           echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
@@ -115,10 +115,23 @@ jobs:
           done
 
           rendered_dir="$RUNNER_TEMP/rendered-shell"
-          mkdir -p "$rendered_dir"
+          python_dir="$RUNNER_TEMP/rendered-python"
+          mkdir -p "$rendered_dir" "$python_dir"
           while IFS= read -r script; do
+            # The modify_ scripts are Python; apply and verify above already ran them.
             case "$script" in
-              .bootstrap.sh|home/.chezmoiscripts/*|home/.chezmoihooks/*.sh|home/dot_local/bin/executable_*|home/dot_claude/*.sh|home/dot_claude/modify_*.tmpl|home/private_dot_paseo/modify_*.tmpl|home/dot_bash*|home/dot_z*|home/dot_config/shell/*) ;;
+              home/*modify_*|home/.chezmoitemplates/*.py)
+                rendered="$python_dir/${script//\//-}.py"
+                case "$script" in
+                  *.tmpl|*.py) "${cm[@]}" execute-template < "$script" > "$rendered" ;;
+                  *) cp "$script" "$rendered" ;;
+                esac
+                chmod +x "$rendered"
+                continue
+                ;;
+            esac
+            case "$script" in
+              .bootstrap.sh|home/.chezmoiscripts/*|home/.chezmoihooks/*.sh|home/dot_local/bin/executable_*|home/dot_claude/*.sh|home/dot_bash*|home/dot_z*|home/dot_config/shell/*) ;;
               *) continue ;;
             esac
             rendered="$rendered_dir/${script//\//-}"
@@ -138,3 +151,5 @@ jobs:
             printf '%s\n' "$(cat "$rendered.normalized")" > "$rendered.normalized"
             shfmt -d -i 0 "$rendered.normalized"
           done < <(git ls-files --cached --others --exclude-standard)
+          # No format check: template data renders as compact JSON.
+          uvx ruff check --isolated "$python_dir"

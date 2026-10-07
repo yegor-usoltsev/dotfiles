@@ -1,0 +1,19 @@
+#!/usr/bin/env -S uv run --quiet --python 3.14 --with ruamel.yaml==0.19.1 --script
+# gh owns the rest of this file, including logins for other hosts.
+import sys
+
+from ruamel.yaml import YAML
+
+user = "yegor-usoltsev"
+token = {{ dig "githubToken" "" .secrets | toJson }}
+
+yaml = YAML()
+yaml.preserve_quotes = True
+config = yaml.load(sys.stdin) or {}
+host = config.setdefault("github.com", {})
+host["user"] = user
+host["git_protocol"] = "https"
+host["oauth_token"] = token
+host.setdefault("users", {}).setdefault(user, {})["oauth_token"] = token
+
+yaml.dump(config, sys.stdout)

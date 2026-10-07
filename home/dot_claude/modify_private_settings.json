@@ -1,0 +1,31 @@
+#!/usr/bin/env -S uv run --quiet --python 3.14 --script
+# Claude Code owns the rest of this file; keep its key order.
+import json
+import shlex
+import sys
+from pathlib import Path
+
+source = sys.stdin.read()
+settings = json.loads(source) if source.strip() else {}
+
+settings.setdefault("attribution", {}).update(commit="", pr="", sessionUrl=False)
+settings.setdefault("env", {})["CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR"] = "1"
+settings.setdefault("permissions", {})["defaultMode"] = "bypassPermissions"
+settings.update(
+    autoCompactEnabled=True,
+    autoCompactWindow=500000,
+    autoMemoryEnabled=False,
+    awaySummaryEnabled=False,
+    language="Russian",
+    outputStyle="Concise",
+    promptSuggestionEnabled=False,
+    skipDangerousModePermissionPrompt=True,
+    syncClaudeAiSkills=False,
+    statusLine={
+        "type": "command",
+        "command": "sh " + shlex.quote(str(Path.home() / ".claude/statusline.sh")),
+    },
+    tui="fullscreen",
+)
+
+print(json.dumps(settings, indent=2, ensure_ascii=False))

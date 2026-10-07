@@ -1,3 +1,0 @@
-{{- /* chezmoi:modify-template */ -}}
-{{- /* tea reads its config from the platform config directory. */ -}}
-{{ includeTemplate "tea-config.yml" . | trim }}

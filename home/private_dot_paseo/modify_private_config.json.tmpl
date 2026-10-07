@@ -1,109 +1,121 @@
-#!/bin/sh
-set -eu
-
+#!/usr/bin/env -S uv run --quiet --python 3.14 --script
 # The Paseo daemon owns the rest of this file: installed plugins, terminal
 # profiles and anything changed in Settings. Patch only the managed keys.
-{{- if eq .chezmoi.os "linux" }}
-{{- $host := .chezmoi.hostname }}
-{{- $hostnames := list $host (printf ".%s" $host) }}
-{{- $origins := list (printf "http://%s:6767" $host) "http://localhost:6767" }}
-{{- /* Tailscale may be installed but not yet up on a fresh host. */}}
-{{- $tailnet := output "sh" "-c" "tailscale status --json 2>/dev/null | jq -r '.MagicDNSSuffix // empty' || true" | trim }}
-{{- $tailscaleIp := output "sh" "-c" "tailscale ip -4 2>/dev/null | head -n 1 || true" | trim }}
-{{- if $tailnet }}
-{{- $origins = append $origins (printf "http://%s.%s:6767" $host $tailnet) }}
-{{- end }}
-{{- if $tailscaleIp }}
-{{- $origins = append $origins (printf "http://%s:6767" $tailscaleIp) }}
-{{- end }}
-PASEO_HOSTNAMES={{ join " " $hostnames | shellQuote }}
-PASEO_ORIGINS={{ join " " $origins | shellQuote }}
-PASEO_BASE_URL={{ printf "http://%s:6767" $host | shellQuote }}
-PASEO_WORKTREES={{ joinPath .chezmoi.homeDir "paseo" "worktrees" | shellQuote }}
-export PASEO_HOSTNAMES PASEO_ORIGINS PASEO_BASE_URL PASEO_WORKTREES
-{{- end }}
-# Keep prompt text literal; macOS Bash 3.2 misparses a quoted heredoc inside $(...).
-# shellcheck disable=SC2016
-export PASEO_SYSTEM_PROMPT={{ includeTemplate ".chezmoitemplates/paseo-system-prompt" . | trim | shellQuote }}
+import json
+import socket
+import subprocess
+import sys
+from pathlib import Path
 
-jq -s '
-    (.[0] // {})
-    | ."$schema" = "https://paseo.sh/schemas/paseo.config.v1.json"
-    | .version = 1
-    | .pluginsEnabled = true
-    # The paseo skill comes from this repository. With the default "all"
-    # selection the daemon reinstalls its bundled skills on startup and
-    # overwrites it.
-    | .agents.skills.selection = { "mode": "custom", "skills": [] }
-    # Appended to the system prompt of every Paseo agent.
-    | .daemon.appendSystemPrompt = env.PASEO_SYSTEM_PROMPT
-    | .daemon.mcp.enabled = true
-    | .daemon.mcp.injectIntoAgents = true
-    # paseo-peer replaces send_agent_prompt, which interrupts a busy recipient.
-    | ["send_agent_prompt"] as $disabled
-    | .agents.providers.claude.paseoTools.disabledTools = $disabled
-    | .agents.providers.codex.paseoTools.disabledTools = $disabled
-    | .agents.providers.copilot.enabled = false
-    | .agents.providers.opencode.enabled = false
-    | .agents.providers.pi.enabled = false
-    # Role IDs stay stable when a model version changes. Manage the complete
-    # four-profile list so retired profiles do not remain as duplicate roles.
-    | .daemon.agentProfiles = [
-        {
-          "id": "agent_profile_claude_senior",
-          "name": "claude-senior",
-          "icon": "brain",
-          "color": "orange",
-          "provider": "claude",
-          "model": "claude-opus-5-5",
-          "modeId": "bypassPermissions",
-          "thinkingOptionId": "high",
-          "notes": "Senior peer: an equal colleague to the other senior for owning a task, planning, implementing and independent review. Strongest at ambiguous requirements, architecture and keeping the overall goal in view."
-        },
-        {
-          "id": "agent_profile_codex_senior",
-          "name": "codex-senior",
-          "icon": "brain",
-          "color": "blue",
-          "provider": "codex",
-          "model": "gpt-6.1-sol",
-          "modeId": "full-access",
-          "thinkingOptionId": "high",
-          "notes": "Senior peer: an equal colleague to the other senior for owning a task, planning, implementing and independent review. Strongest at iterative implementation, debugging and tests."
-        },
-        {
-          "id": "agent_profile_claude_worker",
-          "name": "claude-worker",
-          "icon": "hammer",
-          "color": "orange",
-          "provider": "claude",
-          "model": "claude-sonnet-5-5",
-          "modeId": "bypassPermissions",
-          "thinkingOptionId": "medium",
-          "notes": "Implementation worker: scoped coding, refactoring, tests, documentation and substantial repository investigation. Works within the assigned files, commits and reports evidence to the agent that started it. Escalates unclear requirements or scope changes to that agent instead of starting peers."
-        },
-        {
-          "id": "agent_profile_codex_scout",
-          "name": "codex-scout",
-          "icon": "eye",
-          "color": "blue",
-          "provider": "codex",
-          "model": "gpt-6-luna",
-          "modeId": "full-access",
-          "thinkingOptionId": "max",
-          "notes": "Fast, inexpensive read-only scout: narrow searches, symbol tracing, data extraction and factual checks with an easily verified answer. Returns concise evidence and uncertainty to the agent that started it. Never edits files or changes services; implementation and deeper analysis belong to a worker."
-        }
-      ]
-{{- if eq .chezmoi.os "linux" }}
-    | .daemon.listen = "0.0.0.0:6767"
-    | .daemon.hostnames = (env.PASEO_HOSTNAMES | split(" "))
-    | .daemon.cors.allowedOrigins = (env.PASEO_ORIGINS | split(" "))
+system_prompt = {{ includeTemplate ".chezmoitemplates/paseo-system-prompt" . | trim | toJson }}
+
+
+def output(*command):
+    """Return a command's trimmed output, or "" when it is missing or fails."""
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+    except FileNotFoundError:
+        return ""
+    return result.stdout.strip() if result.returncode == 0 else ""
+
+
+source = sys.stdin.read()
+config = json.loads(source) if source.strip() else {}
+config.update(
+    {
+        "$schema": "https://paseo.sh/schemas/paseo.config.v1.json",
+        "version": 1,
+        "pluginsEnabled": True,
+    }
+)
+
+agents = config.setdefault("agents", {})
+# The paseo skill comes from this repository. With the default "all" selection
+# the daemon reinstalls its bundled skills on startup and overwrites it.
+agents.setdefault("skills", {})["selection"] = {"mode": "custom", "skills": []}
+
+daemon = config.setdefault("daemon", {})
+# Appended to the system prompt of every Paseo agent.
+daemon["appendSystemPrompt"] = system_prompt
+daemon.setdefault("mcp", {}).update(enabled=True, injectIntoAgents=True)
+
+providers = agents.setdefault("providers", {})
+# paseo-peer replaces send_agent_prompt, which interrupts a busy recipient.
+for name in ("claude", "codex"):
+    tools = providers.setdefault(name, {}).setdefault("paseoTools", {})
+    tools["disabledTools"] = ["send_agent_prompt"]
+for name in ("copilot", "opencode", "pi"):
+    providers.setdefault(name, {})["enabled"] = False
+
+# Role IDs stay stable when a model version changes. Manage the complete
+# four-profile list so retired profiles do not remain as duplicate roles.
+daemon["agentProfiles"] = [
+    {
+        "id": "agent_profile_claude_senior",
+        "name": "claude-senior",
+        "icon": "brain",
+        "color": "orange",
+        "provider": "claude",
+        "model": "claude-opus-5-5",
+        "modeId": "bypassPermissions",
+        "thinkingOptionId": "high",
+        "notes": "Senior peer: an equal colleague to the other senior for owning a task, planning, implementing and independent review. Strongest at ambiguous requirements, architecture and keeping the overall goal in view.",
+    },
+    {
+        "id": "agent_profile_codex_senior",
+        "name": "codex-senior",
+        "icon": "brain",
+        "color": "blue",
+        "provider": "codex",
+        "model": "gpt-6.1-sol",
+        "modeId": "full-access",
+        "thinkingOptionId": "high",
+        "notes": "Senior peer: an equal colleague to the other senior for owning a task, planning, implementing and independent review. Strongest at iterative implementation, debugging and tests.",
+    },
+    {
+        "id": "agent_profile_claude_worker",
+        "name": "claude-worker",
+        "icon": "hammer",
+        "color": "orange",
+        "provider": "claude",
+        "model": "claude-sonnet-5-5",
+        "modeId": "bypassPermissions",
+        "thinkingOptionId": "medium",
+        "notes": "Implementation worker: scoped coding, refactoring, tests, documentation and substantial repository investigation. Works within the assigned files, commits and reports evidence to the agent that started it. Escalates unclear requirements or scope changes to that agent instead of starting peers.",
+    },
+    {
+        "id": "agent_profile_codex_scout",
+        "name": "codex-scout",
+        "icon": "eye",
+        "color": "blue",
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "modeId": "full-access",
+        "thinkingOptionId": "max",
+        "notes": "Fast, inexpensive read-only scout: narrow searches, symbol tracing, data extraction and factual checks with an easily verified answer. Returns concise evidence and uncertainty to the agent that started it. Never edits files or changes services; implementation and deeper analysis belong to a worker.",
+    },
+]
+
+if sys.platform == "linux":
+    host = socket.gethostname().split(".")[0]
+    origins = [f"http://{host}:6767", "http://localhost:6767"]
+    # Tailscale may be installed but not yet up on a fresh host.
+    tailscale_status = output("tailscale", "status", "--json")
+    if tailnet := json.loads(tailscale_status or "{}").get("MagicDNSSuffix"):
+        origins.append(f"http://{host}.{tailnet}:6767")
+    if tailscale_ip := output("tailscale", "ip", "-4").partition("\n")[0]:
+        origins.append(f"http://{tailscale_ip}:6767")
+
+    daemon["listen"] = "0.0.0.0:6767"
+    daemon["hostnames"] = [host, f".{host}"]
+    daemon.setdefault("cors", {})["allowedOrigins"] = origins
     # Phones reach this host over Tailscale, not through the relay.
-    | .daemon.relay.enabled = false
-    | .app.baseUrl = env.PASEO_BASE_URL
-    | .worktrees.root = env.PASEO_WORKTREES
-    | .features.dictation.enabled = false
-    | .features.voiceMode.enabled = false
-    | .features.webUi.enabled = true
-{{- end }}
-    '
+    daemon.setdefault("relay", {})["enabled"] = False
+    config.setdefault("app", {})["baseUrl"] = f"http://{host}:6767"
+    config.setdefault("worktrees", {})["root"] = str(Path.home() / "paseo" / "worktrees")
+    features = config.setdefault("features", {})
+    for name in ("dictation", "voiceMode"):
+        features.setdefault(name, {})["enabled"] = False
+    features.setdefault("webUi", {})["enabled"] = True
+
+print(json.dumps(config, indent=2, ensure_ascii=False))

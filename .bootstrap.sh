@@ -63,23 +63,23 @@ ensure_mise() {
 	success "mise installed"
 }
 
-# chezmoi needs jq before the dotfiles mise configuration exists.
-ensure_mise_jq() {
+# The modify_ scripts need uv before the dotfiles mise configuration exists.
+ensure_mise_uv() {
 	local mise_bin="$HOME/.local/bin/mise"
-	local shim="$HOME/.local/share/mise/shims/jq"
+	local shim="$HOME/.local/share/mise/shims/uv"
 	if command -v mise >/dev/null 2>&1; then
 		mise_bin="$(command -v mise)"
 	fi
 	if "$shim" --version >/dev/null 2>&1; then
-		info "jq already installed with mise"
+		info "uv already installed with mise"
 		return
 	fi
-	info "Installing jq with mise..."
-	if ! "$mise_bin" install jq >/dev/null 2>&1 || ! "$shim" --version >/dev/null 2>&1; then
-		"$mise_bin" use --global --yes jq@latest
+	info "Installing uv with mise..."
+	if ! "$mise_bin" install uv >/dev/null 2>&1 || ! "$shim" --version >/dev/null 2>&1; then
+		"$mise_bin" use --global --yes uv@latest
 	fi
-	"$shim" --version >/dev/null 2>&1 || error "mise could not provide jq"
-	success "jq installed"
+	"$shim" --version >/dev/null 2>&1 || error "mise could not provide uv"
+	success "uv installed"
 }
 
 ensure_bitwarden() {
@@ -108,7 +108,7 @@ Darwin)
 	ensure_homebrew
 	ensure_brew_packages
 	ensure_mise
-	ensure_mise_jq
+	ensure_mise_uv
 	;;
 Linux)
 	distribution="Linux"
@@ -121,7 +121,7 @@ Linux)
 		error "Unsupported Linux distribution: $distribution; apt-get is required"
 	ensure_apt_packages
 	ensure_mise
-	ensure_mise_jq
+	ensure_mise_uv
 	;;
 *)
 	error "Unsupported operating system: $(uname -s)"

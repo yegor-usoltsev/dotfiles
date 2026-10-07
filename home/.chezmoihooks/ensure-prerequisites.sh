@@ -14,8 +14,9 @@ Darwin)
 	;;
 esac
 
-command -v jq >/dev/null 2>&1 ||
-	error "jq is missing from PATH; run: mise use --global jq@latest and add ~/.local/share/mise/shims to PATH"
+# The modify_ scripts run through uv run, which also finds or downloads Python.
+command -v uv >/dev/null 2>&1 ||
+	error "uv is missing from PATH; run: mise use --global uv@latest and add ~/.local/share/mise/shims to PATH"
 
 # Bitwarden is only read while the config template is being evaluated, which
 # happens when no generated config exists yet. Demanding an unlocked vault on

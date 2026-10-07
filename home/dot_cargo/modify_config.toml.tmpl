@@ -1,0 +1,16 @@
+#!/usr/bin/env -S uv run --quiet --python 3.14 --with tomlkit==0.15.1 --script
+# Name the Gitea Cargo registries; crates.io stays the default.
+import sys
+
+import tomlkit
+
+owners = {{ .giteaPackageOwners | toJson }}
+
+config = tomlkit.parse(sys.stdin.read())
+registries = config.setdefault("registries", {})
+for owner in owners:
+    registry = registries.setdefault(f"gitea-{owner}", {})
+    registry["index"] = f"sparse+https://gitea.usoltsev.xyz/api/packages/{owner}/cargo/"
+    registry["credential-provider"] = "cargo:token"
+
+sys.stdout.write(tomlkit.dumps(config))

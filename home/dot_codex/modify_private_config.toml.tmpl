@@ -1,0 +1,37 @@
+#!/usr/bin/env -S uv run --quiet --python 3.14 --with tomlkit==0.15.1 --script
+# Codex owns the rest of this file, including projects and trust records.
+import sys
+
+import tomlkit
+
+context7_api_key = {{ .secrets.context7ApiKey | toJson }}
+
+config = tomlkit.parse(sys.stdin.read())
+config.update(
+    approval_policy="never",
+    model_context_window=1000000,
+    model_auto_compact_token_limit=500000,
+    personality="pragmatic",
+    sandbox_mode="danger-full-access",
+    service_tier="default",
+)
+
+context7 = config.setdefault("mcp_servers", {}).setdefault("context7", {})
+context7["url"] = "https://mcp.context7.com/mcp"
+context7.setdefault("http_headers", {})["CONTEXT7_API_KEY"] = context7_api_key
+
+config.setdefault("tui", {}).update(
+    auto_recap=False,
+    status_line=[
+        "model-with-reasoning",
+        "current-dir",
+        "project-root",
+        "git-branch",
+        "context-used",
+        "five-hour-limit",
+        "weekly-limit",
+    ],
+    terminal_title=["spinner", "thread-title"],
+)
+
+sys.stdout.write(tomlkit.dumps(config))
