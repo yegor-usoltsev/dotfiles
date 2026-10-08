@@ -1,6 +1,6 @@
 # Briefs
 
-Fill each field from the current task and drop the ones it does not need. A junior gets the decisions made for it: name the approach, the files and the done condition, and have it ask rather than choose when the brief does not settle something. Point to files and commits rather than pasting the conversation or a large diff. Each example is a complete `initialPrompt`.
+Fill each field from the current task and drop the ones it does not need. For a junior, specify the approach, scope and done condition. Point to files and commits rather than pasting the conversation or a large diff. Each example is a complete `initialPrompt`.
 
 ## Implementer
 
@@ -13,6 +13,8 @@ Checks: npm test -- storage, npm run lint.
 Commit each finished step. Decide judgment calls yourself and list them in your result.
 Send the result to <your agent ID> with peer.send: commits, checks with results, decisions, open issues.
 ```
+
+For a junior, replace `Decide judgment calls yourself and list them in your result.` with `Follow the specified approach. Ask <your agent ID> with peer.send to resolve unclear requirements, scope changes or significant decisions before continuing the affected work.`
 
 ## Reviewer
 

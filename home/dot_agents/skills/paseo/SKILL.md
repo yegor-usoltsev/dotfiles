@@ -13,7 +13,7 @@ Start an agent only for the user's request, as the global rules say. Check `list
 
 ## Start an agent
 
-1. Call `list_profiles` and pick by the role in each profile's notes: a senior peer from another provider for pairing, independent review or work that needs judgment, a junior for simple routine work or exploration with a precise brief and a result you can check. A profile or model the user named wins; an unqualified "ask Claude" or "ask Codex" means that provider's senior.
+1. Call `list_profiles` and pick by the role in each profile's notes: a senior peer from another provider for pairing, independent review or work with significant risk or unresolved decisions, a junior for simple routine work or exploration with a precise brief and a result you can check. A profile or model the user named wins; an unqualified "ask Claude" or "ask Codex" means that provider's senior.
 2. Materialize the profile, since `create_agent` has no profile parameter: `provider: "<provider>/<model>"`, `modeId` → `settings.modeId`, `thinkingOptionId` → `settings.thinkingOptionId`, `featureValues` → `settings.features`. Omit absent values.
 3. Brief it in `initialPrompt` with the [briefs](references/briefs.md) template for its role: the objective and why it matters, what you already know, what it owns, the expected result, the checks, and your agent ID. Pass small context in the brief; write a long handoff to a file under the persistent location from the global rules and pass the path.
 4. Leave `workspaceId` out to share your workspace, and leave `notifyOnFinish` on so its completion wakes you.

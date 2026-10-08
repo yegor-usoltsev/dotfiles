@@ -55,7 +55,7 @@ for name in ("antigravity", "copilot", "muse", "opencode", "pi"):
     child(providers, name)["enabled"] = False
 
 # Both juniors fill one role, so they share its notes.
-junior_notes = "Junior: fast and inexpensive, for simple routine work under a senior's supervision: mechanical edits, well-specified small changes, test and documentation updates, and exploration such as searches, symbol tracing and fact checks. Follows the brief, reports evidence and uncertainty to the agent that started it, and leaves significant decisions, unclear requirements and scope changes to that agent."
+junior_notes = "Junior: fast and inexpensive, for simple routine work or bounded exploration with a precise brief and a checkable result, under a senior's supervision. Follows the specified approach, reports evidence and uncertainty, and asks the supervising senior to resolve unclear requirements, scope changes or significant decisions before continuing the affected work."
 
 # Role IDs stay stable when a model version changes. Manage the complete
 # four-profile list so retired profiles do not remain as duplicate roles.
