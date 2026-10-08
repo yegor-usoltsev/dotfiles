@@ -51,7 +51,7 @@ providers = child(agents, "providers")
 for name in ("claude", "codex"):
     tools = child(child(providers, name), "paseoTools")
     tools["disabledTools"] = ["send_agent_prompt"]
-for name in ("copilot", "opencode", "pi"):
+for name in ("antigravity", "copilot", "muse", "opencode", "pi"):
     child(providers, name)["enabled"] = False
 
 # Role IDs stay stable when a model version changes. Manage the complete
