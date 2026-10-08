@@ -54,6 +54,9 @@ for name in ("claude", "codex"):
 for name in ("antigravity", "copilot", "muse", "opencode", "pi"):
     child(providers, name)["enabled"] = False
 
+# Both juniors fill one role, so they share its notes.
+junior_notes = "Junior: fast and inexpensive, for simple routine work under a senior's supervision: mechanical edits, well-specified small changes, test and documentation updates, and exploration such as searches, symbol tracing and fact checks. Follows the brief, reports evidence and uncertainty to the agent that started it, and leaves significant decisions, unclear requirements and scope changes to that agent."
+
 # Role IDs stay stable when a model version changes. Manage the complete
 # four-profile list so retired profiles do not remain as duplicate roles.
 daemon["agentProfiles"] = [
@@ -80,26 +83,26 @@ daemon["agentProfiles"] = [
         "notes": "Senior peer: an equal colleague to the other senior for owning a task, planning, implementing and independent review. Strongest at iterative implementation, debugging and tests.",
     },
     {
-        "id": "agent_profile_claude_worker",
-        "name": "claude-worker",
+        "id": "agent_profile_claude_junior",
+        "name": "claude-junior",
         "icon": "hammer",
         "color": "orange",
         "provider": "claude",
-        "model": "claude-sonnet-5-5",
+        "model": "claude-haiku-5-5",
         "modeId": "bypassPermissions",
-        "thinkingOptionId": "medium",
-        "notes": "Implementation worker: scoped coding, refactoring, tests, documentation and substantial repository investigation. Works within the assigned files, commits and reports evidence to the agent that started it. Escalates unclear requirements or scope changes to that agent instead of starting peers.",
+        "thinkingOptionId": "xhigh",
+        "notes": junior_notes,
     },
     {
-        "id": "agent_profile_codex_scout",
-        "name": "codex-scout",
-        "icon": "eye",
+        "id": "agent_profile_codex_junior",
+        "name": "codex-junior",
+        "icon": "hammer",
         "color": "blue",
         "provider": "codex",
         "model": "gpt-6-luna",
         "modeId": "full-access",
-        "thinkingOptionId": "max",
-        "notes": "Fast, inexpensive read-only scout: narrow searches, symbol tracing, data extraction and factual checks with an easily verified answer. Returns concise evidence and uncertainty to the agent that started it. Never edits files or changes services; implementation and deeper analysis belong to a worker.",
+        "thinkingOptionId": "xhigh",
+        "notes": junior_notes,
     },
 ]
 

@@ -1,6 +1,6 @@
 # Briefs
 
-Fill each field from the current task and drop the ones it does not need. Point to files and commits rather than pasting the conversation or a large diff. Each example is a complete `initialPrompt`.
+Fill each field from the current task and drop the ones it does not need. A junior gets the decisions made for it: name the approach, the files and the done condition, and have it ask rather than choose when the brief does not settle something. Point to files and commits rather than pasting the conversation or a large diff. Each example is a complete `initialPrompt`.
 
 ## Implementer
 
@@ -24,7 +24,7 @@ Send each finding to <your agent ID> with peer.send as soon as you confirm it, t
 
 For live pairing, add: `Review each commit as it lands; treat unfinished work as context, and confirm a finding still holds at HEAD before sending it.`
 
-## Scout
+## Exploration
 
 ```text
 Question: which services still call the v1 /orders endpoint?

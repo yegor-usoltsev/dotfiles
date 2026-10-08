@@ -26,11 +26,11 @@ Own each rule in one place and link to it elsewhere. Leave commands and options 
 - Leave out "double-check" and "verify your work" steps; extra self-verification instructions cause over-verification. Independent review by another agent is different and worth keeping.
 - Say when not to do something expensive, such as delegating, asking the user or adding a process step, as well as when to do it.
 - Show an example wherever a format is expected: a brief, a message, a finding, a report or a plan file.
-- Use one precise word the model already knows (*owner*, *stalemate*, *scout*) instead of a sentence, and reuse it.
+- Use one precise word the model already knows (*owner*, *stalemate*, *junior*) instead of a sentence, and reuse it.
 - Leave out profile names, model names, versions and dates; they go stale with every release and belong in config. Describe roles instead.
 - Delete sentences the model already obeys by default and whole no-op rules, and preserve unique existing requirements.
 - Check model-specific claims against the vendor's current prompting guide before turning them into rules.
 
 ## Test
 
-When the user explicitly asks for a behavior comparison using additional agents, pick a small representative request and the observable result that should improve. Run it on a fresh worker or scout twice, with the old text and with the new, under the same settings. Give it the request, minimal context and the permitted actions, and keep the expected answer out of its prompt. Inspect what it actually did, including needless questions, duplicate work and unverified claims. Keep the change only if behavior improved, and rerun after a model upgrade to delete rules that have become no-ops.
+When the user explicitly asks for a behavior comparison using additional agents, pick a small representative request and the observable result that should improve. Run it on a fresh junior twice, with the old text and with the new, under the same settings. Give it the request, minimal context and the permitted actions, and keep the expected answer out of its prompt. Inspect what it actually did, including needless questions, duplicate work and unverified claims. Keep the change only if behavior improved, and rerun after a model upgrade to delete rules that have become no-ops.
