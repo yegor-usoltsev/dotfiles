@@ -1,6 +1,6 @@
 # Briefs
 
-Fill each field from the current task and drop the ones it does not need. Point to files and commits rather than pasting the conversation or a large diff. Each example is a complete `initialPrompt`.
+Fill each field from the current task and drop the ones it does not need. For a junior, specify the approach, scope and done condition. Point to files and commits rather than pasting the conversation or a large diff. Each example is a complete `initialPrompt`.
 
 ## Implementer
 
@@ -14,6 +14,8 @@ Commit each finished step. Decide judgment calls yourself and list them in your 
 Send the result to <your agent ID> with peer.send: commits, checks with results, decisions, open issues.
 ```
 
+For a junior, replace `Decide judgment calls yourself and list them in your result.` with `Follow the specified approach. Ask <your agent ID> with peer.send to resolve unclear requirements, scope changes or significant decisions before continuing the affected work.`
+
 ## Reviewer
 
 ```text
@@ -24,7 +26,7 @@ Send each finding to <your agent ID> with peer.send as soon as you confirm it, t
 
 For live pairing, add: `Review each commit as it lands; treat unfinished work as context, and confirm a finding still holds at HEAD before sending it.`
 
-## Scout
+## Exploration
 
 ```text
 Question: which services still call the v1 /orders endpoint?
