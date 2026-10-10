@@ -105,6 +105,7 @@ mise supplies portable CLI binaries on both platforms. Homebrew and apt supply b
 Cases that look wrong until you know why:
 
 - `uv` comes from mise on every platform, and the bootstrap and the infrastructure repository's `linux/mise` role install and select it before chezmoi runs. chezmoi runs the `modify_` scripts through it on its first `status`, before the dotfiles mise configuration has installed anything, and the prerequisite hook checks for it.
+- Git comes from Homebrew on macOS and from the git-core PPA, installed by the infrastructure repository, on Ubuntu. The `[hook "prek"]` section in `home/dot_gitconfig.tmpl` runs every repository's prek or pre-commit config at `pre-commit` without `prek install`, and Git before 2.54 silently ignores it. A repository opts out with `git config hook.prek.enabled false`.
 - `btop` comes from Homebrew on macOS and mise on Linux, because `aqua:aristocratos/btop` ships Linux builds only.
 - `ffmpeg`, ImageMagick, libvips and Graphviz are native packages on both platforms.
 - PostgreSQL, MySQL and Redis clients are native packages. `home/dot_zshenv.tmpl` and `home/dot_zprofile.tmpl` add the Homebrew `libpq` and `mysql-client` binary directories to `PATH`.

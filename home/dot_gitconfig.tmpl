@@ -41,6 +41,15 @@
 [diff]
 	algorithm = histogram
 	colorMoved = default
+{{- if ne .profile "server" }}
+
+# Git 2.54 config-based hook: runs a repository's prek or pre-commit config on
+# every commit without `prek install`, alongside the repository's own hooks.
+# GUI clients may lack the mise shims on PATH, so the command appends them.
+[hook "prek"]
+	event = pre-commit
+	command = PATH=\"$PATH:$HOME/.local/share/mise/shims\" prek hook-impl --hook-type pre-commit --skip-on-missing-config --
+{{- end }}
 
 [init]
 	defaultBranch = main

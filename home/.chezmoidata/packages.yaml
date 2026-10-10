@@ -10,6 +10,8 @@ packages:
     # only, which would mean a different source per platform.
     - "ffmpeg"
     - "fswatch"
+    # Apple's Git predates the config-based hooks that run prek globally.
+    - "git"
     - "graphviz"
     - "imagemagick"
     - "libpq"
