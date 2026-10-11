@@ -1,0 +1,40 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+        # chezmoi sets the mode from the executable_ prefix, not the Git mode.
+        exclude: ^home/
+      - id: check-json
+        # modify_ scripts and editor settings (JSONC) are not plain JSON.
+        exclude: (^|/)modify_|/Code/User/settings\.json$|/zed/private_settings\.json$
+      - id: check-toml
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+        # The macOS Icon pattern in .gitignore files ends with two carriage returns.
+        exclude: (^|/)(\.|dot_)gitignore(\.tmpl)?$
+      - id: trailing-whitespace
+        args: ["--markdown-linebreak-ext=md,mdx"]
+        # The macOS Icon pattern in .gitignore files ends with two carriage returns.
+        exclude: (^|/)(\.|dot_)gitignore(\.tmpl)?$
+  - repo: https://github.com/yegor-usoltsev/pre-commit-hooks
+    rev: v1.0.0
+    hooks:
+      - id: gitleaks
+      - id: shellcheck
+        args: [--shell=bash, "--exclude=SC1090,SC1091"]
+      - id: shfmt
+      - id: hadolint
+      - id: actionlint
+      - id: zizmor
+      - id: check-renovate

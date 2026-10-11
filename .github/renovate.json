@@ -1,0 +1,16 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "group:all",
+    ":enablePreCommit",
+    ":reviewer(yegor-usoltsev)"
+  ],
+  "description": "Only the hook pins in .pre-commit-config.yaml; the dotfiles install tools at their latest versions.",
+  "enabledManagers": [
+    "pre-commit"
+  ],
+  "schedule": [
+    "on the 10th day of the month"
+  ]
+}
