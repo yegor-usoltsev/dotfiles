@@ -25,6 +25,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Install validation tools
         run: |
@@ -153,3 +155,11 @@ jobs:
           done < <(git ls-files --cached --others --exclude-standard)
           # No format check: template data renders as compact JSON.
           uvx ruff check --isolated "$python_dir"
+
+  prek:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: j178/prek-action@v3.0.1
