@@ -139,6 +139,10 @@ minimum_release_age = "0s"
 not_found_auto_install = false
 not_found_system_fallback = false
 
+[settings.gitlab]
+# Public release downloads must not depend on glab's expiring OAuth session.
+glab_cli_tokens = false
+
 [settings.upgrade]
 # Drop the replaced version immediately instead of keeping it for a day.
 prune_after = "0s"
