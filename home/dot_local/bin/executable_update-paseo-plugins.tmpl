@@ -56,33 +56,41 @@ if jq -e '.desktopManaged != true' <<<"$daemon" >/dev/null; then
 	fi
 fi
 {{- end }}
-if ! jq -e '.id == "paseo-resume"' "$checkout/paseo-plugin.json" >/dev/null; then
-	error "Missing or mismatched Paseo plugin manifest in $checkout"
-	exit 1
-fi
-
-prepared=false
-dependencies=$(cksum "$checkout/package.json" "$checkout/package-lock.json")
-stamp=$checkout/node_modules/.paseo-dependencies.cksum
-if [[ ! -f $stamp || $(cat "$stamp") != "$dependencies" || ! -f $checkout/node_modules/@getpaseo/client/package.json ]]; then
-	info "Preparing the Paseo plugin dependencies"
-	npm ci --prefix "$checkout" --omit=dev --ignore-scripts --no-audit --no-fund
-	printf '%s\n' "$dependencies" >"$stamp"
-	prepared=true
-fi
-
 installed=$("$paseo" plugin ls --home "$paseo_home" --json)
+workspace_dirs=$(jq -er '.workspaces[]' "$checkout/package.json")
+while IFS= read -r directory; do
+	plugin_path=$checkout/$directory
+	id=$(jq -er '.id' "$plugin_path/paseo-plugin.json")
+	prepared=false
+	dependencies=$(cksum "$plugin_path/package.json" "$plugin_path/package-lock.json")
+	stamp=$plugin_path/node_modules/.paseo-dependencies.cksum
+	complete=true
+	# A workspace install may hoist runtime packages while leaving the stamp.
+	while IFS= read -r package; do
+		if [[ ! -f $plugin_path/$package/package.json ]]; then
+			complete=false
+			break
+		fi
+	done < <(jq -r '.packages | to_entries[] | select(.key != "" and .value.dev != true) | .key' "$plugin_path/package-lock.json")
+	if ! $complete || [[ ! -f $stamp || $(cat "$stamp") != "$dependencies" ]]; then
+		info "Preparing the Paseo plugin $id dependencies"
+		npm ci --prefix "$plugin_path" --workspaces=false --omit=dev --ignore-scripts --no-audit --no-fund
+		mkdir -p "$plugin_path/node_modules"
+		printf '%s\n' "$dependencies" >"$stamp"
+		prepared=true
+	fi
+	current=$(jq -r --arg id "$id" '.[] | select(.id == $id) | .path' <<<"$installed")
+	status=$(jq -r --arg id "$id" '.[] | select(.id == $id) | .status' <<<"$installed")
+	if [[ $current != "$plugin_path" ]]; then
+		[[ -z $current ]] || "$paseo" plugin remove "$id" --home "$paseo_home" >/dev/null
+		"$paseo" plugin install "$plugin_path" --home "$paseo_home" >/dev/null
+		success "Paseo plugin $id installed"
+	elif $prepared || $updated || [[ $status != running ]]; then
+		"$paseo" plugin reload "$id" --home "$paseo_home" >/dev/null
+		success "Paseo plugin $id updated"
+	fi
+done <<<"$workspace_dirs"
 if jq -e '.[] | select(.id == "paseo-peer")' <<<"$installed" >/dev/null; then
 	"$paseo" plugin remove paseo-peer --home "$paseo_home" >/dev/null
 	info "Removed paseo-peer; agent messaging is built into Paseo"
-fi
-current=$(jq -r '.[] | select(.id == "paseo-resume") | .path' <<<"$installed")
-status=$(jq -r '.[] | select(.id == "paseo-resume") | .status' <<<"$installed")
-if [[ $current != "$checkout" ]]; then
-	[[ -z $current ]] || "$paseo" plugin remove paseo-resume --home "$paseo_home" >/dev/null
-	"$paseo" plugin install "$checkout" --home "$paseo_home" >/dev/null
-	success "Paseo plugin paseo-resume installed"
-elif $prepared || $updated || [[ $status != running ]]; then
-	"$paseo" plugin reload paseo-resume --home "$paseo_home" >/dev/null
-	success "Paseo plugin paseo-resume updated"
 fi
