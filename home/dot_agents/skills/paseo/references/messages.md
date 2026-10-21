@@ -1,6 +1,6 @@
 # Messages
 
-Each `peer.send` message should make sense on its own to a reader who switches in from other work. Lead with what the recipient must act on.
+Each `send_agent_prompt` message should make sense on its own to a reader who switches in from other work. Lead with what the recipient must act on.
 
 ## Finding
 

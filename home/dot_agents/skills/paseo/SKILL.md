@@ -5,7 +5,7 @@ description: Coordinate agents in Paseo. Use before create_agent or create_works
 
 # Paseo
 
-The Paseo system prompt holds the always-on rules: roles, peer.send, waiting, usage limits. This skill covers the moves that need more than a rule. MCP tool schemas and `paseo <command> --help` document arguments; [tools](references/tools.md) holds the non-obvious semantics of workspaces, scripts, heartbeats, schedules and plugins.
+The Paseo system prompt holds the always-on rules: roles, messages, waiting, usage limits. This skill covers the moves that need more than a rule. MCP tool schemas and `paseo <command> --help` document arguments; [tools](references/tools.md) holds the non-obvious semantics of workspaces, scripts, heartbeats, schedules and plugins.
 
 ## Before you start an agent
 
@@ -20,7 +20,7 @@ Start an agent only for the user's request, as the global rules say. Check `list
 
 ## Pair or split
 
-**Pair** for coupled work that needs one line of thought. Both seniors share a workspace; one writes and commits small steps, the other reviews each step from `git diff` as it lands and sends findings with `peer.send` while the writer keeps going. Swap roles at natural boundaries with an explicit handoff; only the current writer edits.
+**Pair** for coupled work that needs one line of thought. Both seniors share a workspace; one writes and commits small steps, the other reviews each step from `git diff` as it lands and sends findings with `send_agent_prompt` while the writer keeps going. Swap roles at natural boundaries with an explicit handoff; only the current writer edits.
 
 **Split** for parts with little overlap. Each extra writer gets its own worktree workspace (`create_workspace` with `isolation: "worktree"`, `mode: "branch-off"` and an explicit `baseBranch`), commits its part there, and then reviews the other part with the `review` skill. The owner merges the branches, runs the final checks, and archives the extra workspaces only when the global rules permit it.
 
@@ -29,7 +29,7 @@ Message formats for findings, handoffs and results are in [messages](references/
 ## Recover
 
 - A quiet agent is usually on a usage limit and resumes by itself. Look with `get_agent_activity` or `paseo logs <id>` only when you are blocked on it.
-- A stuck turn: `cancel_agent`, then a fresh scoped instruction through `peer.send`.
+- A stuck turn: `cancel_agent`, then a fresh scoped instruction through `send_agent_prompt`.
 - An agent beyond repair: preserve its work and start a replacement with the replacement brief, which carries the finished commits and the next step. Archive the old agent only when the global rules permit it.
 - A merge conflict or broken build: the agent whose change caused it fixes it; when that is unclear, the owner does.
 - A disagreement: each side states its evidence once; the owner of that part decides, and in a pair the writer decides. Bring it to the user only when it changes the product outcome or scope.

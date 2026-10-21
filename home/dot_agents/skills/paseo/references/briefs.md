@@ -11,17 +11,17 @@ Ownership: you are the only writer in this checkout until you report; edit src/s
 Expected result: uploadFile retries 503 and network errors up to 3 times; other errors fail at once.
 Checks: npm test -- storage, npm run lint.
 Commit each finished step. Decide judgment calls yourself and list them in your result.
-Send the result to <your agent ID> with peer.send: commits, checks with results, decisions, open issues.
+Send the result to <your agent ID> with send_agent_prompt: commits, checks with results, decisions, open issues.
 ```
 
-For a junior, replace `Decide judgment calls yourself and list them in your result.` with `Follow the specified approach. Ask <your agent ID> with peer.send to resolve unclear requirements, scope changes or significant decisions before continuing the affected work.`
+For a junior, replace `Decide judgment calls yourself and list them in your result.` with `Follow the specified approach. Ask <your agent ID> with send_agent_prompt to resolve unclear requirements, scope changes or significant decisions before continuing the affected work.`
 
 ## Reviewer
 
 ```text
 Review: commits a1b2c3d..HEAD on branch fix-upload in this checkout, against the brief in docs/plans/upload-retry.md.
 Use the review skill. Stay read-only: no checkout, stash, reset or edits, because the writer keeps working in this tree.
-Send each finding to <your agent ID> with peer.send as soon as you confirm it, then a final message that ends with the review summary.
+Send each finding to <your agent ID> with send_agent_prompt as soon as you confirm it, then a final message that ends with the review summary.
 ```
 
 For live pairing, add: `Review each commit as it lands; treat unfinished work as context, and confirm a finding still holds at HEAD before sending it.`
@@ -32,7 +32,7 @@ For live pairing, add: `Review each commit as it lands; treat unfinished work as
 Question: which services still call the v1 /orders endpoint?
 Sources: ~/dev/acme/*/src; HTTP client calls and config files only.
 Read-only: no edits, service changes or new agents.
-Return to <your agent ID> with peer.send: each caller as path:line with the call, plus anything you could not check.
+Return to <your agent ID> with send_agent_prompt: each caller as path:line with the call, plus anything you could not check.
 ```
 
 ## Replacement or handoff
@@ -43,5 +43,5 @@ Goal and plan: ~/dev/artifacts/plans/acme-pwa-parity.md (tasks 1-3 are ticked).
 Done: commits 4d5e6f7 (offline cache) and 8a9b0c1 (install prompt) on branch pwa-parity; npm test passes at 8a9b0c1.
 State: task 4 is half-done and uncommitted in src/sw/sync.ts; finish or rewrite it.
 Next: task 4, then task 5. Decisions so far are under Decisions in the plan.
-Report to <your agent ID> with peer.send when task 5 is committed or if you hit a blocker.
+Report to <your agent ID> with send_agent_prompt when task 5 is committed or if you hit a blocker.
 ```

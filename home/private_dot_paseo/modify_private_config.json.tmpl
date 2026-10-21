@@ -47,10 +47,10 @@ daemon["appendSystemPrompt"] = system_prompt
 child(daemon, "mcp").update(enabled=True, injectIntoAgents=True)
 
 providers = child(agents, "providers")
-# paseo-peer replaces send_agent_prompt, which interrupts a busy recipient.
+# Agent messages use Paseo's built-in steering and sender identity.
 for name in ("claude", "codex"):
     tools = child(child(providers, name), "paseoTools")
-    tools["disabledTools"] = ["send_agent_prompt"]
+    tools.pop("disabledTools", None)
 for name in ("antigravity", "copilot", "muse", "opencode", "pi"):
     child(providers, name)["enabled"] = False
 

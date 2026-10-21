@@ -2,95 +2,87 @@
 set -euo pipefail
 
 {{ template "log" . }}
-# Keeps the plugins from github.com/yegor-usoltsev/paseo-plugins installed in
-# Paseo from a checkout in ~/dev, where they can also be edited. The checkout
-# only fast-forwards when it is a clean main, so local work is never touched.
-# --no-pull keeps existing checkouts in place, preparing dependencies and
-# installing missing plugins without fetching source updates.
+# Update the local plugin checkout, preserving branches and uncommitted work.
+# --no-pull prepares and installs the current revision without fetching.
 {{- if eq .chezmoi.os "darwin" }}
 export PATH="/opt/homebrew/bin:$PATH"
 {{- end }}
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
-repo=https://github.com/yegor-usoltsev/paseo-plugins.git
 checkout=$HOME/dev/yegor-usoltsev/paseo-plugins
-plugins=(peer resume)
-
-pull=true
-if [[ ${1:-} == --no-pull ]]; then
-	pull=false
-fi
+paseo_home=${PASEO_HOME:-$HOME/.paseo}
 
 paseo=paseo
 if ! command -v paseo >/dev/null 2>&1; then
 	paseo=/Applications/Paseo.app/Contents/Resources/bin/paseo
 	if [[ ! -x $paseo ]]; then
-		warn "Skipping the Paseo plugins: no CLI on PATH or in Paseo.app"
+		warn "Skipping the Paseo plugin: no CLI on PATH or in Paseo.app"
 		exit 0
 	fi
 fi
 
 updated=false
 if [[ ! -e $checkout/.git ]]; then
-	info "Cloning the Paseo plugins"
-	git clone --quiet "$repo" "$checkout"
+	info "Cloning the Paseo plugin"
+	git clone --quiet https://github.com/yegor-usoltsev/paseo-plugins.git "$checkout"
 fi
-
-if $pull; then
+if [[ ${1:-} != --no-pull ]]; then
 	if [[ $(git -C "$checkout" branch --show-current) != main || -n $(git -C "$checkout" status --porcelain) ]]; then
-		warn "Skipping the Paseo plugins update: $checkout is not a clean main checkout"
+		warn "Skipping the Paseo plugin update: $checkout is not a clean main checkout"
 	else
 		before=$(git -C "$checkout" rev-parse HEAD)
 		if git -C "$checkout" pull --quiet --ff-only; then
 			[[ $(git -C "$checkout" rev-parse HEAD) == "$before" ]] || updated=true
 		else
-			warn "Could not update the Paseo plugins checkout"
+			warn "Could not update the Paseo plugin checkout"
 		fi
 	fi
 fi
 
-# Plugins are installed through the running daemon; the next run catches up
-# when it is stopped.
-if ! "$paseo" daemon status --json 2>/dev/null | jq -e '.localDaemon == "running"' >/dev/null; then
-	warn "Skipping the Paseo plugins: the local daemon is not running"
+daemon=$("$paseo" daemon status --home "$paseo_home" --json)
+if ! jq -e '.localDaemon == "running"' <<<"$daemon" >/dev/null; then
+	warn "Skipping the Paseo plugin: the local daemon is not running"
 	exit 0
 fi
-installed=$("$paseo" plugin ls --json)
-for plugin in "${plugins[@]}"; do
-	id=paseo-$plugin
-	path=$checkout/$plugin
-	prepared=false
-	current=$(jq -r --arg id "$id" '.[] | select(.id == $id) | .path' <<<"$installed")
-	if ! jq -e --arg id "$id" '.id == $id' "$path/paseo-plugin.json" >/dev/null 2>&1; then
-		warn "Cannot install $id: missing or mismatched manifest in $path"
-		exit 1
+{{- if eq .chezmoi.os "linux" }}
+# mise postinstall fires before upgrade switches latest/lts to the new versions.
+# Reconcile here, after the upgrade command has returned.
+if jq -e '.desktopManaged != true' <<<"$daemon" >/dev/null; then
+	cli_version=$("$paseo" --version)
+	node_bin=$(node -p 'process.execPath')
+	if jq -e --arg version "$cli_version" --arg node "$node_bin" '.daemonVersion != $version or .daemonNode != $node' <<<"$daemon" >/dev/null; then
+		info "Restarting Paseo with the current CLI and Node"
+		"$paseo" daemon stop --home "$paseo_home" --force
+		env -u MISE_NO_HOOKS -u MISE_INSTALLED_TOOLS "$paseo" daemon start --home "$paseo_home"
 	fi
-	# Directory installs do not run the manifest build preparation. Keep the
-	# standalone dependencies current before replacing or reloading a plugin.
-	if [[ -f $path/package-lock.json ]]; then
-		dependencies=$(cksum "$path/package.json" "$path/package-lock.json")
-		stamp=$path/node_modules/.paseo-dependencies.cksum
-		complete=true
-		# Root workspace installs can hoist packages while leaving both stamps.
-		while IFS= read -r package; do
-			if [[ ! -f $path/$package/package.json ]]; then
-				complete=false
-				break
-			fi
-		done < <(jq -r '.packages | keys[] | select(. != "")' "$path/package-lock.json")
-		if ! $complete || [[ ! -f $path/node_modules/.package-lock.json || ! -f $stamp || $(cat "$stamp") != "$dependencies" ]]; then
-			info "Preparing the Paseo plugin $id dependencies"
-			npm ci --prefix "$path" --workspaces=false --omit=dev --ignore-scripts --no-audit --no-fund
-			printf '%s\n' "$dependencies" >"$stamp"
-			prepared=true
-		fi
-	fi
-	if [[ $current != "$path" ]]; then
-		[[ -z $current ]] || "$paseo" plugin remove "$id" >/dev/null
-		info "Installing the Paseo plugin $id"
-		"$paseo" plugin install "$path" >/dev/null
-		success "Paseo plugin $id installed"
-	elif $prepared || { $updated && ! git -C "$checkout" diff --quiet "$before" HEAD -- "$plugin"; }; then
-		"$paseo" plugin reload "$id" >/dev/null
-		success "Paseo plugin $id updated"
-	fi
-done
+fi
+{{- end }}
+if ! jq -e '.id == "paseo-resume"' "$checkout/paseo-plugin.json" >/dev/null; then
+	error "Missing or mismatched Paseo plugin manifest in $checkout"
+	exit 1
+fi
+
+prepared=false
+dependencies=$(cksum "$checkout/package.json" "$checkout/package-lock.json")
+stamp=$checkout/node_modules/.paseo-dependencies.cksum
+if [[ ! -f $stamp || $(cat "$stamp") != "$dependencies" || ! -f $checkout/node_modules/@getpaseo/client/package.json ]]; then
+	info "Preparing the Paseo plugin dependencies"
+	npm ci --prefix "$checkout" --omit=dev --ignore-scripts --no-audit --no-fund
+	printf '%s\n' "$dependencies" >"$stamp"
+	prepared=true
+fi
+
+installed=$("$paseo" plugin ls --home "$paseo_home" --json)
+if jq -e '.[] | select(.id == "paseo-peer")' <<<"$installed" >/dev/null; then
+	"$paseo" plugin remove paseo-peer --home "$paseo_home" >/dev/null
+	info "Removed paseo-peer; agent messaging is built into Paseo"
+fi
+current=$(jq -r '.[] | select(.id == "paseo-resume") | .path' <<<"$installed")
+status=$(jq -r '.[] | select(.id == "paseo-resume") | .status' <<<"$installed")
+if [[ $current != "$checkout" ]]; then
+	[[ -z $current ]] || "$paseo" plugin remove paseo-resume --home "$paseo_home" >/dev/null
+	"$paseo" plugin install "$checkout" --home "$paseo_home" >/dev/null
+	success "Paseo plugin paseo-resume installed"
+elif $prepared || $updated || [[ $status != running ]]; then
+	"$paseo" plugin reload paseo-resume --home "$paseo_home" >/dev/null
+	success "Paseo plugin paseo-resume updated"
+fi

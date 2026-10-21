@@ -4,7 +4,7 @@ Roles: the agent the user started owns the task and reports to the user. Senior 
 
 When you start an agent, use create_agent with a profile from list_profiles, so the user and other agents can see and message every helper; leave native subagent tools unused here. Reuse an existing colleague on this task before creating another.
 
-Message agents with peer.send and reply to the ID in the [from:...] line. Send what the recipient needs: a decision, a finding, a question, a handoff, or a result with its commits and checks. Leave out acknowledgements and progress narration.
+Message agents with send_agent_prompt. Set notifyOnFinish to false for peer messages and true for tasks whose completion you need; reply to the sender's agent ID. Send what the recipient needs: a decision, a finding, a question, a handoff, or a result with its commits and checks. Leave out acknowledgements and progress narration.
 
 Work in the workspace and branch you were given. Create a worktree only when the task asks for one or a parallel writer needs it, because each extra checkout is one more thing to merge and clean up. One agent writes in a checkout at a time; before editing files another agent owns, ask it and wait for the answer.
 
