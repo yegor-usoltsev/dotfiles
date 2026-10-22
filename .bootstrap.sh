@@ -19,41 +19,8 @@ ensure_homebrew() {
 	success "Homebrew installed"
 }
 
-ensure_brew_packages() {
-	local packages=(rbw) missing=()
-	for package in "${packages[@]}"; do
-		command -v "$package" >/dev/null 2>&1 || missing+=("$package")
-	done
-	if [ ${#missing[@]} -eq 0 ]; then
-		info "System packages already installed"
-		return
-	fi
-	info "Installing ${missing[*]}..."
-	brew install "${missing[@]}"
-	success "System packages installed"
-}
-
-ensure_apt_packages() {
-	local packages=(ca-certificates curl git pinentry-curses rbw unzip xz-utils zsh) missing=()
-	for package in "${packages[@]}"; do
-		dpkg-query -s "$package" >/dev/null 2>&1 || missing+=("$package")
-	done
-	if [ ${#missing[@]} -eq 0 ]; then
-		info "System packages already installed"
-		return
-	fi
-	sudo apt-get update
-	for package in "${missing[@]}"; do
-		apt-cache show "$package" >/dev/null 2>&1 ||
-			error "$package is not packaged for this release; install it by hand and rerun"
-	done
-	info "Installing ${missing[*]}..."
-	sudo apt-get install --yes "${missing[@]}"
-	success "System packages installed"
-}
-
 ensure_mise() {
-	if command -v mise >/dev/null; then
+	if [[ -x "$HOME/.local/bin/mise" ]]; then
 		info "mise already installed"
 		return
 	fi
@@ -67,17 +34,12 @@ ensure_mise() {
 ensure_mise_uv() {
 	local mise_bin="$HOME/.local/bin/mise"
 	local shim="$HOME/.local/share/mise/shims/uv"
-	if command -v mise >/dev/null 2>&1; then
-		mise_bin="$(command -v mise)"
-	fi
 	if "$shim" --version >/dev/null 2>&1; then
 		info "uv already installed with mise"
 		return
 	fi
 	info "Installing uv with mise..."
-	if ! "$mise_bin" install uv >/dev/null 2>&1 || ! "$shim" --version >/dev/null 2>&1; then
-		"$mise_bin" use --global --yes uv@latest
-	fi
+	"$mise_bin" use --global --yes uv@latest
 	"$shim" --version >/dev/null 2>&1 || error "mise could not provide uv"
 	success "uv installed"
 }
@@ -106,7 +68,7 @@ ensure_bitwarden() {
 case "$(uname -s)" in
 Darwin)
 	ensure_homebrew
-	ensure_brew_packages
+	command -v rbw >/dev/null 2>&1 || brew install rbw
 	ensure_mise
 	ensure_mise_uv
 	;;
@@ -119,7 +81,8 @@ Linux)
 	fi
 	command -v apt-get >/dev/null 2>&1 ||
 		error "Unsupported Linux distribution: $distribution; apt-get is required"
-	ensure_apt_packages
+	sudo apt-get update
+	sudo apt-get install --yes ca-certificates curl git pinentry-curses rbw unzip xz-utils zsh
 	ensure_mise
 	ensure_mise_uv
 	;;

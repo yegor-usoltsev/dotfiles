@@ -3,37 +3,18 @@ set -euo pipefail
 
 {{ template "script-header" . }}
 
-{{ if .packages.taps }}
-info "Adding taps"
-{{ range .packages.taps }}
-brew tap {{ . | quote }}
-{{ end }}
-success "Taps added"
-{{ end }}
-
-# One `brew install` per kind rather than `brew bundle`: bundle resolves a name
-# before it honours the `cask` keyword, so a cask whose name is also an old name
-# of a formula - transmission, which resolves to the formula transmission-cli -
-# silently installs the formula and still reports success. An explicit --cask
-# cannot be read two ways. --adopt is what bundle passed on our behalf: without
-# it an app already sitting in /Applications is a conflict rather than something
-# to take over.
-{{ if .packages.brews }}
+# Explicit kinds keep a formula alias from stealing a cask name (transmission).
+# --adopt accepts applications already installed in /Applications.
 info "Installing formulae"
 brew install {{ range .packages.brews }}{{ . | quote }} {{ end }}
 success "Formulae installed"
-{{ end }}
 
-{{ if .packages.casks }}
 info "Installing casks"
 brew install --cask --adopt {{ range .packages.casks }}{{ . | quote }} {{ end }}
 success "Casks installed"
-{{ end }}
 
-{{ if and .packages.mas .installAppsFromAppStore }}
-# mas discovers installed apps through Spotlight. With indexing off it reports an
-# empty list, and brew bundle then tries to reinstall everything, which prompts
-# for sudo and aborts the run. Skip the block instead of failing the whole apply.
+{{ if .installAppsFromAppStore }}
+# Without Spotlight, mas reports no installed apps and asks sudo to reinstall them.
 export MAS_NO_AUTO_INDEX=1
 if mdutil -s / 2>/dev/null | grep -q "Indexing enabled"; then
 	info "Installing MAS apps"
@@ -48,7 +29,6 @@ else
 fi
 {{ end }}
 
-{{ if .packages.vscode }}
 info "Installing VSCode extensions"
 brew bundle --file=/dev/stdin <<EOF
 {{ range .packages.vscode }}
@@ -56,4 +36,3 @@ vscode {{ . | quote }}
 {{ end }}
 EOF
 success "VSCode extensions installed"
-{{ end }}

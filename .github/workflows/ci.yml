@@ -116,10 +116,6 @@ jobs:
             done
           done
 
-          if [ "$PROFILE" != server ]; then
-            python3 tests/paseo-updater.py "$test_home/.local/bin/update-paseo-plugins"
-          fi
-
           rendered_dir="$RUNNER_TEMP/rendered-shell"
           python_dir="$RUNNER_TEMP/rendered-python"
           mkdir -p "$rendered_dir" "$python_dir"

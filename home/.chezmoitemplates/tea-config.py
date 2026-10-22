@@ -1,19 +1,14 @@
 #!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --with ruamel.yaml --script
-# Upsert the managed login; tea ignores ~/.tea/tea.yml once this file exists.
+# Upsert the managed login and preserve other accounts.
 import sys
-from pathlib import Path
 
 from ruamel.yaml import YAML
 
-legacy = Path({{ joinPath .chezmoi.homeDir ".tea/tea.yml" | toJson }})
 token = {{ dig "giteaToken" "" .secrets | toJson }}
 
 yaml = YAML()
 yaml.preserve_quotes = True
-source = sys.stdin.read()
-if not source.strip() and legacy.exists():
-    source = legacy.read_text()
-config = yaml.load(source) or {}
+config = yaml.load(sys.stdin) or {}
 
 # Rebuild the managed login so stale auth and TLS fields cannot survive.
 logins = [

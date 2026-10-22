@@ -8,7 +8,6 @@ codex = { zsh = "codex completion zsh" }
 dlv = { zsh = "dlv completion zsh" }
 dufs = { zsh = "dufs --completions zsh" }
 git-lfs = { zsh = "git-lfs completion zsh" }
-grok = { zsh = "grok completions zsh" }
 procs = { zsh = "procs --gen-completion-out zsh" }
 sqlc = { zsh = "sqlc completion zsh" }
 tealdeer = { completion_name = "tldr" }

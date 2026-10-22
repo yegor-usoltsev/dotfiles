@@ -11,13 +11,10 @@ export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 checkout=$HOME/dev/yegor-usoltsev/paseo-plugins
 paseo_home=${PASEO_HOME:-$HOME/.paseo}
 
-paseo=paseo
-if ! command -v paseo >/dev/null 2>&1; then
-	paseo=/Applications/Paseo.app/Contents/Resources/bin/paseo
-	if [[ ! -x $paseo ]]; then
-		warn "Skipping the Paseo plugin: no CLI on PATH or in Paseo.app"
-		exit 0
-	fi
+paseo={{ if eq .chezmoi.os "darwin" }}/Applications/Paseo.app/Contents/Resources/bin/paseo{{ else }}paseo{{ end }}
+if ! command -v "$paseo" >/dev/null 2>&1; then
+	warn "Skipping the Paseo plugin: $paseo is not installed"
+	exit 0
 fi
 
 updated=false
@@ -40,7 +37,7 @@ fi
 
 daemon=$("$paseo" daemon status --home "$paseo_home" --json)
 if ! jq -e '.localDaemon == "running"' <<<"$daemon" >/dev/null; then
-	warn "Skipping the Paseo plugin: the local daemon is not running"
+	info "Skipping the Paseo plugin: the local daemon is not running; start Paseo and retry"
 	exit 0
 fi
 {{- if eq .chezmoi.os "linux" }}

@@ -12,6 +12,8 @@ Host *
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
     GlobalKnownHostsFile /dev/null
+    # Keys are deliberately not persisted; omit the misleading added-key notice.
+    LogLevel ERROR
 
     # Match the infrastructure firewall; OpenSSH ignores the tssh extension.
     IgnoreUnknown TsshdPort

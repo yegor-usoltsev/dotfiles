@@ -1,5 +1,4 @@
 packages:
-  taps: []
   brews:
     - "blueutil"
     # mise only has a Linux build of btop (aqua:aristocratos/btop).

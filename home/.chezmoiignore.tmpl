@@ -70,10 +70,3 @@ Library/**
 .config/zed
 .config/zed/**
 {{- end }}
-
-# Remove retired targets even when their parent tree is ignored.
-{{- range splitList "\n" (include ".chezmoiremove") }}
-{{- if and . (not (hasPrefix "#" .)) }}
-!{{ . }}
-{{- end }}
-{{- end }}

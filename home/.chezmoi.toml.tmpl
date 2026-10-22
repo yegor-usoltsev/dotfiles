@@ -1,7 +1,3 @@
-{{- $osid := .chezmoi.os -}}
-{{- if and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id") -}}
-{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
-{{- end -}}
 {{- $profile := "workstation" -}}
 {{- if ne .chezmoi.os "darwin" -}}
 {{-   $profile = promptStringOnce . "profile" "profile" "server" -}}
@@ -47,7 +43,6 @@ exclude = ["scripts"]
 
 [data]
 installAppsFromAppStore = {{ $installAppsFromAppStore }}
-osid = {{ $osid | quote }}
 profile = {{ $profile | quote }}
 screenshotsPath = "{{ .chezmoi.homeDir }}/Pictures/Screenshots"
 

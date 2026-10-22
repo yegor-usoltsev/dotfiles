@@ -8,7 +8,7 @@ export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH:/usr/bin:/bin:/usr/sbin:/s
 
 notify() {
 	if [[ ${MP4_NOTIFY:-0} == "1" ]]; then
-		osascript -e "display notification \"${1//\"/\\\"}\" with title \"mp4\"" >/dev/null 2>&1 || true
+		osascript -e 'on run argv' -e 'display notification (item 1 of argv) with title "mp4"' -e 'end run' "$1" >/dev/null 2>&1 || true
 	fi
 }
 
@@ -22,21 +22,31 @@ if [[ $# -ne 1 ]]; then
 	error "usage: mp4 /path/to/video-file"
 fi
 
-for tool in ffmpeg ffprobe; do
-	command -v "$tool" >/dev/null 2>&1 ||
-		fail "$tool is missing; run: brew install ffmpeg"
-done
-
 input="$1"
 if [[ ! -f $input ]]; then
 	fail "file not found: $input"
 fi
 
-input_hash="$(printf '%s' "$input" | sha256sum | awk '{print $1}')"
+ext="${input##*.}"
+ext_lc="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
+if [[ $ext_lc == "mp4" ]]; then
+	info "already mp4: $input"
+	exit 0
+fi
 
-lock_dir="${TMPDIR:-/tmp}/mp4-convert-${input_hash}.lock"
+output="${input%.*}.mp4"
+[[ ! -d $output ]] || fail "output is a directory: $output"
+
+for tool in ffmpeg ffprobe; do
+	command -v "$tool" >/dev/null 2>&1 ||
+		fail "$tool is missing; run: brew install ffmpeg"
+done
+
+# Lock the output, since different input formats can share its name.
+output_hash="$(printf '%s' "$output" | sha256sum)"
+lock_dir="${TMPDIR:-/tmp}/mp4-convert-${output_hash%% *}.lock"
 if ! mkdir "$lock_dir" 2>/dev/null; then
-	info "skip (conversion already running for file): $input"
+	info "skip (conversion already running for output): $output"
 	exit 0
 fi
 
@@ -52,25 +62,16 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-file_size() {
-	local path="$1"
-	if stat -f%z "$path" >/dev/null 2>&1; then
-		stat -f%z "$path"
-	else
-		stat -c%s "$path"
-	fi
-}
-
 wait_for_stable_file() {
 	local path="$1"
 	local prev_size current_size
 	local attempts=0
 	local max_attempts=5
 
-	prev_size="$(file_size "$path")"
+	prev_size="$(stat -f%z "$path")"
 	while ((attempts < max_attempts)); do
 		sleep 1
-		current_size="$(file_size "$path")"
+		current_size="$(stat -f%z "$path")"
 		if [[ $current_size == "$prev_size" ]]; then
 			return 0
 		fi
@@ -86,14 +87,6 @@ if ! wait_for_stable_file "$input"; then
 	exit 0
 fi
 
-ext="${input##*.}"
-ext_lc="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
-if [[ $ext_lc == "mp4" ]]; then
-	info "already mp4: $input"
-	exit 0
-fi
-
-output="${input%.*}.mp4"
 if [[ -e $output && $output -nt $input ]]; then
 	info "skip (output is up-to-date): $output"
 	exit 0

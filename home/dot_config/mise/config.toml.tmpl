@@ -135,6 +135,8 @@ postinstall = 'export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH
 
 [settings]
 minimum_release_age = "0s"
+# The update command already updates mise explicitly.
+disable_hints = ["auto_update"]
 # Missing tools must fail instead of installing or falling back implicitly.
 not_found_auto_install = false
 not_found_system_fallback = false

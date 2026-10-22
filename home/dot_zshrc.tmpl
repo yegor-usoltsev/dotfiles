@@ -25,31 +25,19 @@ FPATH="$MISE_COMPLETIONS_DIR:$ZSH_COMPLETIONS_DIR:/usr/share/zsh/site-functions:
 {{- end }}
 
 # These install themselves, so misecompsync cannot discover them.
-typeset -i completion_written=0
 for tool in chezmoi mise; do
 	[[ -s "$ZSH_CACHE_DIR/_$tool" ]] && continue
 	command -v "$tool" >/dev/null 2>&1 || continue
 	if "$tool" completion zsh >"$ZSH_CACHE_DIR/$tool.completion" 2>/dev/null &&
 		[[ -s "$ZSH_CACHE_DIR/$tool.completion" ]]; then
 		mv "$ZSH_CACHE_DIR/$tool.completion" "$ZSH_CACHE_DIR/_$tool"
-		completion_written=1
 	else
 		rm -f "$ZSH_CACHE_DIR/$tool.completion"
 	fi
 done
 
 autoload -Uz compinit
-# Rebuild daily, when a managed directory changes, or when a completion was
-# just written. The age test needs an array: [[ ]] does not glob, and the
-# (#q) form there would need EXTENDED_GLOB.
-typeset -a fresh_dump
-fresh_dump=("$ZSH_CACHE_DIR"/.zcompdump(N.mh-24))
-if ((!completion_written && $#fresh_dump)) &&
-	[[ ! "$MISE_COMPLETIONS_DIR" -nt "$ZSH_CACHE_DIR/.zcompdump" && ! "$ZSH_COMPLETIONS_DIR" -nt "$ZSH_CACHE_DIR/.zcompdump" ]]; then
-	compinit -C -d "$ZSH_CACHE_DIR/.zcompdump"
-else
-	compinit -d "$ZSH_CACHE_DIR/.zcompdump"
-fi
+compinit -d "$ZSH_CACHE_DIR/.zcompdump"
 
 zstyle ':completion:*' cache-path "$ZSH_CACHE_DIR"
 zstyle ':completion:*' group-name ''
