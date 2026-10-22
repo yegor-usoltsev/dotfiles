@@ -24,11 +24,11 @@ The `server` profile carries no compiled-language toolchains, coding assistants,
 
 ## Secrets
 
-`home/.chezmoi.toml.tmpl` fills `.secrets` from `~/.config/chezmoi/secrets.toml` when that file exists, and from Bitwarden through `rbw` otherwise. The keys are `context7ApiKey`, `githubToken`, `giteaToken`, `droneToken`, `dockerToken`, `sshPrivateKey` and `sshPublicKey`. Every key defaults to an empty string, so a template that uses one must still render when it is empty. `home/.chezmoiignore.tmpl` is the place to skip a whole file in that case, and it keeps CLI logins off the server profile. Git uses its native credential store with one private file per host, so a successful login cannot reorder entries and leave the target out of sync. tea reads `~/Library/Application Support/tea/config.yml` on macOS and `~/.config/tea/config.yml` on Linux, so `home/.chezmoitemplates/tea-config.py` patches both.
+`home/.chezmoi.toml.tmpl` fills `.secrets` from `~/.config/chezmoi/secrets.toml` when that file exists, and from Bitwarden through `rbw` otherwise. The keys are `context7ApiKey`, `githubToken`, `giteaToken`, `droneToken`, `dockerToken`, `cloudflareAccountId`, `cloudflareApiToken`, `sshPrivateKey` and `sshPublicKey`. Every key defaults to an empty string, so a template that uses one must still render when it is empty. `home/.chezmoiignore.tmpl` is the place to skip a whole file in that case, and it keeps CLI logins off the server profile. Git uses its native credential store with one private file per host, so a successful login cannot reorder entries and leave the target out of sync. tea reads `~/Library/Application Support/tea/config.yml` on macOS and `~/.config/tea/config.yml` on Linux, so `home/.chezmoitemplates/tea-config.py` patches both.
 
 Never commit a secret, a generated configuration file or a private key. One GitHub token serves Git, gh, mise and package downloads, so `githubToken` needs the `repo`, `read:org`, `workflow` and `read:packages` scopes. The macOS Docker script logs into GHCR, Gitea and Docker Hub with tokens it reads at run time through `"$CHEZMOI_EXECUTABLE" --config "$CHEZMOI_CONFIG_FILE" dump-config`, so neither the rendered script nor argv holds them; Linux registry logins belong to Ansible.
 
-Ansible's `github_cli_token`, `gitea_cli_token`, `drone_cli_token` and `docker_cli_token` map to `githubToken`, `giteaToken`, `droneToken` and `dockerToken`. Bitwarden stores each token in the `fleet-cli` field of its existing service/account item; new GitHub and Gitea tokens use the label `fleet-cli`.
+Ansible's `github_cli_token`, `gitea_cli_token`, `drone_cli_token` and `docker_cli_token` map to `githubToken`, `giteaToken`, `droneToken` and `dockerToken`. Bitwarden stores each token in the `fleet-cli` field of its existing service/account item; new GitHub and Gitea tokens use the label `fleet-cli`. Ansible's `cloudflare_account_id` and `cloudflare_api_token` map to `cloudflareAccountId` and `cloudflareApiToken`, which Bitwarden keeps in the `Account ID` and `API Token` fields of `cloudflare.com (yegor)`. wrangler has no login command for an API token, so development profiles export both as `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` from `~/.config/shell/credentials.sh`, next to the Drone variables.
 
 The server profile manages Git store files, `.npmrc` and `.netrc`; Ansible manages Docker credentials. Development profiles also manage mise's GitHub token, gh, tea, Drone, Cargo, Maven and Gradle credentials. Ignoring a client configuration preserves any old file on an existing server; remove legacy credentials only with explicit authorization.
 
@@ -169,6 +169,8 @@ githubToken = "placeholder"
 giteaToken = "placeholder"
 droneToken = "placeholder"
 dockerToken = "placeholder"
+cloudflareAccountId = "placeholder"
+cloudflareApiToken = "placeholder"
 EOF
 chezmoi --source "$PWD" --destination "$tmp/home" --cache "$tmp/cache" \
 	--config "$tmp/chezmoi.toml" --persistent-state "$tmp/state/s.boltdb" \

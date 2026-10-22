@@ -73,6 +73,8 @@ jobs:
           giteaToken = "$secret"
           droneToken = "$secret"
           dockerToken = "$secret"
+          cloudflareAccountId = "$secret"
+          cloudflareApiToken = "$secret"
           EOF
           done
 

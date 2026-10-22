@@ -23,7 +23,7 @@ Library/Application Support/tea/config.yml
 {{- if not (or $github $gitea (dig "dockerToken" "" .secrets)) }}
 .chezmoiscripts/darwin/40-docker-login.sh
 {{- end }}
-{{- if or (eq .profile "server") (not (dig "droneToken" "" .secrets)) }}
+{{- if or (eq .profile "server") (not (or (dig "droneToken" "" .secrets) (dig "cloudflareApiToken" "" .secrets))) }}
 .config/shell/credentials.sh
 {{- end }}
 {{- if eq .chezmoi.os "darwin" }}
