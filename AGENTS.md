@@ -86,7 +86,7 @@ When adding a tool to the mise config:
 3. Use the bare tool name as the registry key, not the mise backend identifier: `procs`, not `github:dalance/procs`.
 4. Pick a backend. A bare registry alias resolves through mise, and `aqua:` or `github:` names a release directly when the alias is wrong or missing. `npm:` tools with native dependencies need `allow_builds = true`, which is what `min_version` guards; do not lower it. `pipx:` needs uv, which every profile has, so `pipx:httpie` sits outside the conditional; `go:` needs Go and therefore stays inside it.
 
-The overlay template renders into two targets, because misecompsync resolves the platform data directory and ignores `XDG_DATA_HOME`: `~/Library/Application Support/mise-completions-sync/registry.toml` on macOS and `~/.local/share/mise-completions-sync/registry.toml` on Linux. Keep both `registry.toml.tmpl` files as one-line includes of the shared template.
+The overlay renders to `~/.local/share/mise-completions-sync/registry.toml` on both platforms: misecompsync 0.5.19 reads the XDG data directory on macOS as well and ignores the old `~/Library/Application Support` copy, which `home/.chezmoiremove` deletes.
 
 mise's `postinstall` hook runs misecompsync with `--new-only`, which reads `MISE_INSTALLED_TOOLS` and regenerates completions for the tools that command installed or upgraded. A full pass takes four seconds and a single tool takes a tenth of one, so the hook stays cheap enough to fire on every `mise use`.
 
