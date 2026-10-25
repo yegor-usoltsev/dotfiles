@@ -26,6 +26,10 @@ Library/Application Support/tea/config.yml
 {{- if or (eq .profile "server") (not (or (dig "droneToken" "" .secrets) (dig "cloudflareApiToken" "" .secrets))) }}
 .config/shell/credentials.sh
 {{- end }}
+{{- if or (eq .profile "server") (not (dig "flintToken" "" .secrets)) }}
+.config/flint
+.config/flint/**
+{{- end }}
 {{- if eq .chezmoi.os "darwin" }}
 .bash_profile
 .bashrc

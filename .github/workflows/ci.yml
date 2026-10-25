@@ -75,6 +75,7 @@ jobs:
           dockerToken = "$secret"
           cloudflareAccountId = "$secret"
           cloudflareApiToken = "$secret"
+          flintToken = "$secret"
           EOF
           done
 

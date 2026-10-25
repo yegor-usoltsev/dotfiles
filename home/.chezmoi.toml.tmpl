@@ -21,6 +21,7 @@
 {{-   $drone := rbwFields "drone.usoltsev.xyz (yegor)" -}}
 {{-   $docker := rbwFields "docker.com (yusoltsev)" -}}
 {{-   $cloudflare := rbwFields "cloudflare.com (yegor)" -}}
+{{-   $flint := rbwFields "flint.usoltsev.xyz" -}}
 {{-   $secrets = dict
         "context7ApiKey" (index $context7 "API key").value
         "githubToken" (dig "fleet-cli" "value" "" $github)
@@ -29,6 +30,7 @@
         "dockerToken" (dig "fleet-cli" "value" "" $docker)
         "cloudflareAccountId" (dig "Account ID" "value" "" $cloudflare)
         "cloudflareApiToken" (dig "API Token" "value" "" $cloudflare)
+        "flintToken" (dig "fleet-cli" "value" "" $flint)
         "sshPublicKey" $sshKey.data.public_key
         "sshPrivateKey" $sshKey.data.private_key
 -}}
@@ -59,3 +61,4 @@ droneToken = {{ dig "droneToken" "" $secrets | quote }}
 dockerToken = {{ dig "dockerToken" "" $secrets | quote }}
 cloudflareAccountId = {{ dig "cloudflareAccountId" "" $secrets | quote }}
 cloudflareApiToken = {{ dig "cloudflareApiToken" "" $secrets | quote }}
+flintToken = {{ dig "flintToken" "" $secrets | quote }}
