@@ -7,6 +7,7 @@ caddy = { zsh = "caddy completion zsh" }
 codex = { zsh = "codex completion zsh" }
 dlv = { zsh = "dlv completion zsh" }
 dufs = { zsh = "dufs --completions zsh" }
+flint-cli = { zsh = "flint completion zsh", completion_name = "flint" }
 git-lfs = { zsh = "git-lfs completion zsh" }
 procs = { zsh = "procs --gen-completion-out zsh" }
 sqlc = { zsh = "sqlc completion zsh" }
