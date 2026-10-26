@@ -6,10 +6,17 @@ What the tool schemas and `--help` leave out. Read only the section you need.
 
 - Agent-scoped `create_agent` always creates your child; a `workspaceId` changes placement, not parentage. Detaching a child is a user action.
 - `send_agent_prompt` steers a running turn and starts one on an idle agent. Set `notifyOnFinish: false` for ordinary messages and true when assigning a task whose completion you need. The recipient sees the sender's agent ID; reply to that ID.
-- CLI sends from agents also default to steering. Use `paseo send --behavior steer --no-wait` to select steering explicitly and return after delivery. Steering falls back to interruption when the provider cannot steer.
+- Agent messages are queued and delivered after two quiet seconds per recipient. A queued receipt confirms admission, not provider dispatch or task completion; a child's report and finish notification can arrive together.
+- CLI sends from agents also default to steering. Use `paseo send --behavior steer --no-wait` to select steering explicitly and return without waiting for completion. Steering falls back to interruption when the provider cannot steer.
 - Use `update_agent` with `settings` to change a running agent's mode, model, thinking option or features. Set only feature IDs that `inspect_provider` returns.
 - When no profile fits, use `list_providers`, `inspect_provider` and, only for exact model IDs, `list_models`; tell the user you fell back.
 - `list_pending_permissions` and `respond_to_permission` answer an agent's real permission request within the user's authorized scope.
+
+## Connected hosts
+
+- `list_hosts` returns the local host and registered destinations. Use a destination's `serverId` in workspace, agent, prompt and status tools to work there; paths and commands resolve on that host. An agent address is the pair of server ID and agent ID.
+- Native finish subscriptions survive daemon restarts. A notice that observation failed means the child's status is unknown and that subscription has ended; reconnecting does not restore it. Inspect the destination before assigning the work again.
+- Registering a destination on one daemon does not register the reverse route. The resume plugin needs that reverse connection to notify a remote parent after a resumed turn finishes.
 
 ## Workspaces and scripts
 
