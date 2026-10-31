@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "log" . }}
+{{- if eq .chezmoi.os "darwin" }}
+export PATH="/opt/homebrew/bin:$PATH"
+{{- end }}
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+
+# mise provides the command-line tools; the packages live in the same SDK
+# directory and follow it when mise upgrades the tools.
+sdkmanager=$(mise which sdkmanager)
+android=$(dirname "$sdkmanager")/android
+latest() {
+	"$android" sdk list --all "$1/*" | awk '{print $1}' | grep -E "^$1/$2\$" | sort -V | tail -n 1
+}
+
+info "Updating the Android SDK"
+yes | "$sdkmanager" --licenses >/dev/null || true
+"$android" sdk install platform-tools emulator \
+	"$(latest platforms 'android-[0-9]+(\.[0-9]+)?')" \
+	"$(latest build-tools '[0-9]+\.[0-9]+\.[0-9]+')"
+"$android" sdk update
+success "Android SDK updated"
+{{- if eq .chezmoi.os "darwin" }}
+
+# Xcodes.app installs and selects Xcode; this fetches the matching simulator.
+if xcodebuild -version >/dev/null 2>&1; then
+	sdk=$(xcrun --sdk iphonesimulator --show-sdk-version)
+	if ! xcrun simctl list runtimes --json | jq -e --arg v "$sdk" '.runtimes[] | select(.platform == "iOS" and .version == $v)' >/dev/null; then
+		info "Downloading the iOS $sdk simulator"
+		xcodebuild -downloadPlatform iOS
+		success "iOS $sdk simulator installed"
+	fi
+else
+	warn "Skipping the iOS simulator: install and select Xcode in Xcodes.app"
+fi
+{{- end }}
