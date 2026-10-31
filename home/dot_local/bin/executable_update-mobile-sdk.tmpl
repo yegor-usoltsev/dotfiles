@@ -9,18 +9,22 @@ export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 
 # mise provides the command-line tools; the packages live in the same SDK
 # directory and follow it when mise upgrades the tools.
+# Without --sdk the Android CLI uses its own default directory instead of the
+# ANDROID_HOME that mise sets for Flutter and Gradle.
 sdkmanager=$(mise which sdkmanager)
-android=$(dirname "$sdkmanager")/android
+bin=$(dirname "$sdkmanager")
+sdk=$(cd "$bin/../../.." && pwd)
+android() { "$bin/android" --sdk="$sdk" "$@"; }
 latest() {
-	"$android" sdk list --all "$1/*" | awk '{print $1}' | grep -E "^$1/$2\$" | sort -V | tail -n 1
+	android sdk list --all "$1/*" | awk '{print $1}' | grep -E "^$1/$2\$" | sort -V | tail -n 1
 }
 
 info "Updating the Android SDK"
-yes | "$sdkmanager" --licenses >/dev/null || true
-"$android" sdk install platform-tools emulator \
+yes | "$sdkmanager" --sdk_root="$sdk" --licenses >/dev/null || true
+android sdk install platform-tools emulator \
 	"$(latest platforms 'android-[0-9]+(\.[0-9]+)?')" \
 	"$(latest build-tools '[0-9]+\.[0-9]+\.[0-9]+')"
-"$android" sdk update
+android sdk update
 success "Android SDK updated"
 {{- if eq .chezmoi.os "darwin" }}
 
