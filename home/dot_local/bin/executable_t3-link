@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Link this machine's T3 Code with another one over Tailscale, both ways, so
+# agents on either side can delegate to the other. Links expire after 30 days;
+# rerun to renew them. Usage: t3-link HOST
+host=${1:?usage: t3-link HOST}
+export PATH="$HOME/.local/bin:/Applications/Tailscale.app/Contents/MacOS:$PATH"
+
+tailscale_cli=$(command -v tailscale || command -v Tailscale)
+status=$("$tailscale_cli" status --json)
+self=$(jq -r '.Self.DNSName | rtrimstr(".")' <<<"$status")
+peer=$(jq -r --arg h "$host" '.Peer[] | select(.HostName == $h) | .DNSName | rtrimstr(".")' <<<"$status")
+[[ -n $peer ]] || {
+	printf '%s is not on the tailnet\n' "$host" >&2
+	exit 1
+}
+port=3773
+
+# Remote commands start in the home directory.
+code=$(ssh "$host" .local/bin/t3 auth pairing create --ttl 10m --label "$(hostname -s)" --json | jq -r .credential)
+t3 environment link "http://$peer:$port" --pairing-code "$code" --access full-access
+
+code=$(t3 auth pairing create --ttl 10m --label "$host" --json | jq -r .credential)
+ssh "$host" .local/bin/t3 environment link "http://$self:$port" --pairing-code "$code" --access full-access
