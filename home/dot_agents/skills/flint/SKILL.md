@@ -9,6 +9,8 @@ Flint is a self-hosted issue tracker with a Markdown wiki; the `flint` CLI does 
 
 Our Flint runs at https://flint.usoltsev.xyz and signs in through the Gitea at https://gitea.usoltsev.xyz, whose repositories, branches, commits and pull requests it links to issues. mise installs the `flint` CLI.
 
+Write everything in Flint in Russian: issue titles and descriptions, comments, checklists and wiki pages. Code identifiers, commands and branch names stay as they are.
+
 ## Start here
 
 This file is a discovery stub, not the usage guide. Before running other `flint` commands, load the guide from the CLI, which always matches the installed version:
