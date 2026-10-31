@@ -1,0 +1,47 @@
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --script
+# The user, VS Code Remote-SSH and OrbStack add their own hosts to this file;
+# only the marked block belongs to the dotfiles. The block comes first so its
+# Host * settings win over later entries and includes.
+import sys
+
+darwin = {{ if eq .chezmoi.os "darwin" }}True{{ else }}False{{ end }}
+
+BEGIN = "# BEGIN dotfiles"
+END = "# END dotfiles"
+
+block = [
+    BEGIN,
+    "# Host key verification is disabled deliberately.",
+    "Host *",
+    "    ControlMaster auto",
+    "    ControlPath ~/.ssh/sockets/%r@%h-%p",
+    "    ControlPersist 10m",
+    "",
+    "    ServerAliveCountMax 3",
+    "    ServerAliveInterval 60",
+    "",
+    "    SetEnv TERM=xterm-256color",
+    "",
+    "    StrictHostKeyChecking no",
+    "    UserKnownHostsFile /dev/null",
+    "    GlobalKnownHostsFile /dev/null",
+    "    # Keys are deliberately not persisted; omit the misleading added-key notice.",
+    "    LogLevel ERROR",
+    "",
+    "    # Match the infrastructure firewall; OpenSSH ignores the tssh extension.",
+    "    IgnoreUnknown TsshdPort",
+    "    TsshdPort 61000-61100",
+]
+if darwin:
+    block += ["", "    # OrbStack keeps its host, identity and proxy settings.", "    Include ~/.orbstack/ssh/config"]
+block.append(END)
+
+lines = sys.stdin.read().splitlines()
+if BEGIN in lines and END in lines[lines.index(BEGIN) :]:
+    start = lines.index(BEGIN)
+    end = lines.index(END, start)
+    lines[start : end + 1] = block
+else:
+    lines = block + ([""] + lines if lines else [])
+
+sys.stdout.write("\n".join(lines) + "\n")
