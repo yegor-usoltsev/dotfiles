@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Clone the repositories listed below from GitHub and Gitea into
 # ~/dev/<owner>/<name>, skipping forks, mirrors, archived repositories and
-# existing checkouts. New checkouts become T3 Code projects.
+# existing checkouts. Every checkout, and ~/dev itself, is a T3 Code project.
 cd "$(dirname "$0")"
 
 # An owner clones all of its repositories; owner/name clones one.
@@ -35,10 +35,20 @@ repos() {
 
 repos | sort -u | while read -r name url; do
 	is_allowed "$name" || continue
-	[[ -e $name ]] && continue
-	git clone --quiet "$url" "$name" </dev/null
-	printf 'cloned %s\n' "$name"
-	if command -v t3 >/dev/null 2>&1; then
-		t3 project add "$PWD/$name" >/dev/null 2>&1 </dev/null || true
+	if [[ ! -e $name ]]; then
+		git clone --quiet "$url" "$name" </dev/null
+		printf 'cloned %s\n' "$name"
 	fi
-done
+	printf '%s\n' "$PWD/$name"
+done | {
+	# Adding a project that already exists fails harmlessly.
+	projects=("$PWD")
+	while read -r line; do
+		if [[ $line == /* ]]; then projects+=("$line"); else printf '%s\n' "$line"; fi
+	done
+	if command -v t3 >/dev/null 2>&1; then
+		for project in "${projects[@]}"; do
+			t3 project add "$project" >/dev/null 2>&1 </dev/null || true
+		done
+	fi
+}
