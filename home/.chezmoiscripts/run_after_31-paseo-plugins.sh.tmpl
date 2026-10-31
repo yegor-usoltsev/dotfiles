@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-{{ template "script-header" . }}
-# Apply prepares dependencies and installs plugins, cloning if needed. Existing
-# checkouts pull new versions through `update` and the infrastructure updater.
-"$HOME/.local/bin/update-paseo-plugins" --no-pull

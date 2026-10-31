@@ -14,7 +14,7 @@
 {{- if stat $secretsPath -}}
 {{-   $secrets = include $secretsPath | fromToml -}}
 {{- else -}}
-{{-   $context7 := rbwFields "context7.com" -}}
+{{-   $aiRouter := rbwFields "ai-router.usoltsev.xyz (gateway, proxy, cli, api)" -}}
 {{-   $sshKey := rbw "SSH key" -}}
 {{-   $github := rbwFields "github.com (yegor-usoltsev)" -}}
 {{-   $gitea := rbwFields "gitea.usoltsev.xyz (yegor)" -}}
@@ -23,7 +23,7 @@
 {{-   $cloudflare := rbwFields "cloudflare.com (yegor)" -}}
 {{-   $flint := rbwFields "flint.usoltsev.xyz" -}}
 {{-   $secrets = dict
-        "context7ApiKey" (index $context7 "API key").value
+        "aiRouterApiKey" (dig "API Key 1" "value" "" $aiRouter)
         "githubToken" (dig "fleet-cli" "value" "" $github)
         "giteaToken" (dig "fleet-cli" "value" "" $gitea)
         "droneToken" (dig "fleet-cli" "value" "" $drone)
@@ -52,7 +52,7 @@ profile = {{ $profile | quote }}
 screenshotsPath = "{{ .chezmoi.homeDir }}/Pictures/Screenshots"
 
 [data.secrets]
-context7ApiKey = {{ dig "context7ApiKey" "" $secrets | quote }}
+aiRouterApiKey = {{ dig "aiRouterApiKey" "" $secrets | quote }}
 sshPrivateKey = {{ dig "sshPrivateKey" "" $secrets | quote }}
 sshPublicKey = {{ dig "sshPublicKey" "" $secrets | quote }}
 githubToken = {{ dig "githubToken" "" $secrets | quote }}

@@ -1,4 +1,7 @@
 packages:
+  # Third-party taps; Homebrew loads them only once trusted.
+  taps:
+    - "abue-ammar/tinycast"
   brews:
     - "blueutil"
     # mise only has a Linux build of btop (aqua:aristocratos/btop).
@@ -50,14 +53,14 @@ packages:
     - "obsidian"
     - "openlens"
     - "orbstack"
-    - "paseo"
     - "pearcleaner"
     - "proxyman"
-    - "raycast"
     - "slack"
     - "spotify"
+    - "t3-code"
     - "tailscale-app"
     - "telegram"
+    - "tinycast"
     - "transmission"
     - "utm"
     - "visual-studio-code"
@@ -76,6 +79,11 @@ packages:
   vscode:
     - "astro-build.astro-vscode"
     - "bradlc.vscode-tailwindcss"
+    - "dbaeumer.vscode-eslint"
+    - "esbenp.prettier-vscode"
+    - "ms-vscode-remote.remote-ssh"
+    - "ms-vscode-remote.remote-ssh-edit"
+    - "ms-vscode.remote-explorer"
     - "oxc.oxc-vscode"
     - "redhat.vscode-yaml"
     - "svelte.svelte-vscode"

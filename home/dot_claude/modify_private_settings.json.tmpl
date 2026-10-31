@@ -1,0 +1,29 @@
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --script
+# Claude Code owns the rest of this file; keep its key order.
+import json
+import sys
+
+ai_router_api_key = {{ dig "aiRouterApiKey" "" .secrets | toJson }}
+
+
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
+source = sys.stdin.read()
+settings = json.loads(source.strip() or "{}") or {}
+
+child(settings, "attribution").update(commit="", pr="")
+child(settings, "permissions")["defaultMode"] = "bypassPermissions"
+settings["skipDangerousModePermissionPrompt"] = True
+# Without a key Claude Code falls back to its own login.
+if ai_router_api_key:
+    child(settings, "env").update(
+        ANTHROPIC_BASE_URL="https://ai-router.usoltsev.xyz",
+        ANTHROPIC_AUTH_TOKEN=ai_router_api_key,
+    )
+
+print(json.dumps(settings, indent=2, ensure_ascii=False))

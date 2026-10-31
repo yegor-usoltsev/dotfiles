@@ -1,0 +1,12 @@
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --script
+# The desktop app owns the rest of this file, such as window bounds. Its server
+# listens on every interface so phones and other machines reach it over the
+# tailnet.
+import json
+import sys
+
+source = sys.stdin.read()
+settings = json.loads(source.strip() or "{}") or {}
+settings["serverExposureMode"] = "network-accessible"
+
+sys.stdout.write(json.dumps(settings, separators=(",", ":"), ensure_ascii=False))

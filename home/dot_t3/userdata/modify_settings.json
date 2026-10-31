@@ -1,0 +1,27 @@
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --script
+# The T3 Code server owns the rest of this file, including provider instances
+# and project overrides changed in Settings.
+import json
+import sys
+
+source = sys.stdin.read()
+settings = json.loads(source.strip() or "{}") or {}
+settings.update(
+    addProjectBaseDirectory="~/dev",
+    autoResumeLimitedThreads=True,
+    branchNamingMode="semantic",
+    defaultAutoPull=True,
+    defaultModelSelection={"instanceId": "claudeAgent", "model": "claude-opus-5-5"},
+    deviceOnboardingCompleted=True,
+    enableAgentDeviceAccess=True,
+    enableDeviceSupport=True,
+    fallbackModelSelection={"instanceId": "codex", "model": "gpt-6.1-sol"},
+    idleCompaction="onReturn",
+    # Lets agents on one machine delegate to the others.
+    linkedEnvironmentsEnabled=True,
+    pullRequestMergeMethod="squash",
+    removeAgentCreditsOnMerge=True,
+    snoozeLimitedThreads=True,
+)
+
+print(json.dumps(settings, indent=2, ensure_ascii=False))

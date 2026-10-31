@@ -35,6 +35,9 @@ Library/Application Support/tea/config.yml
 .bashrc
 .config/tea/config.yml
 {{- else }}
+.local/bin/t3
+.t3/userdata/client-settings.json
+.t3/userdata/desktop-settings.json
 Library
 Library/**
 .local/bin/mp4
@@ -64,12 +67,12 @@ Library/**
 .codex/**
 .chezmoiscripts/20-agent-browser.sh
 .local/bin/update-browser
-.paseo
-.paseo/**
-.chezmoiscripts/30-paseo-reload.sh
-.chezmoiscripts/31-paseo-plugins.sh
-.local/bin/update-paseo-plugins
-.claude.json
+.t3
+.t3/**
+dev
+dev/**
+.chezmoiscripts/21-mobile-sdk.sh
+.local/bin/update-mobile-sdk
 .config/zed
 .config/zed/**
 {{- end }}

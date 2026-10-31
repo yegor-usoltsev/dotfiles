@@ -3,6 +3,13 @@ set -euo pipefail
 
 {{ template "script-header" . }}
 
+info "Adding taps"
+{{ range .packages.taps -}}
+brew trust --tap {{ . | quote }}
+brew tap {{ . | quote }}
+{{ end -}}
+success "Taps added"
+
 # Explicit kinds keep a formula alias from stealing a cask name (transmission).
 # --adopt accepts applications already installed in /Applications.
 info "Installing formulae"
