@@ -27,7 +27,9 @@ repos() {
 	gh api --paginate 'user/repos?affiliation=owner,organization_member&per_page=100' \
 		--jq '.[] | select((.fork or .archived or .mirror_url != null) | not) | "\(.full_name) \(.ssh_url)"'
 	local page=1 batch
-	while batch=$(tea api "/user/repos?limit=50&page=$page") && [[ $(jq length <<<"$batch") -gt 0 ]]; do
+	while :; do
+		batch=$(tea api "/user/repos?limit=50&page=$page")
+		[[ $(jq length <<<"$batch") -gt 0 ]] || break
 		jq -r '.[] | select((.fork or .archived or .mirror) | not) | "\(.full_name) \(.clone_url)"' <<<"$batch"
 		page=$((page + 1))
 	done

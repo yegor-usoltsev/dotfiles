@@ -25,5 +25,8 @@ if ai_router_api_key:
         wire_api="responses",
         experimental_bearer_token=ai_router_api_key,
     )
+elif config.get("model_provider") == "ai-router":
+    del config["model_provider"]
+    config.get("model_providers", {}).pop("ai-router", None)
 
 sys.stdout.write(tomlkit.dumps(config))

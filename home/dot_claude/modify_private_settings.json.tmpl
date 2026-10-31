@@ -25,5 +25,8 @@ if ai_router_api_key:
         ANTHROPIC_BASE_URL="https://ai-router.usoltsev.xyz",
         ANTHROPIC_AUTH_TOKEN=ai_router_api_key,
     )
+elif (settings.get("env") or {}).get("ANTHROPIC_BASE_URL") == "https://ai-router.usoltsev.xyz":
+    del settings["env"]["ANTHROPIC_BASE_URL"]
+    settings["env"].pop("ANTHROPIC_AUTH_TOKEN", None)
 
 print(json.dumps(settings, indent=2, ensure_ascii=False))
