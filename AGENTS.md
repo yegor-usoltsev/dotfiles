@@ -12,7 +12,7 @@ Much of the source state sits in dot-prefixed directories: `home/.chezmoiscripts
 
 Filenames carry chezmoi attributes. Each target type has its own prefix chain in a fixed order, so check [the attributes table](https://www.chezmoi.io/reference/source-state-attributes/) before renaming a source file rather than reasoning from another target type. Scripts are `run_`, then `once_` or `onchange_`, then `before_` or `after_`; `dot_` is always last on the types that allow it; `.tmpl` is the suffix. Scripts run in alphabetical order of the name with attributes stripped, which is what the numeric prefixes (`10-`, `20-`, `90-`) control.
 
-Deleting a source file stops chezmoi from managing the target but leaves the file in the home directory. Add retired target paths to `home/.chezmoiremove` so `chezmoi apply` removes them on existing machines. Use exact paths and keep the list limited to deliberately retired configuration.
+Deleting a source file stops chezmoi from managing the target but leaves the file in the home directory. Delete retired targets once on each machine by hand rather than keeping a removal list.
 
 ## Profiles
 
@@ -86,7 +86,7 @@ When adding a tool to the mise config:
 3. Use the bare tool name as the registry key, not the mise backend identifier: `procs`, not `github:dalance/procs`.
 4. Pick a backend. A bare registry alias resolves through mise, and `aqua:` or `github:` names a release directly when the alias is wrong or missing. `npm:` tools with native dependencies need `allow_builds = true`, which is what `min_version` guards; do not lower it. `pipx:` needs uv, which every profile has, so `pipx:httpie` sits outside the conditional; `go:` needs Go and therefore stays inside it.
 
-The overlay renders to `~/.local/share/mise-completions-sync/registry.toml` on both platforms: misecompsync 0.5.19 reads the XDG data directory on macOS as well and ignores the old `~/Library/Application Support` copy, which `home/.chezmoiremove` deletes.
+The overlay renders to `~/.local/share/mise-completions-sync/registry.toml` on both platforms: misecompsync 0.5.19 reads the XDG data directory on macOS as well and ignores the old `~/Library/Application Support` copy.
 
 mise's `postinstall` hook runs misecompsync with `--new-only`, which reads `MISE_INSTALLED_TOOLS` and regenerates completions for the tools that command installed or upgraded. A full pass takes four seconds and a single tool takes a tenth of one, so the hook stays cheap enough to fire on every `mise use`.
 
