@@ -17,7 +17,7 @@ PR titles usually become commit messages, so follow the repository's title conve
 >
 > ✅ perf(server): cut websocket frame size by 70%+ with gzipping
 
-When the repository has a `.flint.json` and the work belongs to a Flint issue, prefix the title with the issue key in brackets, such as `[ENG-42] fix(cart): charge discounts once per line`. Take the key from the task, the branch name or the issue the user named.
+When the repository has a `.flint.json` and the work belongs to a Flint issue, prefix the title with the issue key in brackets, such as `[ENG-42] fix(cart): charge discounts once per line`. Take the key from the task, the branch name or the issue the user named. Then move the issue to In Review as the `flint` skill describes.
 
 ## Description
 

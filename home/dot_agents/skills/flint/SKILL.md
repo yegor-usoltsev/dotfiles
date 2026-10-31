@@ -19,6 +19,17 @@ flint skill
 
 `flint <command> --help` lists the arguments and flags of each command. When a command reports that the CLI is not logged in, ask the user for an API key from Flint's **Settings → API keys** and run `flint login --url https://flint.usoltsev.xyz --token <key>`.
 
+## Keep issues current
+
+Flint never changes an issue by itself, so the issue reflects the work only when you update it.
+
+- Fill in every property the project uses when you create or start an issue: status, assignee, priority and labels. Take the names from `flint project view` and `flint label list`, match how similar issues in the project are filled in, and do not invent labels.
+- Move the issue with the work, using the project's status names:
+  1. Starting: In Progress, assigned to the user you work for (`-a @me`), on a branch from `flint issue branch`.
+  2. Pull request opened: In Review; the PR title starts with the key.
+  3. Pull request merged: Done. Closed unmerged or dropped: Canceled, with a comment that says why.
+- Before you hand off, view the issue and fix any property that no longer matches the work.
+
 ## Backlog
 
 Record real work you find outside the current task as a Flint issue in the repository's project, deduplicated against open issues by the underlying problem, with the evidence and the open decision. Then return to the task.
