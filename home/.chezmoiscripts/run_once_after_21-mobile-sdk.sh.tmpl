@@ -2,6 +2,6 @@
 set -euo pipefail
 
 {{ template "script-header" . }}
-# update-mobile-sdk hash: {{ includeTemplate "dot_local/bin/executable_update-mobile-sdk.tmpl" . | sha256sum }}
+# update-mobile-sdk hash: {{ include "dot_local/bin/executable_update-mobile-sdk.tmpl" | sha256sum }}
 
 "$HOME/.local/bin/update-mobile-sdk"
