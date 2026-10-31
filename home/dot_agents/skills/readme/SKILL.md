@@ -17,7 +17,7 @@ Readers may leave before discovering why the project matters. Start with its ben
 
 When restructuring an existing README, remove badges and express useful facts, such as release versions or build status, in text with appropriate links. Keep a scoped edit scoped; badge cleanup can wait for a rewrite.
 
-When restructuring the README, move agent-only details into AGENTS.md rather than discarding them: repository maintenance commands, editing conventions and constraints for agents. Use [writing-for-agents](../writing-for-agents/SKILL.md) for that edit, preserving existing instructions. Keep commands that help people install and use the project in README.md.
+When restructuring the README, move agent-only details into AGENTS.md rather than discarding them: repository maintenance commands, editing conventions and constraints for agents. Preserve existing instructions there. Keep commands that help people install and use the project in README.md.
 
 ### 1. Opening block
 
