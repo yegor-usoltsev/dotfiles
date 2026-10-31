@@ -117,6 +117,7 @@ yt-dlp = "latest"
 {{- if ne .profile "server" }}
 "npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = true }
 "npm:@openai/codex" = { version = "latest", allow_builds = true }
+opencode = "latest"
 "npm:agent-browser" = { version = "latest", allow_builds = true }
 "npm:agent-device" = { version = "latest", allow_builds = true }
 {{- if and (eq .chezmoi.os "linux") (eq .chezmoi.arch "arm64") }}
