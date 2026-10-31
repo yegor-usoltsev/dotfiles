@@ -21,7 +21,7 @@ latest() {
 
 info "Updating the Android SDK"
 yes | "$sdkmanager" --sdk_root="$sdk" --licenses >/dev/null || true
-android sdk install platform-tools emulator \
+android sdk install cmdline-tools/latest platform-tools emulator \
 	"$(latest platforms 'android-[0-9]+(\.[0-9]+)?')" \
 	"$(latest build-tools '[0-9]+\.[0-9]+\.[0-9]+')"
 android sdk update
