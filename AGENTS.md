@@ -176,3 +176,9 @@ chezmoi --source "$PWD" --destination "$tmp/home" --cache "$tmp/cache" \
 Set `profile` to `server` to check that ignore rules hold, and set the secrets to empty strings to check that templates survive missing values. `--exclude=scripts,externals` matters: without it the run installs packages and downloads releases.
 
 `.github/workflows/ci.yml` then renders every shell file and checks it with `bash -n` or `zsh -n`, `shellcheck` and `shfmt -d -i 0`. Reproduce a failure by rendering the one file with `chezmoi execute-template` and running the checker on the result.
+
+## Pull requests
+
+- CodeRabbit (`.coderabbit.yaml`) and cubic (`cubic.yaml`) review every non-draft PR within minutes of each push and skip Renovate and the vendored skills; CodeRabbit allows about 10 reviews an hour, so a pending CodeRabbit check may lag. After opening or pushing, wait for CI and the reviewers, then read their inline comments with `gh api repos/{owner}/{repo}/pulls/<n>/comments`.
+- Verify each finding against the code before acting. Fix real defects in one commit per round; reply in the thread with one line of evidence to decline the rest (nits, style, rules the code already follows, speculative cases) and resolve it. The bots answer replies, so do not argue twice.
+- Stop after two fix rounds: open nits do not block a merge. Merge with `gh pr merge --squash` once CI is green and no comment points at a real defect.
