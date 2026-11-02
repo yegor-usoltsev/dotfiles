@@ -14,7 +14,7 @@
 {{- if stat $secretsPath -}}
 {{-   $secrets = include $secretsPath | fromToml -}}
 {{- else -}}
-{{-   $aiRouter := rbwFields "ai-router.usoltsev.xyz (gateway, proxy, cli, api)" -}}
+{{-   $aiRouter := rbwFields "ai-router.usoltsev.xyz" -}}
 {{-   $sshKey := rbw "SSH key" -}}
 {{-   $github := rbwFields "github.com (yegor-usoltsev)" -}}
 {{-   $gitea := rbwFields "gitea.usoltsev.xyz (yegor)" -}}
