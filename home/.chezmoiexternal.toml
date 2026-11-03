@@ -18,6 +18,11 @@ type = "file"
 url = "https://raw.githubusercontent.com/anthropics/skills/main/skills/doc-coauthoring/SKILL.md"
 refreshPeriod = "120h"
 
+[".agents/skills/flint/SKILL.md"]
+type = "file"
+url = "https://raw.githubusercontent.com/yegor-usoltsev/flint/main/skills/flint/SKILL.md"
+refreshPeriod = "120h"
+
 [".agents/skills/good-readme/SKILL.md"]
 type = "file"
 url = "https://raw.githubusercontent.com/evilmartians/agent-skills/main/skills/good-readme/SKILL.md"

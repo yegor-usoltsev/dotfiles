@@ -80,7 +80,7 @@ Homebrew/apt own bootstrap prerequisites, native libraries and system integratio
 
 ## Agent configuration
 
-`~/.agents` is authoritative for global rules and skills; Claude/Codex use symlinks. Leave `~/.codex/skills` alone: it contains Codex's `.system` tree. Application-owned configuration is patched, not replaced. Third-party skills come from upstream through `home/.chezmoiexternal.toml`; never copy them into source state. Every local skill is model-invocable, and its `description` names English trigger words and says "in any language"; the repository holds no Cyrillic. Claude keeps telemetry on because `DISABLE_TELEMETRY` and `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` also stop feature-flag fetching.
+`~/.agents` is authoritative for global rules and skills; Claude/Codex use symlinks. Leave `~/.codex/skills` alone: it contains Codex's `.system` tree. Application-owned configuration is patched, not replaced. Third-party skills come from upstream through `home/.chezmoiexternal.toml`; never copy them into source state. Every local skill is model-invocable, and its `description` names English trigger words and says "in any language"; the repository holds no Cyrillic. The global media rule was tested on GitHub, Gitea 28 and Flint: GitHub rejects AVIF uploads and drops `<video>` unless it points at its own uploads, Gitea strips `<audio>` and rejects `.weba`, `.ogg` and `.opus`, and Safari plays AV1 only with a hardware decoder. Claude keeps telemetry on because `DISABLE_TELEMETRY` and `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` also stop feature-flag fetching.
 
 ## Verify a change
 
