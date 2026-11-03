@@ -16,11 +16,11 @@ When I ask to review a plan first, present it and end the turn; implement only a
 
 Keep files that must outlive the session, such as plans and handoffs, in the repository's plans folder when it has one, and otherwise in `~/dev/artifacts/<repo>/`. The artifact server publishes that directory without authentication, so keep secrets out of it. `/tmp` is only for scratch.
 
-Share screenshots as WebP, recordings and animations as AV1 in WebM (Opus 128 kbps when there is sound) and audio as Opus in WebM, since Gitea rejects `.opus` and `.ogg`. Embed images with `![alt](url)` and video or audio with `<video src="url" controls></video>` alone on its line; this renders on GitHub, Gitea and Flint.
+Share screenshots as WebP, recordings and animations as AV1 in WebM (Opus 128 kbps for any sound) and audio as Opus in WebM, since Gitea rejects `.opus` and `.ogg`. Embed images with `![alt](url)` and video or audio with `<video src="url" controls></video>` alone on its line; this renders on GitHub, Gitea and Flint.
 
 ```sh
 magick shot.png -quality 85 shot.webp
-ffmpeg -i rec.mp4 -c:v libsvtav1 -crf 35 -pix_fmt yuv420p -an rec.webm   # with sound: -c:a libopus -b:a 128k
+ffmpeg -i rec.mp4 -c:v libsvtav1 -crf 35 -pix_fmt yuv420p -c:a libopus -b:a 128k rec.webm
 ffmpeg -i voice.wav -vn -c:a libopus -b:a 128k voice.webm
 ```
 
