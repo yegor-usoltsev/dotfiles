@@ -48,7 +48,7 @@ Attach screenshots and recordings to the PR itself, not as gist links.
 - Gitea: `tea` cannot upload, so open the PR, upload with curl, put the URLs in the body and run `tea pr edit <n> --description-file body.md`:
 
 ```sh
-token=$(cat ~/{.config,Library/Application\ Support}/tea/config.yml 2>/dev/null | yq -r '.logins[] | select(.url == "https://gitea.usoltsev.xyz") | .token')
+token=$(cat ~/{.config,Library/Application\ Support}/tea/config.yml 2>/dev/null | yq -r '.logins[] | select(.name == "default") | .token')
 curl -sf -H "Authorization: token $token" -F attachment=@rec.webm \
   "https://gitea.usoltsev.xyz/api/v1/repos/<owner>/<repo>/issues/<n>/assets" | jq -r .browser_download_url
 ```
