@@ -16,6 +16,14 @@ When I ask to review a plan first, present it and end the turn; implement only a
 
 Keep files that must outlive the session, such as plans and handoffs, in the repository's plans folder when it has one, and otherwise in `~/dev/artifacts/<repo>/`. The artifact server publishes that directory without authentication, so keep secrets out of it. `/tmp` is only for scratch.
 
+Share screenshots as WebP, recordings and animations as AV1 in WebM (Opus 128 kbps for any sound) and audio as Opus in WebM, since Gitea rejects `.opus` and `.ogg`. Embed images with `![alt](url)` and video or audio with `<video src="url" controls></video>` alone on its line; this renders on GitHub, Gitea and Flint.
+
+```sh
+magick shot.png -quality 85 shot.webp
+ffmpeg -i rec.mp4 -c:v libsvtav1 -crf 35 -pix_fmt yuv420p -c:a libopus -b:a 128k rec.webm
+ffmpeg -i voice.wav -vn -c:a libopus -b:a 128k voice.webm
+```
+
 Work on tasks yourself unless I ask you to involve other agents or to use a skill that runs them. One agent writes in a checkout at a time; parallel writers get their own git worktrees.
 
 Save verified, durable project knowledge in the nearest applicable `AGENTS.md`, with `CLAUDE.md` as a relative symlink to it. Record non-obvious commands, conventions and constraints, not session history, temporary state or generic advice, and remove guidance that has gone stale.
