@@ -17,10 +17,6 @@ reviews:
   suggested_reviewers: false
   poem: false
   in_progress_fortune: false
-  path_filters:
-    - "!home/dot_agents/skills/doc-coauthoring/**"
-    - "!home/dot_agents/skills/humanizer/**"
-    - "!home/dot_agents/skills/humanizer-ru/**"
   auto_review:
     drafts: false
     ignore_usernames:

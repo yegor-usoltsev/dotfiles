@@ -7,3 +7,34 @@ refreshPeriod = "168h"
 type = "file"
 url = "https://raw.githubusercontent.com/tealdeer-rs/tealdeer/main/completion/zsh_tealdeer"
 refreshPeriod = "168h"
+
+[".agents/skills/agent-browser/SKILL.md"]
+type = "file"
+url = "https://raw.githubusercontent.com/vercel-labs/agent-browser/main/skills/agent-browser/SKILL.md"
+refreshPeriod = "120h"
+
+[".agents/skills/doc-coauthoring/SKILL.md"]
+type = "file"
+url = "https://raw.githubusercontent.com/anthropics/skills/main/skills/doc-coauthoring/SKILL.md"
+refreshPeriod = "120h"
+
+[".agents/skills/good-readme/SKILL.md"]
+type = "file"
+url = "https://raw.githubusercontent.com/evilmartians/agent-skills/main/skills/good-readme/SKILL.md"
+refreshPeriod = "120h"
+
+[".agents/skills/humanizer"]
+type = "archive"
+url = "https://github.com/blader/humanizer/archive/refs/heads/main.tar.gz"
+exact = true
+stripComponents = 1
+include = ["*/SKILL.md", "*/agents", "*/agents/**"]
+refreshPeriod = "120h"
+
+[".agents/skills/humanizer-ru"]
+type = "archive"
+url = "https://github.com/Vladimir-Human/humanizer-ru/archive/refs/heads/main.tar.gz"
+exact = true
+stripComponents = 3
+include = ["*/skills/humanizer-ru/**"]
+refreshPeriod = "120h"

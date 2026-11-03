@@ -80,7 +80,7 @@ Homebrew/apt own bootstrap prerequisites, native libraries and system integratio
 
 ## Agent configuration
 
-`~/.agents` is authoritative for global rules and skills; Claude/Codex use symlinks. Leave `~/.codex/skills` alone: it contains Codex's `.system` tree. Application-owned configuration is patched, not replaced. Do not re-import locally maintained skills; refresh vendored doc-coauthoring/humanizer/humanizer-ru directories with their licenses. Every skill is model-invocable, and its `description` names English trigger words and says "in any language"; the repository holds no Cyrillic outside `humanizer-ru`. Claude keeps telemetry on because `DISABLE_TELEMETRY` and `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` also stop feature-flag fetching.
+`~/.agents` is authoritative for global rules and skills; Claude/Codex use symlinks. Leave `~/.codex/skills` alone: it contains Codex's `.system` tree. Application-owned configuration is patched, not replaced. Third-party skills come from upstream through `home/.chezmoiexternal.toml`; never copy them into source state. Every local skill is model-invocable, and its `description` names English trigger words and says "in any language"; the repository holds no Cyrillic. Claude keeps telemetry on because `DISABLE_TELEMETRY` and `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` also stop feature-flag fetching.
 
 ## Verify a change
 
@@ -118,6 +118,6 @@ Repeat with empty secrets and the host's applicable profiles (`server`/`devbox` 
 
 ## Pull requests
 
-- CodeRabbit and cubic skip drafts, Renovate and vendored skills. After each push, wait for CI/reviews and read inline comments with `gh api --paginate repos/{owner}/{repo}/pulls/<n>/comments`.
+- CodeRabbit and cubic skip drafts and Renovate. After each push, wait for CI/reviews and read inline comments with `gh api --paginate repos/{owner}/{repo}/pulls/<n>/comments`.
 - Verify findings against code. Fix real defects in one commit per round; decline nits, redundant or speculative findings with one line of evidence and resolve the thread. Do not argue twice.
 - Stop after two fix rounds; nits do not block merging. Use `gh pr merge --squash` once CI is green and no comment identifies a real defect.

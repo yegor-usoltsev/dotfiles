@@ -5,10 +5,6 @@ reviews:
   architecture_diagrams: false
   resolve_threads_when_addressed: true
   ignore:
-    files:
-      - home/dot_agents/skills/doc-coauthoring/**
-      - home/dot_agents/skills/humanizer/**
-      - home/dot_agents/skills/humanizer-ru/**
     head_branches:
       - renovate/**
 pr_descriptions:
