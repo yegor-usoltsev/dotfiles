@@ -6,6 +6,7 @@ import json
 import sys
 
 source = sys.stdin.read()
+
 settings = json.loads(source.strip() or "{}") or {}
 settings["serverExposureMode"] = "network-accessible"
 

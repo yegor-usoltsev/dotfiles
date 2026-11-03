@@ -15,6 +15,7 @@ def child(parent, key):
 
 
 config = tomlkit.parse(sys.stdin.read())
+
 registries = child(config, "registries")
 for owner in owners:
     registry = child(registries, f"gitea-{owner}")

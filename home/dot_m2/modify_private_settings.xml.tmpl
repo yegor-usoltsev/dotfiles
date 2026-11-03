@@ -11,6 +11,7 @@ servers = {
 }
 
 source = sys.stdin.read()
+
 if source.strip():
     root = ET.fromstring(
         source, ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
@@ -54,4 +55,5 @@ for server_id, (username, password) in servers.items():
                 headers.remove(header)
 
 ET.indent(root, space="  ")
+
 sys.stdout.write(ET.tostring(root, encoding="unicode", xml_declaration=True) + "\n")

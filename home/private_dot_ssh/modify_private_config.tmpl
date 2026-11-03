@@ -37,6 +37,7 @@ if darwin:
 block.append(END)
 
 lines = sys.stdin.read().splitlines()
+
 if BEGIN in lines and END in lines[lines.index(BEGIN) :]:
     start = lines.index(BEGIN)
     end = lines.index(END, start)

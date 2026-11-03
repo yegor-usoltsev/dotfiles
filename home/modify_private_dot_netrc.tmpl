@@ -4,6 +4,7 @@ import netrc
 import sys
 
 config = netrc.netrc("/dev/stdin")
+
 managed = {
     "github.com": ("yegor-usoltsev", {{ dig "githubToken" "" .secrets | toJson }}),
     "gitea.usoltsev.xyz": ("yegor", {{ dig "giteaToken" "" .secrets | toJson }}),
@@ -29,5 +30,6 @@ for host in sorted(config.hosts, key=lambda value: (value == "default", value)):
     if account:
         sys.stdout.write("  account " + quote(account) + "\n")
     sys.stdout.write("  password " + quote(password) + "\n")
+
 for name, lines in config.macros.items():
     sys.stdout.write("macdef " + name + "\n" + "".join(lines) + "\n")

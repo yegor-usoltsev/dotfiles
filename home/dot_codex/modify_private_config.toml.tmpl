@@ -15,6 +15,7 @@ def child(parent, key):
 
 
 config = tomlkit.parse(sys.stdin.read())
+
 config.update(
     approval_policy="never",  # Run commands without approval prompts.
     check_for_update_on_startup=False,  # Let mise manage Codex updates.

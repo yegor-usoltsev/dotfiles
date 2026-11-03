@@ -8,6 +8,7 @@ token = {{ dig "giteaToken" "" .secrets | toJson }}
 
 yaml = YAML()
 yaml.preserve_quotes = True
+
 config = yaml.load(sys.stdin) or {}
 
 # Rebuild the managed login so stale auth and TLS fields cannot survive.

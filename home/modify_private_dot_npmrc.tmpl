@@ -21,6 +21,7 @@ lines = [
     for line in sys.stdin.read().splitlines()
     if line.split("=", 1)[0].strip() not in managed
 ]
+
 lines += [f"{key}={value}" for key, value in managed.items()]
 
 sys.stdout.write("".join(f"{line}\n" for line in lines))
