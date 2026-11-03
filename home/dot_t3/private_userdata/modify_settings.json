@@ -1,0 +1,41 @@
+#!/usr/bin/env -S uv run --quiet --no-project --no-managed-python --offline --script
+# The T3 Code server owns the rest of this file, including provider instances
+# and project overrides changed in Settings.
+import json
+import sys
+
+
+def child(parent, key):
+    """Return parent[key], replacing a missing or null value with an empty table."""
+    if parent.get(key) is None:
+        parent[key] = {}
+    return parent[key]
+
+
+source = sys.stdin.read()
+
+settings = json.loads(source.strip() or "{}") or {}
+settings.update(
+    addProjectBaseDirectory="~/dev",  # Default folder for new projects
+    autoResumeLimitedThreads=True,  # Resume threads after usage limits reset
+    branchNamingMode="semantic",  # Name branches after the task
+    defaultAutoPull=True,  # Keep the default branch current when the checkout is clean
+    defaultModelSelection={"instanceId": "claudeAgent", "model": "claude-opus-5-5"},  # Default model for new threads
+    deviceOnboardingCompleted=True,  # Skip the device panel onboarding
+    enableAgentDeviceAccess=True,  # Let agents drive simulators and emulators
+    enableDeviceSupport=True,  # Show the device panel
+    enableProviderUpdateChecks=False,  # Do not check provider CLIs for updates; mise updates them
+    fallbackModelSelection={"instanceId": "codex", "model": "gpt-6.1-sol"},  # Model for new threads when the default provider is out of usage
+    idleCompaction="onReturn",  # Compact idle threads when you come back to them
+    linkedEnvironmentsEnabled=True,  # Let agents on one machine delegate to the others
+    pullRequestMergeMethod="squash",  # Merge pull requests as one commit
+    removeAgentCreditsOnMerge=True,  # Drop agent credit lines from merge and squash messages
+    snoozeLimitedThreads=True,  # Snooze threads until usage limits reset
+)
+
+provider_instances = child(settings, "providerInstances")
+
+opencode = child(provider_instances, "opencode")
+opencode.update(driver="opencode", enabled=True)  # mise installs OpenCode, which T3 leaves disabled by default
+
+print(json.dumps(settings, indent=2, ensure_ascii=False))
