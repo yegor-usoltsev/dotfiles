@@ -14,19 +14,46 @@ def child(parent, key):
 
 
 source = sys.stdin.read()
-settings = json.loads(source.strip() or "{}") or {}
 
-child(settings, "attribution").update(commit="", pr="")
-child(settings, "permissions")["defaultMode"] = "bypassPermissions"
-settings["skipDangerousModePermissionPrompt"] = True
+settings = json.loads(source.strip() or "{}") or {}
+settings["attribution"] = False  # No co-author trailer, PR footer or session link
+settings["autoConnectIde"] = False  # Do not attach to a running IDE at startup
+settings["autoContinueAtUsageLimit"] = True  # Resume the task after a usage limit resets
+settings["autoInstallIdeExtension"] = False  # Do not install the IDE extension
+settings["autoMemoryEnabled"] = False  # No automatic memory files
+settings["awaySummaryEnabled"] = False  # No recap when returning to the terminal
+settings["disableClaudeAiConnectors"] = True  # Do not fetch claude.ai MCP connectors
+settings["emojiCompletionEnabled"] = False  # Keep :shortcodes: as typed
+settings["enableArtifact"] = False  # No tool that publishes pages to claude.ai
+settings["fastModePerSessionOptIn"] = True  # A /fast toggle never carries over to the next session
+settings["feedbackDrafts"] = "off"  # Claude never drafts feedback to Anthropic
+settings["feedbackSurveyRate"] = 0  # No session quality surveys
+settings["outputStyle"] = "Concise"  # Lead with the result, skip narration and recaps
+settings["promptSuggestionEnabled"] = False  # No suggested next prompts
+settings["showTurnDuration"] = False  # No "Cooked for ..." line after each turn
+settings["skipDangerousModePermissionPrompt"] = True  # No warning when starting in bypass mode
+settings["spinnerTipsEnabled"] = False  # No tips under the spinner
+settings["syncClaudeAiPlugins"] = False  # Do not download plugins enabled on claude.ai
+settings["syncClaudeAiSkills"] = False  # Do not download skills enabled on claude.ai
+settings["terminalProgressBarEnabled"] = False  # No progress indicator on the terminal tab
+settings["workflowKeywordTriggerEnabled"] = False  # Typing "ultracode" does not start a workflow
+
+permissions = child(settings, "permissions")
+permissions["defaultMode"] = "bypassPermissions"  # Skip every permission prompt
+
+env = child(settings, "env")
+env["CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL"] = "1"  # Do not auto-add the official plugin marketplace
+env["DISABLE_AUTOUPDATER"] = "1"  # mise updates Claude Code
+env["DISABLE_ERROR_REPORTING"] = "1"  # No crash reports to Anthropic
+
 # Without a key Claude Code falls back to its own login.
 if ai_router_api_key:
-    child(settings, "env").update(
+    env.update(
         ANTHROPIC_BASE_URL="https://ai-router.usoltsev.xyz",
         ANTHROPIC_AUTH_TOKEN=ai_router_api_key,
     )
-elif (settings.get("env") or {}).get("ANTHROPIC_BASE_URL") == "https://ai-router.usoltsev.xyz":
-    del settings["env"]["ANTHROPIC_BASE_URL"]
-    settings["env"].pop("ANTHROPIC_AUTH_TOKEN", None)
+elif env.get("ANTHROPIC_BASE_URL") == "https://ai-router.usoltsev.xyz":
+    del env["ANTHROPIC_BASE_URL"]
+    env.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 print(json.dumps(settings, indent=2, ensure_ascii=False))
