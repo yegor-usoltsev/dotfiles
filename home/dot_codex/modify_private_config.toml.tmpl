@@ -15,11 +15,60 @@ def child(parent, key):
 
 
 config = tomlkit.parse(sys.stdin.read())
-config.update(approval_policy="never", sandbox_mode="danger-full-access")
+config.update(
+    approval_policy="never",  # Run commands without approval prompts.
+    check_for_update_on_startup=False,  # Let mise manage Codex updates.
+    model_reasoning_summary="concise",  # Keep reasoning summaries short.
+    model_verbosity="low",  # Ask the model for shorter responses.
+    personality="none",  # Omit the built-in Personality instructions.
+    sandbox_mode="danger-full-access",  # Allow unrestricted filesystem and network access.
+)
+
+analytics = child(config, "analytics")
+analytics["enabled"] = False  # Disable built-in usage analytics.
+
+feedback = child(config, "feedback")
+feedback["enabled"] = False  # Disable feedback uploads and review retention.
+
+otel = child(config, "otel")
+otel.update(
+    exporter="none",  # Disable OpenTelemetry log export.
+    metrics_exporter="none",  # Disable metrics export, including custom OTLP exporters.
+    trace_exporter="none",  # Disable OpenTelemetry trace export.
+)
+
+features = child(config, "features")
+features.update(
+    apps=False,  # Disable ChatGPT connector integrations.
+    fast_mode=False,  # Hide Fast mode, which spends usage faster.
+    memories=False,  # Disable automatic memory generation and recall.
+    plugin_discovery_prefetch=False,  # Do not prefetch the plugin catalog in the background.
+    remote_plugin=False,  # Disable the remote plugin catalog.
+    skill_mcp_dependency_install=False,  # Disable MCP dependency installation prompts for skills.
+    tool_suggest=False,  # Disable suggestions to install additional integrations.
+    ultrafast_mode=False,  # Hide Ultrafast mode, which spends usage faster still.
+)
+
+notice = child(config, "notice")
+notice.update(
+    hide_full_access_warning=True,  # Skip the full access warning on a fresh machine.
+    hide_rate_limit_model_nudge=True,  # Skip the reminder to switch models near a rate limit.
+)
+
+tui = child(config, "tui")
+tui.update(
+    animations=False,  # Disable welcome animations, shimmer, and spinners.
+    auto_recap=False,  # Disable automatic recaps while the terminal is unfocused.
+    show_server_version_notice=False,  # Hide informational server version notices.
+    show_tooltips=False,  # Hide onboarding tooltips.
+)
+
 # Without a key Codex falls back to its own login.
 if ai_router_api_key:
     config["model_provider"] = "ai-router"
-    child(child(config, "model_providers"), "ai-router").update(
+    model_providers = child(config, "model_providers")
+    ai_router = child(model_providers, "ai-router")
+    ai_router.update(
         name="ai-router",
         base_url="https://ai-router.usoltsev.xyz/v1",
         wire_api="responses",
