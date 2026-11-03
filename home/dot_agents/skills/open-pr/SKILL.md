@@ -40,6 +40,19 @@ gh pr create --base main --title "$title" --body-file body.md
 tea pr create --base main --title "$title" --description-file body.md
 ```
 
+## Media
+
+Attach screenshots and recordings to the PR itself, not as gist links.
+
+- GitHub: pass each file with `--attach` to `gh pr create`, `gh pr edit` or `gh pr comment` and reference it by local path (`![alt](./shot.webp)`, `![](./rec.webm)`); gh uploads it and swaps in the URL.
+- Gitea: `tea` cannot upload, so open the PR, upload with curl, put the URLs in the body and run `tea pr edit <n> --description-file body.md`:
+
+```sh
+token=$(cat ~/{.config,Library/Application\ Support}/tea/config.yml 2>/dev/null | yq -r '.logins[] | select(.default) | .token')
+curl -sf -H "Authorization: token $token" -F attachment=@rec.webm \
+  "https://gitea.usoltsev.xyz/api/v1/repos/<owner>/<repo>/issues/<n>/assets" | jq -r .browser_download_url
+```
+
 If `gh pr create` fails because the GraphQL rate limit is used up, open it through REST: `gh api repos/<owner>/<repo>/pulls -f title=... -f head=... -f base=... -F body=@body.md`.
 
 In T3 Code, link the PR to the thread with `link_pull_request`.
