@@ -54,7 +54,7 @@ git-lfs = "latest"
 "pipx:git-filter-repo" = "latest"
 # Official prebuilt tea from gitea.com releases; the mise registry has no tea entry.
 "forgejo:gitea/tea" = { version = "latest", api_url = "https://gitea.com/api/v1" }
-"npm:@yusoltsev/flint-cli" = "latest"
+"npm:@yusoltsev/flint-cli" = { version = "latest", allow_builds = true, allow_low_downloads = true, minimum_release_age = "0s" }
 {{- end }}
 
 # Development tools
