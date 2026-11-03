@@ -32,10 +32,6 @@ Flint never changes an issue by itself, so the issue reflects the work only when
   3. Pull request merged: Done. Closed unmerged or dropped: Canceled, with a comment that says why.
 - Before you hand off, view the issue and fix any property that no longer matches the work.
 
-## Media
-
-`flint issue attach --inline` embeds images but links video and audio, so replace those links with `<video src="/files/<id>" controls></video>`.
-
 ## Backlog
 
 Record real work you find outside the current task as a Flint issue in the repository's project, deduplicated against open issues by the underlying problem, with the evidence and the open decision. Then return to the task.
