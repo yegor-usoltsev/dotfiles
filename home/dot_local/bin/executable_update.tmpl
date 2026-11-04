@@ -1,53 +1,75 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 {{ template "log" . }}
-{{ if eq .chezmoi.os "darwin" -}}
-info "Updating Homebrew packages"
-brew update
-brew upgrade --greedy-auto-updates
-brew cleanup
-success "Homebrew packages updated"
-{{ else -}}
-info "Updating system packages"
-sudo apt-get update
-sudo apt-get --yes full-upgrade
-sudo apt-get --yes autoremove
-sudo apt-get --yes autoclean
-success "System packages updated"
+export MISE_YES=1
 
-{{ end -}}
-info "Updating chezmoi"
-github_token=$("$HOME/.local/bin/chezmoi" dump-config --format=json | jq -r '.data.secrets.githubToken // ""')
-CHEZMOI_GITHUB_TOKEN="$github_token" "$HOME/.local/bin/chezmoi" upgrade
-success "chezmoi updated"
+failed=()
 
-info "Updating mise"
-"$HOME/.local/bin/mise" self-update --yes
-success "Mise updated"
+# Each step runs in its own errexit subshell, so a failing command ends only
+# that step; errexit would be ignored if the subshell ran as an if condition.
+step() {
+	local name=$1
+	shift
+	info "Updating $name"
+	(
+		set -e
+		"$@"
+	)
+	local status=$?
+	if ((status == 0)); then
+		success "Updated $name"
+	else
+		warn "Failed to update $name (exit $status)"
+		failed+=("$name")
+	fi
+}
+{{- if eq .chezmoi.os "darwin" }}
+
+homebrew() {
+	brew update
+	brew upgrade --greedy-auto-updates
+	brew cleanup
+}
+step "Homebrew packages" homebrew
+{{- else }}
+
+system_packages() {
+	local apt=(sudo DEBIAN_FRONTEND=noninteractive apt-get --yes
+		-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold)
+	"${apt[@]}" update
+	"${apt[@]}" full-upgrade
+	"${apt[@]}" autoremove
+	"${apt[@]}" autoclean
+}
+step "system packages" system_packages
+{{- end }}
+
+chezmoi_binary() {
+	local github_token
+	github_token=$("$HOME/.local/bin/chezmoi" dump-config --format=json | jq -r '.data.secrets.githubToken // ""')
+	CHEZMOI_GITHUB_TOKEN="$github_token" "$HOME/.local/bin/chezmoi" upgrade
+}
+step "chezmoi" chezmoi_binary
+
+step "mise" "$HOME/.local/bin/mise" self-update
 
 # Rewriting this script mid-run is safe: chezmoi renames a temporary copy over
 # the target, so the running shell keeps reading the inode it opened. The
 # variable makes the prerequisite hook fetch the latest modify_ script packages.
-info "Updating dotfiles"
-CHEZMOI_UV_REFRESH=1 "$HOME/.local/bin/chezmoi" update
-success "Dotfiles updated"
+# --force overwrites targets edited since chezmoi last wrote them instead of
+# asking.
+step "dotfiles" env CHEZMOI_UV_REFRESH=1 "$HOME/.local/bin/chezmoi" update --force
 
-info "Updating mise tools"
-"$HOME/.local/bin/mise" upgrade
-success "Mise tools updated"
+step "mise tools" "$HOME/.local/bin/mise" upgrade
 {{- if ne .profile "server" }}
 
-info "Updating browser"
-"$HOME/.local/bin/update-browser"
-success "Browser updated"
+step "browser" "$HOME/.local/bin/update-browser"
 
-"$HOME/.local/bin/update-mobile-sdk"
+step "mobile SDKs" "$HOME/.local/bin/update-mobile-sdk"
 {{- if eq .chezmoi.os "linux" }}
 
-info "Updating T3 Code"
-t3 update --yes
-success "T3 Code updated"
+step "T3 Code" t3 update --yes
 {{- end }}
 {{- end }}
 {{- if ne .chezmoi.os "darwin" }}
@@ -58,3 +80,9 @@ if [[ -f /var/run/reboot-required ]]; then
 	warn "Reboot required"
 fi
 {{- end }}
+
+if ((${#failed[@]})); then
+	printf -v list '%s, ' "${failed[@]}"
+	warn "Failed steps: ${list%, }"
+	exit 1
+fi
