@@ -26,7 +26,7 @@ settings.update(
     enableDeviceSupport=True,  # Show the device panel
     enableProviderUpdateChecks=False,  # Do not check provider CLIs for updates; mise updates them
     fallbackModelSelection={"instanceId": "codex", "model": "gpt-6.1-sol"},  # Model for new threads when the default provider is out of usage
-    idleCompaction="onReturn",  # Compact idle threads when you come back to them
+    idleCompaction="beforeCacheExpires",  # Compact idle threads before the prompt cache expires
     linkedEnvironmentsEnabled=True,  # Let agents on one machine delegate to the others
     pullRequestMergeMethod="squash",  # Merge pull requests as one commit
     removeAgentCreditsOnMerge=True,  # Drop agent credit lines from merge and squash messages
