@@ -55,6 +55,7 @@ Check each finding and its severity yourself.
 - Agree: make the smallest fix. Prefer deleting or narrowing code over a new lock, cache, helper or option. Add one focused test that fails without the fix when the intent needs it.
 - Disagree: say why with evidence (file:line, test, output).
 - Nit or out of scope: decline in one line; record only actionable out-of-scope defects as follow-ups.
+- On a host thread, reply after the fix is pushed, cite the pushed SHA, and resolve only the threads you answered.
 
 Keep a ledger of each id, its severity and outcome. Rerun the checks. If review grew the diff, cut first. Do not agree just to end the loop.
 

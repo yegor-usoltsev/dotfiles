@@ -10,7 +10,7 @@ Keep each Markdown paragraph on one line.
 
 Comment only intent or constraints the code cannot express; delete stale comments.
 
-Before changing a repository, `git fetch` and fast-forward the current branch when its tree is clean; never stash, reset or rebase local work for this. Skip it for read-only tasks.
+Never use `git stash`. Before changing a repository, `git fetch` and fast-forward the current branch when its tree is clean, without resetting or rebasing local work; skip this for read-only tasks.
 
 When I ask to review a plan first, present it and end the turn; implement only after I approve.
 
@@ -23,7 +23,7 @@ magick shot.png -quality 85 shot.webp
 ffmpeg -i rec.mov -c:v libx264 -crf 28 -preset slow -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 128k rec.mp4
 ```
 
-Start other agents only when I ask for them or a skill I invoked, such as autopilot, calls for them. One agent writes in a checkout at a time; parallel writers get their own git worktrees.
+Start other agents only when I ask for them or a skill I invoked, such as autopilot, calls for them. One agent writes to a checkout or a PR branch at a time, so an agent that opened a PR stops pushing to it once another handles its review; parallel writers get their own git worktrees. When a model hits its usage limit, rerun its work on another model instead of waiting.
 
 Save verified, durable project knowledge in the nearest applicable `AGENTS.md`, with `CLAUDE.md` as a relative symlink to it; merge an existing `CLAUDE.md` into it first. Record non-obvious commands, conventions and constraints, not session history, temporary state or generic advice, and remove guidance that has gone stale.
 
