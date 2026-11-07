@@ -23,7 +23,7 @@ magick shot.png -quality 85 shot.webp
 ffmpeg -i rec.mov -c:v libx264 -crf 28 -preset slow -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 128k rec.mp4
 ```
 
-Start other agents only when I ask for them or a skill I invoked, such as autopilot, calls for them. One agent writes to a checkout or a PR branch at a time, so an agent that opened a PR stops pushing to it once another handles its review; parallel writers get their own git worktrees. When a model hits its usage limit, rerun its work on another model instead of waiting.
+Start other agents only when I ask for them or a skill I invoked, such as autopilot, calls for them. One agent writes to a checkout or a PR branch at a time, so an agent that opened a PR stops pushing to it once another handles its review; parallel writers get their own git worktrees. Read another checkout's code with `git show <ref>:<path>` or `git grep <ref>`; never switch its branch. When a model hits its usage limit, rerun its work on another model instead of waiting.
 
 Save verified, durable project knowledge in the nearest applicable `AGENTS.md`, with `CLAUDE.md` as a relative symlink to it; merge an existing `CLAUDE.md` into it first. Record non-obvious commands, conventions and constraints, not session history, temporary state or generic advice, and remove guidance that has gone stale.
 
