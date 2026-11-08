@@ -19,6 +19,8 @@ config = tomlkit.parse(sys.stdin.read())
 config.update(
     approval_policy="never",  # Run commands without approval prompts.
     check_for_update_on_startup=False,  # Let mise manage Codex updates.
+    model_auto_compact_token_limit=475000,
+    model_context_window=500000,
     model_reasoning_summary="concise",  # Keep reasoning summaries short.
     model_verbosity="low",  # Ask the model for shorter responses.
     personality="none",  # Omit the built-in Personality instructions.
