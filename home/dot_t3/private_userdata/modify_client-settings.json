@@ -6,6 +6,15 @@ import sys
 source = sys.stdin.read()
 
 settings = json.loads(source.strip() or "{}") or {}
-settings["contextWindowMeterEnabled"] = True
+settings.update(
+    contextWindowMeterEnabled=True,  # Show the context window meter
+    notificationMode="notifications",  # Send system notifications
+    sidebarWorkingShelfEnabled=False,  # Hide the working shelf in the sidebar
+)
+
+thread_details_items = settings.get("threadDetailsItems")
+if thread_details_items is None:
+    thread_details_items = settings["threadDetailsItems"] = {}
+thread_details_items["usage"] = True  # Show usage in thread details
 
 print(json.dumps(settings, indent=2, ensure_ascii=False))

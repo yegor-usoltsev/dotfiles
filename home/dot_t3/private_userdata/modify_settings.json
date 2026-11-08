@@ -24,13 +24,23 @@ settings.update(
     deviceOnboardingCompleted=True,  # Skip the device panel onboarding
     enableAgentDeviceAccess=True,  # Let agents drive simulators and emulators
     enableDeviceSupport=True,  # Show the device panel
-    enableProviderUpdateChecks=False,  # Do not check provider CLIs for updates; mise updates them
     fallbackModelSelection={"instanceId": "codex", "model": "gpt-6.1-sol"},  # Model for new threads when the default provider is out of usage
     idleCompaction="beforeCacheExpires",  # Compact idle threads before the prompt cache expires
     linkedEnvironmentsEnabled=True,  # Let agents on one machine delegate to the others
     pullRequestMergeMethod="squash",  # Merge pull requests as one commit
     removeAgentCreditsOnMerge=True,  # Drop agent credit lines from merge and squash messages
+    sidebarAutoSettleAfterDays=None,  # Never settle idle threads in the sidebar
+    sidebarAutoSettleOnMerge=False,  # Keep threads in the sidebar after their pull request merges
     snoozeLimitedThreads=True,  # Snooze threads until usage limits reset
+)
+
+storage_cleanup = child(settings, "storageCleanup")
+storage_cleanup.update(
+    browserArtifactsAfterDays=8,  # Delete browser artifacts after 8 days
+    logsAfterDays=8,  # Delete logs after 8 days
+    worktreeAfterDays=8,  # Delete worktrees after 8 days
+    worktreeSettledAfterDays=8,  # Delete worktrees of settled threads after 8 days
+    worktreeUnchanged=True,  # Also delete worktrees without changes
 )
 
 provider_instances = child(settings, "providerInstances")
