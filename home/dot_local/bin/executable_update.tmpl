@@ -28,7 +28,7 @@ step() {
 
 homebrew() {
 	brew update
-	brew upgrade --greedy-auto-updates
+	brew upgrade --no-ask --greedy-auto-updates
 	brew cleanup
 }
 step "Homebrew packages" homebrew
