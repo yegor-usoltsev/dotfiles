@@ -7,7 +7,6 @@ source = sys.stdin.read()
 
 settings = json.loads(source.strip() or "{}") or {}
 settings.update(
-    contextWindowMeterEnabled=True,  # Show the context window meter
     notificationMode="notifications",  # Send system notifications
     sidebarWorkingShelfEnabled=False,  # Hide the working shelf in the sidebar
 )
