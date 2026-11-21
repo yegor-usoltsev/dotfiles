@@ -3,8 +3,6 @@
 import json
 import sys
 
-ai_router_api_key = {{ dig "aiRouterApiKey" "" .secrets | toJson }}
-
 
 def child(parent, key):
     """Return parent[key], replacing a missing or null value with an empty table."""
@@ -46,13 +44,7 @@ env["CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL"] = "1"  # Do not auto
 env["DISABLE_AUTOUPDATER"] = "1"  # mise updates Claude Code
 env["DISABLE_ERROR_REPORTING"] = "1"  # No crash reports to Anthropic
 
-# Without a key Claude Code falls back to its own login.
-if ai_router_api_key:
-    env.update(
-        ANTHROPIC_BASE_URL="https://ai-router.usoltsev.xyz",
-        ANTHROPIC_AUTH_TOKEN=ai_router_api_key,
-    )
-elif env.get("ANTHROPIC_BASE_URL") == "https://ai-router.usoltsev.xyz":
+if env.get("ANTHROPIC_BASE_URL") == "https://ai-router.usoltsev.xyz":
     del env["ANTHROPIC_BASE_URL"]
     env.pop("ANTHROPIC_AUTH_TOKEN", None)
 
