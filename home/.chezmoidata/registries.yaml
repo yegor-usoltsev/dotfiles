@@ -10,5 +10,5 @@ gitEmail: yegor@usoltsev.xyz
 githubLogin: yegor-usoltsev
 giteaLogin: yegor
 dockerLogin: yusoltsev
-cloneOwners: [yegor-usoltsev, yegor, chasovsky, intuitio, renovate-bot]
+cloneOwners: [github.com/yegor-usoltsev, gitea.usoltsev.xyz/yegor, gitea.usoltsev.xyz/chasovsky, gitea.usoltsev.xyz/intuitio, gitea.usoltsev.xyz/renovate-bot, gitea.usoltsev.xyz/fixik-bot]
 githubPackageOwners: [yegor-usoltsev]

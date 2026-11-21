@@ -6,7 +6,7 @@ set -euo pipefail
 # existing checkouts. Every checkout, and ~/dev itself, is a T3 Code project.
 cd "$(dirname "$0")"
 
-# An owner clones all of its repositories; owner/name clones one.
+# Use host/owner for all repositories of an owner, or host/owner/name for one.
 allowed=(
 {{- range .cloneOwners }}
 	{{ . | quote }}
@@ -16,14 +16,14 @@ allowed=(
 is_allowed() {
 	local entry
 	for entry in "${allowed[@]}"; do
-		[[ $1 == "$entry" || ${1%%/*} == "$entry" ]] && return 0
+		[[ $1 == "$entry" || ${1%/*} == "$entry" ]] && return 0
 	done
 	return 1
 }
 
 repos() {
 	gh api --paginate 'user/repos?affiliation=owner,organization_member&per_page=100' \
-		--jq '.[] | select((.fork or .archived or .mirror_url != null) | not) | "\(.full_name) \(.ssh_url)"'
+		--jq '.[] | select((.fork or .archived or .mirror_url != null) | not) | "\(.full_name) \(.clone_url)"'
 	local page=1 batch
 	while :; do
 		batch=$(tea api "/user/repos?limit=50&page=$page")
@@ -34,7 +34,8 @@ repos() {
 }
 
 repos | sort -u | while read -r name url; do
-	is_allowed "$name" || continue
+	qualified=${url#https://}
+	is_allowed "${qualified%.git}" || continue
 	if [[ ! -e $name ]]; then
 		git clone --quiet "$url" "$name" </dev/null
 		printf 'cloned %s\n' "$name"
