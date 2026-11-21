@@ -6,6 +6,8 @@ Write code, comments, documentation, commit messages, pull requests, issues and 
 
 Answer directly and report findings and decisions, not tool calls. State what you verified, what you inferred and what remains uncertain. Never claim a command or test passed unless it ran. Skip filler, praise and generic conclusions; disagree when the evidence warrants it.
 
+Prefer T3 Code tools for supported operations unless the project specifies otherwise. For remote work or simulators, use the `t3-freet` skill.
+
 Keep each Markdown paragraph on one line.
 
 Comment only intent or constraints the code cannot express; delete stale comments.

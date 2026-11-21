@@ -5,9 +5,7 @@ description: Open or update a concise pull request on GitHub or Gitea. Use when 
 
 # Open PR
 
-The `origin` remote decides the host: `github.com` uses `gh`, `gitea.usoltsev.xyz` uses `tea`. Both CLIs are logged in.
-
-Before filing, check whether a PR for this branch already exists (`gh pr view`, `tea pr ls --state open`) and update it instead of opening a second one. Review the diff against the base branch, usually the default branch, to make sure its contents match the goal. Update an existing PR with `gh pr edit <n> --title … --body-file …` or `tea pr edit <n> --title … --description-file …`.
+Check the branch for an existing PR; update it instead of opening a duplicate. In T3 Code, prefer its pull request tools for lookup, creation and edits. Otherwise use `gh` for GitHub or `tea` for Gitea, according to `origin`. Review the diff against the intended base before filing.
 
 ## Title
 
@@ -35,7 +33,7 @@ Before submission, check the title, description, quotes and attachments for secr
 
 ## File
 
-Open a real PR rather than a draft so CI and review bots run. Pass a multi-line body through a file of your own, since other agents write to `/tmp` too:
+Open a real PR rather than a draft so CI and review bots run. Pass the body directly to the T3 tool. For CLI fallback use a temporary file of your own:
 
 ```sh
 body=$(mktemp -t pr-body.XXXXXX.md)
@@ -58,4 +56,4 @@ curl -sf -K <(printf 'header = "Authorization: token %s"\n' "$token") -F attachm
 
 If `gh pr create` fails because the GraphQL rate limit is used up, open it through REST: `gh api repos/<owner>/<repo>/pulls -f title=... -f head=... -f base=... -F body=@"$body"`.
 
-In T3 Code, link the PR to the thread with `link_pull_request`.
+T3 creation links the PR automatically; use `link_pull_request` after CLI creation.
