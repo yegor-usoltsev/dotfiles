@@ -51,7 +51,7 @@ installAppsFromAppStore = {{ $installAppsFromAppStore }}
 profile = {{ $profile | quote }}
 screenshotsPath = "{{ .chezmoi.homeDir }}/Pictures/Screenshots"
 
-{{ with $secrets.identity }}{{ . | toToml }}{{ end }}
+{{ with (get $secrets "identity") }}{{ . | toToml }}{{ end }}
 [data.secrets]
 aiRouterApiKey = {{ dig "aiRouterApiKey" "" $secrets | quote }}
 sshPrivateKey = {{ dig "sshPrivateKey" "" $secrets | quote }}
