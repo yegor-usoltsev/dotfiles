@@ -5,3 +5,10 @@ giteaPackageOwners:
   - chasovsky
   - intuitio
   - renovate-bot
+gitName: Yegor Usoltsev
+gitEmail: yegor@usoltsev.xyz
+githubLogin: yegor-usoltsev
+giteaLogin: yegor
+dockerLogin: yusoltsev
+cloneOwners: [yegor-usoltsev, yegor, chasovsky, intuitio, renovate-bot]
+githubPackageOwners: [yegor-usoltsev]

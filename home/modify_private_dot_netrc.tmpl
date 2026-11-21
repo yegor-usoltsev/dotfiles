@@ -6,8 +6,8 @@ import sys
 config = netrc.netrc("/dev/stdin")
 
 managed = {
-    "github.com": ("yegor-usoltsev", {{ dig "githubToken" "" .secrets | toJson }}),
-    "gitea.usoltsev.xyz": ("yegor", {{ dig "giteaToken" "" .secrets | toJson }}),
+    "github.com": ({{ .githubLogin | toJson }}, {{ dig "githubToken" "" .secrets | toJson }}),
+    "gitea.usoltsev.xyz": ({{ .giteaLogin | toJson }}, {{ dig "giteaToken" "" .secrets | toJson }}),
 }
 for host, (username, token) in managed.items():
     if token:

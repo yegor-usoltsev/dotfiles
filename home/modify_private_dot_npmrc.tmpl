@@ -4,11 +4,13 @@ import sys
 
 github_token = {{ dig "githubToken" "" .secrets | toJson }}
 gitea_token = {{ dig "giteaToken" "" .secrets | toJson }}
+github_owners = {{ .githubPackageOwners | toJson }}
 gitea_owners = {{ .giteaPackageOwners | toJson }}
 
 managed = {}
 if github_token:
-    managed["@yegor-usoltsev:registry"] = "https://npm.pkg.github.com/"
+    for owner in github_owners:
+        managed[f"@{owner}:registry"] = "https://npm.pkg.github.com/"
     managed["//npm.pkg.github.com/:_authToken"] = github_token
 if gitea_token:
     for owner in gitea_owners:

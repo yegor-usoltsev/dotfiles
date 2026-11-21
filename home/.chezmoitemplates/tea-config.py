@@ -21,7 +21,7 @@ logins.append(
     {
         "name": "default",
         "url": "https://gitea.usoltsev.xyz",
-        "user": "yegor",
+        "user": {{ .giteaLogin | toJson }},
         "token": token,
         "default": True,
     }

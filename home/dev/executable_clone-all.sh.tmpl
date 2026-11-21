@@ -8,11 +8,9 @@ cd "$(dirname "$0")"
 
 # An owner clones all of its repositories; owner/name clones one.
 allowed=(
-	yegor-usoltsev
-	yegor
-	chasovsky
-	intuitio
-	renovate-bot
+{{- range .cloneOwners }}
+	{{ . | quote }}
+{{- end }}
 )
 
 is_allowed() {

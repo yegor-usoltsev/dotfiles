@@ -6,8 +6,8 @@ import sys
 import xml.etree.ElementTree as ET
 
 servers = {
-    "github": ("yegor-usoltsev", {{ dig "githubToken" "" .secrets | toJson }}),
-    "gitea": ("yegor", {{ dig "giteaToken" "" .secrets | toJson }}),
+    "github": ({{ .githubLogin | toJson }}, {{ dig "githubToken" "" .secrets | toJson }}),
+    "gitea": ({{ .giteaLogin | toJson }}, {{ dig "giteaToken" "" .secrets | toJson }}),
 }
 
 source = sys.stdin.read()

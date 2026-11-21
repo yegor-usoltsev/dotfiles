@@ -4,7 +4,7 @@ import sys
 
 from ruamel.yaml import YAML
 
-user = "yegor-usoltsev"
+user = {{ .githubLogin | toJson }}
 token = {{ dig "githubToken" "" .secrets | toJson }}
 
 

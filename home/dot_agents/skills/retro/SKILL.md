@@ -26,4 +26,4 @@ Present the findings worst first, each with its evidence and the concrete edit (
 
 Write the least text that changes behavior: one owner per rule, the reason in a clause when it is not obvious, no emphasis words, and no rule the model already follows by default. Search the existing rules first; when one already covers the case, fix its wording or placement instead of adding a copy.
 
-Global rules and skills are sources in `~/dev/yegor-usoltsev/dotfiles/home/dot_agents/`, and the Flint guide lives in `~/dev/yegor-usoltsev/flint/cli/guide.md`; never edit `~/.agents`, which chezmoi overwrites. Present the findings and stop. Apply the edits the user approves; record approved work you cannot do now, such as a new check, with the `flint` skill.
+Global rules and skills are sources in `~/dev/yegor-usoltsev/dotfiles/home/dot_agents/`, and the Flint guide lives in https://github.com/yegor-usoltsev/flint/blob/main/cli/guide.md; never edit `~/.agents`, which chezmoi overwrites. Present the findings and stop. Apply the edits the user approves; record approved work you cannot do now, such as a new check, with the `flint` skill.

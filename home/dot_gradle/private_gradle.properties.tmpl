@@ -1,8 +1,8 @@
 {{- with dig "githubToken" "" .secrets -}}
-githubUsername=yegor-usoltsev
+githubUsername={{ $.githubLogin }}
 githubToken={{ . | replace "\\" "\\\\" }}
 {{ end -}}
 {{- with dig "giteaToken" "" .secrets -}}
-giteaUsername=yegor
+giteaUsername={{ $.giteaLogin }}
 giteaToken={{ . | replace "\\" "\\\\" }}
 {{ end -}}

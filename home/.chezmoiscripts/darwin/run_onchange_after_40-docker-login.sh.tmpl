@@ -14,6 +14,6 @@ login() {
 	fi
 }
 
-login ghcr.io yegor-usoltsev githubToken
-login gitea.usoltsev.xyz yegor giteaToken
-login docker.io yusoltsev dockerToken
+login ghcr.io {{ .githubLogin | quote }} githubToken
+login gitea.usoltsev.xyz {{ .giteaLogin | quote }} giteaToken
+login docker.io {{ .dockerLogin | quote }} dockerToken

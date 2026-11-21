@@ -46,6 +46,10 @@ Library/**
 {{- if not (and (eq .chezmoi.os "linux") (eq .chezmoi.arch "arm64") (ne .profile "server")) }}
 .agent-browser/config.json
 {{- end }}
+{{- if or (not (dig "sshPrivateKey" "" .secrets)) (not (dig "sshPublicKey" "" .secrets)) }}
+.ssh/id_ed25519
+.ssh/id_ed25519.pub
+{{- end }}
 {{- if eq .profile "server" }}
 .config/mise/github_tokens.toml
 .config/gh/hosts.yml
