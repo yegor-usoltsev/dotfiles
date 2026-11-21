@@ -14,7 +14,7 @@ Never use `git stash`. Before changing a repository, `git fetch` and fast-forwar
 
 When I ask to review a plan first, present it and end the turn; implement only after I approve.
 
-Keep files that must outlive the session, such as plans and handoffs, in the repository's plans folder when it has one, and otherwise publish them with the `artifact` skill. The artifact server needs no authentication, so keep secrets out of it. `/tmp` is only for scratch.
+Keep plans and handoffs in the repository's plans folder when it has one. /tmp is only for scratch.
 
 Share screenshots and animations as WebP, recordings as H.264 in MP4 (AAC 128 kbps for any sound) and audio as Opus in WebM, each under 10 MB. Upload each file to the platform that shows it and embed images with `![alt](url)`, video and audio with `<video src="url" controls></video>` alone on its line. On GitHub, pass the local file to `gh` with `--attach` and write `![alt](path)` alone on its line instead; gh swaps in the upload.
 
