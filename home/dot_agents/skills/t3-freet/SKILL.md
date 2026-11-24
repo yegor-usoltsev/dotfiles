@@ -5,7 +5,7 @@ description: Choose a linked workstation, delegate remote work, or build and tes
 
 # Working across machines
 
-Four isolated regional Ubuntu desktops reach the tailnet through a Tailscale subnet router; two operator Macs provide macOS and iOS tooling. Fleet servers run services, not interchangeable build workers. Work on the operator's assigned desktop or Mac. Discover actual links with `t3_environment_links`: SSH reachability is not T3 pairing. Use the infrastructure inventory for assignments and management routes; don't assume all peers can reach each other.
+Use the Ansible inventory in the infrastructure repository as the source of truth for regional Ubuntu desktops, operator Mac assignments and management routes. Fleet servers run services, not interchangeable build workers. Work on the operator's assigned desktop or Mac. Discover actual links with `t3_environment_links`: SSH reachability is not T3 pairing. Don't assume all peers can reach each other.
 
 Projects live under `~/dev/<owner>/<repo>`: `~/dev/intuitio` holds the shared product repos. `~/dev/yegor/infrastructure` owns Ansible and network policy; `~/dev/yegor-usoltsev/dotfiles` owns chezmoi, global agent rules and skills for both operators. Use a management Mac for fleet operations when the desktop has no route. Use SSH for shell, builds and sync (including desktop to operator Mac), or RDP from a Mac for an interactive Ubuntu desktop. Use the configured SSH aliases or gateway connection profiles rather than guessing addresses.
 
