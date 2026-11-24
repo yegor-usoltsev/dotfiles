@@ -5,7 +5,7 @@ description: Choose a linked workstation, delegate remote work, or build and tes
 
 # Working across machines
 
-Use the Ansible inventory in the infrastructure repository as the source of truth for regional Ubuntu desktops, operator Mac assignments and management routes. Fleet servers run services, not interchangeable build workers. Work on the operator's assigned desktop or Mac. Discover actual links with `t3_environment_links`: SSH reachability is not T3 pairing. Don't assume all peers can reach each other.
+Use `~/dev/yegor/infrastructure/playbooks/agentarium/inventory.yml` for regional Ubuntu desktops and their `desktop_owner` assignments, and follow the operator Mac procedure in the adjacent `README.md`. Fleet servers run services, not interchangeable build workers. Work on the operator's assigned desktop or Mac. Discover actual links with `t3_environment_links`: SSH reachability is not T3 pairing. Don't assume all peers can reach each other.
 
 Projects live under `~/dev/<owner>/<repo>`: `~/dev/intuitio` holds the shared product repos. `~/dev/yegor/infrastructure` owns Ansible and network policy; `~/dev/yegor-usoltsev/dotfiles` owns chezmoi, global agent rules and skills for both operators. Use a management Mac for fleet operations when the desktop has no route. Use SSH for shell, builds and sync (including desktop to operator Mac), or RDP from a Mac for an interactive Ubuntu desktop. Use the configured SSH aliases or gateway connection profiles rather than guessing addresses.
 
