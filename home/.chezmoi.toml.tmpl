@@ -50,7 +50,6 @@ exclude = ["scripts"]
 installAppsFromAppStore = {{ $installAppsFromAppStore }}
 profile = {{ $profile | quote }}
 screenshotsPath = "{{ .chezmoi.homeDir }}/Pictures/Screenshots"
-t3EmulatorHostGpu = {{ dig "t3EmulatorHostGpu" false . }}
 
 {{ with (get $secrets "identity") }}{{ . | toToml }}{{ end }}
 [data.secrets]

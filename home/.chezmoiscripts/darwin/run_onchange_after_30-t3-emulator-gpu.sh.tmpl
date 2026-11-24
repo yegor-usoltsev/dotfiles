@@ -1,0 +1,24 @@
+{{- if and (eq .chezmoi.arch "arm64") (eq .profile "workstation") -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+# launch agent hash: {{ include "private_Library/LaunchAgents/xyz.usoltsev.t3-emulator-host-gpu.plist" | sha256sum }}
+
+info "Loading the T3 emulator GPU launch agent"
+
+agent="$HOME/Library/LaunchAgents/xyz.usoltsev.t3-emulator-host-gpu.plist"
+launchctl unload "$agent" >/dev/null 2>&1 || true
+launchctl load "$agent"
+
+# launchctl load returns before the job runs; getenv over SSH reads another session, T3 inherits the GUI one.
+# grep reads all of the output: -q would end launchctl with SIGPIPE and fail the pipefail pipeline.
+for _ in 1 2 3 4 5; do
+	if launchctl print "gui/$(id -u)" | grep -F 'EXPO_DEVICE_HUB_EMULATOR_EXTRA_ARGS => -gpu host' >/dev/null; then
+		success "T3 emulators use the host GPU after T3's next start"
+		exit 0
+	fi
+	sleep 1
+done
+warn "The GUI session lacks EXPO_DEVICE_HUB_EMULATOR_EXTRA_ARGS; log in to the desktop and rerun chezmoi apply"
+{{ end -}}
