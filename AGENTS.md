@@ -82,6 +82,8 @@ Homebrew/apt own bootstrap prerequisites, native libraries and system integratio
 
 `~/.agents` is authoritative for global rules and skills; Claude/Codex use symlinks. Leave `~/.codex/skills` alone: it contains Codex's `.system` tree. Application-owned configuration is patched, not replaced. Third-party skills come from upstream through `home/.chezmoiexternal.toml`; never copy them into source state. Every local skill is model-invocable, and its `description` names English trigger words and says "in any language"; the repository holds no Cyrillic. The global media rule was tested on GitHub, Gitea 28 and Flint: GitHub rejects AVIF uploads and drops `<video>` unless it points at its own uploads, Gitea strips `<audio>` and rejects `.weba`, `.ogg` and `.opus`, and Safari plays AV1 only with a hardware decoder. Claude keeps telemetry on because `DISABLE_TELEMETRY` and `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` also stop feature-flag fetching.
 
+Opt in to T3's Android emulator host GPU on an Apple Silicon workstation with `t3EmulatorHostGpu = true` in the local chezmoi `[data]` table. The LaunchAgent sets `EXPO_DEVICE_HUB_EMULATOR_EXTRA_ARGS` for future GUI launches in that login session; it does not change a running T3 or order itself before login-item apps. Turning off the opt-in does not delete an already-applied agent or unset the current session's variable.
+
 ## Verify a change
 
 Keep tests/fixtures out of this repository. Use isolated renders/applies, existing linters and temporary behavioral samples. Render a template using the current machine's profile:
