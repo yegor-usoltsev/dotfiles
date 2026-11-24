@@ -34,7 +34,7 @@ Library/Application Support/tea/config.yml
 .bash_profile
 .bashrc
 .config/tea/config.yml
-{{- if not (and (eq .chezmoi.arch "arm64") (eq .profile "workstation") (dig "t3EmulatorHostGpu" false .)) }}
+{{- if not (and (eq .chezmoi.arch "arm64") (eq .profile "workstation")) }}
 Library/LaunchAgents/xyz.usoltsev.t3-emulator-host-gpu.plist
 {{- end }}
 {{- else }}
