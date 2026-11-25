@@ -6,3 +6,6 @@ githubToken={{ . | replace "\\" "\\\\" }}
 giteaUsername={{ $.giteaLogin }}
 giteaToken={{ . | replace "\\" "\\\\" }}
 {{ end -}}
+{{- if and (eq .chezmoi.os "linux") (eq .profile "devbox") (eq .chezmoi.hostname "ubuntu-pl-01") -}}
+org.gradle.jvmargs=-Xmx4G -XX:MaxMetaspaceSize=1G -XX:ReservedCodeCacheSize=512m
+{{ end -}}
