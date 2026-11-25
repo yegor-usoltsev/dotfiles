@@ -6,3 +6,8 @@ githubToken={{ . | replace "\\" "\\\\" }}
 giteaUsername={{ $.giteaLogin }}
 giteaToken={{ . | replace "\\" "\\\\" }}
 {{ end -}}
+{{- if and (eq .chezmoi.os "linux") (eq .profile "devbox") -}}
+{{-   with get . "gradleJvmArgs" -}}
+org.gradle.jvmargs={{ . }}
+{{ end -}}
+{{ end -}}

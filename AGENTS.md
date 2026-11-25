@@ -24,6 +24,8 @@ GitHub's shared token needs `repo`, `read:org`, `workflow` and `read:packages`. 
 
 Package credentials are for downloads; leave publishing credentials unconfigured. Maven projects must use repository ids `github` and `gitea`; managed Gradle user properties override project properties. Servers manage Git store files, `.npmrc` and `.netrc`; other CLI logins stay on development profiles.
 
+Agentarium supplies an optional `gradleJvmArgs` in the provisioned devbox data. Keep the cap opt-in through that data; do not infer it from the hostname or set it for every Linux devbox.
+
 ## Scripts
 
 Include `home/.chezmoitemplates/script-header` in every `.chezmoiscripts/` script: it supplies PATH, logging and OS-version content that retriggers setup after upgrades. Use `log` alone when PATH changes are unnecessary. Preserve portability: setup scripts are bash; `home/dot_config/shell/` is shared by bash and zsh.
