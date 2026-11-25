@@ -49,6 +49,7 @@ exclude = ["scripts"]
 [data]
 installAppsFromAppStore = {{ $installAppsFromAppStore }}
 profile = {{ $profile | quote }}
+gradleJvmArgs = {{ dig "gradleJvmArgs" "" $secrets | quote }}
 screenshotsPath = "{{ .chezmoi.homeDir }}/Pictures/Screenshots"
 
 {{ with (get $secrets "identity") }}{{ . | toToml }}{{ end }}
