@@ -27,7 +27,7 @@ ffmpeg -i rec.mov -c:v libx264 -crf 28 -preset slow -pix_fmt yuv420p -movflags +
 
 Start other agents only when I ask for them or a skill I invoked, such as autopilot, calls for them. One agent writes to a checkout or a PR branch at a time, so an agent that opened a PR stops pushing to it once another handles its review; parallel writers get their own git worktrees. Read another checkout's code with `git show <ref>:<path>` or `git grep <ref>`; never switch its branch. When a model hits its usage limit, rerun its work on another model instead of waiting.
 
-For code review, follow `review-loop` for human, bot and delegate findings, including on T3 wake-ups. Keep one three-round budget per PR unless I explicitly authorize more; pushes, notifications and handoffs do not reset it. Do not manually restart a paused reviewer without my explicit approval. When findings repeat, address the underlying design rather than adding another exception. At the limit without approval, stop requesting reviews, unwatch in T3, and hand back the open PR with the verified blockers and a recommendation. Never bypass a required review or check.
+For code review, follow `review-loop`, including for bot findings and on T3 wake-ups. Its autonomous review budget survives pushes, notifications and handoffs. Only I can authorize an extension or a paused reviewer's restart.
 
 Save verified, durable project knowledge in the nearest applicable `AGENTS.md`, with `CLAUDE.md` as a relative symlink to it; merge an existing `CLAUDE.md` into it first. Record non-obvious commands, conventions and constraints, not session history, temporary state or generic advice, and remove guidance that has gone stale.
 

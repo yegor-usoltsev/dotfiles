@@ -122,6 +122,6 @@ Repeat with empty secrets and the host's applicable profiles (`server`/`devbox` 
 
 ## Pull requests
 
-- CodeRabbit and cubic skip drafts and Renovate. After each push, wait for CI/reviews and read inline comments with `gh api --paginate repos/{owner}/{repo}/pulls/<n>/comments`.
-- Verify findings against code. Fix real defects in one commit per round; decline nits, redundant or speculative findings with one line of evidence and resolve the thread. Do not argue twice.
-- Stop after two fix rounds; nits do not block merging. Use `gh pr merge --squash` once CI is green and no comment identifies a real defect.
+- CodeRabbit and cubic skip drafts and Renovate. Read inline comments with `gh api --paginate repos/{owner}/{repo}/pulls/<n>/comments`.
+- Follow `review-loop` for the budget, findings and handoff. Group verified fixes in one commit per round.
+- When authorized to merge and checks and review have passed on the current head, use `gh pr merge --squash`.
