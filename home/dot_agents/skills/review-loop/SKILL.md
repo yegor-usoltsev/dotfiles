@@ -67,13 +67,15 @@ Start another pass only when a verified blocker or should remains to be checked 
 
 An autonomous review-and-fix loop has at most three rounds, or a stricter repository limit. Count the initial pre-PR loop separately. Once the PR is open, count the first pass (including an automatic review on opening) and all subsequent passes against a single PR budget. Changing reviewers, threads or owners does not reset it. Only the user can explicitly extend the limit; a request to finish or merge is not an extension.
 
-Count each new pass started by a push, manual rerun or delegate. Parallel reviews of the same head count as one round; wait for active reviewers and address their findings together before pushing fixes. Notifications, comment edits and duplicate verdicts do not count. Record the round, head and verdict in the turn summary or handoff. Recover the count from that record and PR review and check history on wake-up or takeover. If you cannot establish that budget remains, hand back.
+Count each new pass started by a push, manual rerun or delegate. Parallel reviews of the same head count as one round; wait for active reviewers and address their findings together before pushing fixes. Notifications, comment edits and duplicate verdicts do not count.
+
+Keep a durable task handoff accessible to the next owner. Record the round and head when it starts, then add the verdict when it finishes. Include delegate passes that do not appear on the PR. On wake-up or takeover, recover the count from the handoff and the PR's review and check history. If you cannot establish that budget remains, hand back.
 
 Check the budget before requesting a review or making any push that would trigger one, including CI fixes and base updates. Do not work around a reviewer's pause or cap with a bot command, UI rerun, different reviewer or replacement PR. A manual restart after a pause needs explicit user authorization even if budget remains.
 
 ### Stop
 
-Review passes when the current head has a completed review, no verified blocker or should remains, and required approvals are met. A bot can pass without an `APPROVED` label, but a green check alone is not a verdict. A reviewer skipped by design is not expected; a pause, unexpected skip, timeout or error is not approval.
+Review passes only with a positive reviewer verdict on the current head: `VERDICT: APPROVE`, a host approval, or a bot report confirming no actionable findings remain. Meet any required approvals; no blocker, should or material concern of your own may remain. A green check alone is not a verdict. A reviewer skipped by design is not expected; a pause, unexpected skip, timeout or error is not approval.
 
 Stop without approval when an expected reviewer pauses or skips the head unexpectedly, a dispute persists after one evidence-backed reply and re-check, progress requires a scope decision, or another round is needed but not allowed. Whenever review stops without approval, leave any PR open and unmerged, unwatch it in T3, and report the count, head, check state, verified blockers and recommendation.
 
