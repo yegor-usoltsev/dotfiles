@@ -57,20 +57,26 @@ Check each finding and its severity yourself.
 - Nit or out of scope: decline in one line; record only actionable out-of-scope defects as follow-ups.
 - On a host thread, reply after the fix is pushed, cite the pushed SHA, and resolve only the threads you answered.
 
-Keep a ledger of each id, its severity and outcome. Rerun the checks. If review grew the diff, cut first. Do not agree just to end the loop.
+Keep a ledger of each id, its severity and outcome. Rerun the checks. When successive rounds expose the same failure class, stop fixing examples one by one. Revisit the underlying design and the smallest scope that meets the request. If that requires a scope decision or another round would repeat the same approach, hand back early with a recommendation.
 
 ### Next round
 
-Start a new delegate only while a blocker or should stays open, or behavior changed since the last approval. Send the round 1 brief, the ledger (`fixed:`, `disagree:`, `declined:` with evidence) and the change since the last round, and ask it to check only the open ids and the changed code.
+Start another pass only when a verified blocker or should remains to be checked after a fix or an evidence-backed response, or behavior changed since the last approval. For a delegate, send the round 1 brief, the ledger (`fixed:`, `disagree:`, `declined:` with evidence) and the change since the last round. Ask it to check only open findings and changed code.
 
-The budget is three rounds; extend to five only for security, permissions, data loss or concurrency findings that stay open with evidence, or when the user asks. Stop when a round approves.
+### Review budget
+
+Use at most three rounds per PR, or a stricter repository limit. Before a PR exists, the initial delegate review loop has its own three-round limit. Once the PR is open, its budget covers every review route; changing reviewers, starting a new thread or handing off does not start a new loop. Only the user can explicitly extend the budget. A request to finish or merge is not an extension.
+
+Count the initial review of a candidate and each new pass, whether started by a push, a manual rerun or a delegate. Parallel reviews of the same candidate are one round; comment notifications, edits and duplicate verdicts are not new rounds. Record the round, head and verdict in the task handoff. On a wake-up or takeover, recover the count from PR review and check history and the prior handoff before starting more review work. If the count is uncertain, do not assume a fresh budget.
+
+Check the budget before requesting a review or pushing a revision that would trigger one, including a base update. Do not work around a reviewer's configured pause or cap with a bot command, UI rerun, different reviewer or a replacement PR. A manual restart after a pause needs explicit user authorization even if the budget has not run out.
 
 ### Stop
 
-Done: the reviewer approves the current diff and no blocker, should or concern of your own remains. Stuck: an item stays disputed after two replies, or the budget runs out; show both sides in two or three lines each and let the user decide. A timeout, an error or the end of the budget is not approval.
+Done: the reviewer approves the current diff and no blocker, should or concern of your own remains. Stop early if a finding stays disputed after two replies or the review cannot converge without a scope decision. If the budget runs out without approval, stop the review loop. If a PR exists, leave it open and unmerged and unwatch it in T3 before handing back. Report the count, current head and check state, verified blockers, and the recommended next step. A timeout, an error or the end of the budget is not approval.
 
 Report the rounds, the reviewer's provider and model, what changed, the diff size before and after, and the fixed and declined findings with reasons. Commit and push only when the user or the invoking skill allows it.
 
 ## Receiving findings
 
-Answer findings from bots or people as in Answer findings. Fix and commit only when you may edit the change; otherwise report the proposed fixes.
+Apply Answer findings and Review budget to hosted reviews, including bot comments and T3 notifications. Fix and commit only when you may edit the change; otherwise report the proposed fixes.
