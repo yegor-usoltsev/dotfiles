@@ -7,7 +7,7 @@ description: Review code or get it reviewed. Use when asked to review a diff, br
 
 Two modes:
 
-- **Review:** someone asks you to review a change. Report findings and edit nothing; a request for review alone does not authorize edits.
+- **Review:** someone asks you to review a change. Report findings and edit nothing. An explicit one-shot review is allowed even after a loop stops; it does not restart the loop or authorize edits.
 - **Loop:** the user, or a skill such as autopilot, asks for review of your own change. A single reviewer from the other provider reviews it in rounds while you fix: Claude reviews Codex's work and Codex reviews Claude's. When that provider is out of limits or unavailable, use a fresh delegate of your own provider, whose context holds none of your reasoning, and say so in the report.
 
 ## Review
@@ -57,20 +57,30 @@ Check each finding and its severity yourself.
 - Nit or out of scope: decline in one line; record only actionable out-of-scope defects as follow-ups.
 - On a host thread, reply after the fix is pushed, cite the pushed SHA, and resolve only the threads you answered.
 
-Keep a ledger of each id, its severity and outcome. Rerun the checks. If review grew the diff, cut first. Do not agree just to end the loop.
+Keep a ledger of each id, its severity and outcome. Rerun the checks. If review grew the diff, cut first. Do not agree just to end the loop. When successive rounds expose the same failure class, revisit the design and the smallest scope that meets the request instead of patching examples one by one.
 
 ### Next round
 
-Start a new delegate only while a blocker or should stays open, or behavior changed since the last approval. Send the round 1 brief, the ledger (`fixed:`, `disagree:`, `declined:` with evidence) and the change since the last round, and ask it to check only the open ids and the changed code.
+Start another pass only when a verified blocker or should remains to be checked after a fix or an evidence-backed response, or behavior changed since the last approval. For a delegate, send the round 1 brief, the ledger (`fixed:`, `disagree:`, `declined:` with evidence) and the change since the last round. Ask it to check only open findings and changed code.
 
-The budget is three rounds; extend to five only for security, permissions, data loss or concurrency findings that stay open with evidence, or when the user asks. Stop when a round approves.
+### Review budget
+
+An autonomous review-and-fix loop has at most three rounds, or a stricter repository limit. Count the initial pre-PR loop separately. Once the PR is open, count the first pass (including an automatic review on opening) and all subsequent passes against a single PR budget. Changing reviewers, threads or owners does not reset it. Only the user can explicitly extend the limit; a request to finish or merge is not an extension.
+
+Count each new pass started by a push, manual rerun or delegate. Parallel reviews of the same head count as one round; wait for active reviewers and address their findings together before pushing fixes. Notifications, comment edits and duplicate verdicts do not count.
+
+Keep a durable task handoff accessible to the next owner. Record the round and head when it starts, then add the verdict when it finishes. Include delegate passes that do not appear on the PR. On wake-up or takeover, recover the count from the handoff and the PR's review and check history. If you cannot establish that budget remains, hand back.
+
+Check the budget before requesting a review or making any push that would trigger one, including CI fixes and base updates. Do not work around a reviewer's pause or cap with a bot command, UI rerun, different reviewer or replacement PR. A manual restart after a pause needs explicit user authorization even if budget remains.
 
 ### Stop
 
-Done: the reviewer approves the current diff and no blocker, should or concern of your own remains. Stuck: an item stays disputed after two replies, or the budget runs out; show both sides in two or three lines each and let the user decide. A timeout, an error or the end of the budget is not approval.
+Review passes only with a positive reviewer verdict on the current head: `VERDICT: APPROVE`, a host approval, or a bot report confirming no actionable findings remain. Meet any required approvals; no blocker, should or material concern of your own may remain. A green check alone is not a verdict. A reviewer skipped by design is not expected; a pause, unexpected skip, timeout or error is not approval.
+
+Stop without approval when an expected reviewer pauses or skips the head unexpectedly, a dispute persists after one evidence-backed reply and re-check, progress requires a scope decision, or another round is needed but not allowed. Whenever review stops without approval, leave any PR open and unmerged, unwatch it in T3, and report the count, head, check state, verified blockers and recommendation.
 
 Report the rounds, the reviewer's provider and model, what changed, the diff size before and after, and the fixed and declined findings with reasons. Commit and push only when the user or the invoking skill allows it.
 
 ## Receiving findings
 
-Answer findings from bots or people as in Answer findings. Fix and commit only when you may edit the change; otherwise report the proposed fixes.
+Apply Answer findings, Review budget and Stop to hosted reviews, including bot comments and T3 notifications. Fix and commit only when you may edit the change; otherwise report the proposed fixes.

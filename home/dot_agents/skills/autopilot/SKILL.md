@@ -28,14 +28,14 @@ It does not cover production changes, data deletion, changes outside the reposit
 
 1. **Finish the change** with the smallest change that reaches the goal. Fix the case that happened, not every case that could. Create a branch first when you are on the default branch.
 2. **Prove it.** Get proof for every change; see below.
-3. **Review it** with the `review-loop` skill until the reviewer approves.
-4. **Open the PR** with the `open-pr` skill after rebasing onto the latest default branch.
-5. **Wait for CI and reviews.** In T3 Code, call `watch_pull_request` and end your turn; it wakes you when a check fails or passes, a review or comment arrives, or the branch conflicts, on GitHub and Gitea. Elsewhere, block on one command that ends when checks finish, such as `gh pr checks <n> --watch --fail-fast`. Never write your own polling loop. Judge checks on the latest head and every unresolved finding against the current diff; ignore findings later changes made obsolete. A review bot has finished when its check completes or its review is posted. A wake-up that brings nothing new, such as a bot editing a resolved comment or refreshing its summary, needs no message.
-6. **Handle feedback** as the `review-loop` skill's Answer findings section describes, fixing real findings with proof. Keep the PR at the size the goal needs: decline extra tests, guards for edge cases that do not matter and extra compatibility. Fix real defects outside the goal in a follow-up PR instead of filing them; file an issue only for work that needs the user's decision or access. Before the gate, rebase onto the latest default branch and rerun the affected checks.
+3. **Review it** with `review-loop`.
+4. **Open the PR** with `open-pr` once the reviewed head is up to date with the default branch.
+5. **Wait for CI and reviews.** In T3 Code, call `watch_pull_request` and end your turn; it wakes you when checks, comments, reviews or mergeability change. Elsewhere, block on one command that ends when checks finish, such as `gh pr checks <n> --watch --fail-fast`. Never write your own polling loop. Judge reviews and checks on the latest head under `review-loop`. Duplicate notifications need no message.
+6. **Handle feedback** under `review-loop`. While budget remains, combine review fixes and any needed base update in one push, then rerun affected checks. If an update would trigger review beyond the budget, hand back instead of pushing. Keep unrelated defects out of the PR and follow the repository's follow-up process.
 7. **Finish at the gate.** In PR mode, hand off once the gate passes. In merge mode, merge as soon as the gate passes, before building other work on the branch, with the repository's usual method (check recent merged PRs); stay until the host reports the PR merged, then move its issue to Done. In T3 Code, call `unwatch_pull_request` before a handoff or a question.
 8. **Report:** the mode, the PR link, the final head or merge commit, your proof, the reviewer's verdict, the decisions you made and the remaining risks.
 
-Keep working until the end state or a question. Ending your turn while checks are pending, without a watcher, stops the work: nobody will prompt you again.
+Keep working until the end state, a question or a `review-loop` stop. Use its handoff when review stops without approval. Otherwise, ending your turn while checks are pending without a watcher stops the work: nobody will prompt you again.
 
 ## Proof
 
@@ -52,8 +52,7 @@ All of these hold on the latest commit:
 
 - Your proof covers every change in the diff.
 - Required checks are green.
-- Review bots have finished, and each finding is fixed or answered with a written reason.
-- No human review still requests changes.
+- Review passed on the current head as defined in `review-loop`. Expected reviewers have delivered their verdicts, each finding is fixed or answered with evidence, and no human review still requests changes.
 - The branch is up to date with the default branch and the host reports it mergeable.
 
 ## Asking the user
