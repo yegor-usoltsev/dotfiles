@@ -101,8 +101,15 @@ jobs:
             "${cm[@]}" apply --exclude=scripts,externals
             "${cm[@]}" verify --exclude=scripts,externals
 
+            login=.chezmoiscripts/13-gitea-login.sh
+            if [ "$PROFILE" = server ] || [ "$secrets" = empty ]; then
+              "${cm[@]}" ignored | grep -Fx "$login"
+            else
+              "${cm[@]}" managed --include=scripts | grep -Fx "$login"
+            fi
+
             if [ "$PROFILE" = server ]; then
-              for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .t3 dev .agent-browser/config.json .local/bin/update-browser .config/mise/github_tokens.toml .config/gh/hosts.yml .config/tea/config.yml .config/shell/credentials.sh .cargo .m2 .gradle; do
+              for target in .ssh/id_ed25519 .ssh/id_ed25519.pub .claude .codex .agents .t3 dev .agent-browser/config.json .local/bin/update-browser .config/mise/github_tokens.toml .config/gh/hosts.yml .config/shell/credentials.sh .cargo .m2 .gradle; do
                 test ! -e "$test_home/$target"
               done
             fi

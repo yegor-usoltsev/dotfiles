@@ -5,7 +5,7 @@ description: Open or update a concise pull request on GitHub or Gitea. Use when 
 
 # Open PR
 
-Check the branch for an existing PR; update it instead of opening a duplicate. In T3 Code, prefer its pull request tools for lookup, creation and edits. Otherwise use `gh` for GitHub or `tea` for Gitea, according to `origin`. Review the diff against the intended base before filing.
+Check the branch for an existing PR; update it instead of opening a duplicate. In T3 Code, prefer its pull request tools for lookup, creation and edits. Otherwise use `gh` for GitHub or `gt` for Gitea, according to `origin`. Review the diff against the intended base before filing.
 
 ## Title
 
@@ -38,7 +38,7 @@ Open a real PR rather than a draft so CI and review bots run. Pass the body dire
 ```sh
 body=$(mktemp -t pr-body.XXXXXX.md)
 gh pr create --base "$base" --title "$title" --body-file "$body"
-tea pr create --base "$base" --title "$title" --description-file "$body"
+gt pr create --base "$base" --title "$title" --body-file "$body"
 ```
 
 ## Media
@@ -46,13 +46,7 @@ tea pr create --base "$base" --title "$title" --description-file "$body"
 Attach screenshots and recordings to the PR itself, not as gist links.
 
 - GitHub: pass each file with `--attach` to `gh pr create`, `gh pr edit` or `gh pr comment` and reference it by local path, alone on its line (`![alt](./shot.webp)`, `![](./rec.mp4)`); gh uploads it and swaps in the URL. gh rewrites no other syntax, and GitHub drops `<video>` tags that point elsewhere.
-- Gitea: `tea` cannot upload, so open the PR, upload with curl, embed the URLs as the global media rule says and run `tea pr edit <n> --description-file "$body"`:
-
-```sh
-token=$(cat ~/{.config,Library/Application\ Support}/tea/config.yml 2>/dev/null | yq -r '.logins[] | select(.url == "https://gitea.usoltsev.xyz") | .token')
-curl -sf -K <(printf 'header = "Authorization: token %s"\n' "$token") -F attachment=@rec.mp4 \
-  "https://gitea.usoltsev.xyz/api/v1/repos/<owner>/<repo>/issues/<n>/assets" | jq -r .browser_download_url
-```
+- Gitea: open the PR, upload each file with `gt pr attachment upload <n> <file> --json url --jq .url`, embed the returned URLs as the global media rule says and run `gt pr edit <n> --body-file "$body"`.
 
 If `gh pr create` fails because the GraphQL rate limit is used up, open it through REST: `gh api repos/<owner>/<repo>/pulls -f title=... -f head=... -f base=... -F body=@"$body"`.
 
