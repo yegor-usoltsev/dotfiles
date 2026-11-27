@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ template "script-header" . }}
+# Token hash: {{ dig "giteaToken" "" .secrets | sha256sum }}
+
+"$CHEZMOI_EXECUTABLE" --config "$CHEZMOI_CONFIG_FILE" dump-config --format=json |
+	jq -er '.data.secrets.giteaToken | select(type == "string" and length > 0)' |
+	gt auth login --host https://gitea.usoltsev.xyz --with-token --credential-store file --no-input --yes

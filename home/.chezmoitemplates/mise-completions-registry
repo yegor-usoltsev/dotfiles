@@ -9,6 +9,7 @@ dlv = { zsh = "dlv completion zsh" }
 dufs = { zsh = "dufs --completions zsh" }
 flint-cli = { zsh = "flint completion zsh", completion_name = "flint" }
 git-lfs = { zsh = "git-lfs completion zsh" }
+gt = { zsh = "gt completion zsh", provided_by = "cli" }
 procs = { zsh = "procs --gen-completion-out zsh" }
 sqlc = { zsh = "sqlc completion zsh" }
 tealdeer = { completion_name = "tldr" }

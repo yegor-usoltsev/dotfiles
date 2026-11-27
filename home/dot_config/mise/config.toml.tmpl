@@ -52,8 +52,8 @@ lazygit = "latest"
 gh = "latest"
 git-lfs = "latest"
 "pipx:git-filter-repo" = "latest"
-# Official prebuilt tea from gitea.com releases; the mise registry has no tea entry.
-"forgejo:gitea/tea" = { version = "latest", api_url = "https://gitea.com/api/v1" }
+# Only select the raw executables, not the docs archive or distro packages.
+"forgejo:gitea/cli" = { version = "2.0.0", api_url = "https://gitea.com/api/v1", matching_regex = '-(darwin|linux)-(amd64|arm64)$', bin = "gt" }
 "npm:@yusoltsev/flint-cli" = { version = "latest", allow_builds = true, allow_low_downloads = true, minimum_release_age = "0s" }
 {{- end }}
 

@@ -7,10 +7,11 @@
 {{- end }}
 {{- if not $gitea }}
 .config/git/gitea.credentials
-.config/tea/config.yml
-Library/Application Support/tea/config.yml
 .cargo
 .cargo/**
+{{- end }}
+{{- if or (eq .profile "server") (not $gitea) }}
+.chezmoiscripts/13-gitea-login.sh
 {{- end }}
 {{- if not (or $github $gitea) }}
 .npmrc
@@ -33,7 +34,6 @@ Library/Application Support/tea/config.yml
 {{- if eq .chezmoi.os "darwin" }}
 .bash_profile
 .bashrc
-.config/tea/config.yml
 {{- if not (and (eq .chezmoi.arch "arm64") (eq .profile "workstation")) }}
 Library/LaunchAgents/xyz.usoltsev.t3-emulator-host-gpu.plist
 {{- end }}
@@ -56,7 +56,6 @@ Library/**
 {{- if eq .profile "server" }}
 .config/mise/github_tokens.toml
 .config/gh/hosts.yml
-.config/tea/config.yml
 .cargo
 .cargo/**
 .m2

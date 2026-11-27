@@ -22,6 +22,8 @@ Never commit secrets, private keys or generated configuration. Never put secrets
 
 GitHub's shared token needs `repo`, `read:org`, `workflow` and `read:packages`. Ansible maps `{github,gitea,drone,docker,flint}_cli_token` to the corresponding `<service>Token`, `ai_router_api_key` to `aiRouterApiKey`, and `cloudflare_account_id`/`cloudflare_api_token` to `cloudflareAccountId`/`cloudflareApiToken`. Bitwarden service tokens use `fleet-cli`; ai-router uses `API Key 1`, and Cloudflare uses `Account ID`/`API Token`. New GitHub/Gitea tokens use the label `fleet-cli`.
 
+Provision `gt` with `gt auth login --with-token --credential-store file` after mise installs it. This works on headless devboxes and leaves the credential format to `gt`; verify a login with `gt auth status --verify`. Git's credential helper is managed separately.
+
 Package credentials are for downloads; leave publishing credentials unconfigured. Maven projects must use repository ids `github` and `gitea`; managed Gradle user properties override project properties. Servers manage Git store files, `.npmrc` and `.netrc`; other CLI logins stay on development profiles.
 
 Agentarium supplies an optional `gradleJvmArgs` in the provisioned devbox data. Keep the cap opt-in through that data; do not infer it from the hostname or set it for every Linux devbox.
